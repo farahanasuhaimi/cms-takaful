@@ -1,450 +1,59 @@
-# Dr Takaful CMS — Client Management System
-
-> A private, self-hosted CRM and dashboard for a Malaysian takaful agent (AIA Public Takaful).  
-> Deployed at: `list.drtakaful.com`  
-> Built with: **Laravel 12 · MySQL · Blade · Alpine.js · Tailwind CSS**
-
----
-
-## Table of Contents
-
-- [Project Overview](#project-overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [System Requirements](#system-requirements)
-- [Installation](#installation)
-- [Environment Configuration](#environment-configuration)
-- [Database Setup](#database-setup)
-- [Folder Structure](#folder-structure)
-- [Modules](#modules)
-- [UI Theme](#ui-theme)
-- [Authentication](#authentication)
-- [Deployment](#deployment)
-- [Subdomain Setup on Hostinger](#subdomain-setup-on-hostinger)
-- [Roadmap](#roadmap)
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
----
-
-## Project Overview
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
-This is a **private, single-user CMS dashboard** built specifically for a takaful agent running the **Dr Takaful** brand. It is not a SaaS product — it is a personal business tool to manage:
+## About Laravel
 
-- Existing policyholders and their active plans
-- New warm and hot leads in the pipeline
-- A log of every client interaction (outreach touchpoints)
-- Strategic audience angles used for prospecting and content
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-The system is accessible from any browser via the subdomain `list.drtakaful.com`, making it usable on mobile, tablet, or desktop anywhere.
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-The agent's main public-facing website is at `drtakaful.com`. This CMS lives on a separate subdomain and is protected by login authentication. No public registration is available.
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
----
+## Learning Laravel
 
-## Features
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
 
-### Module 1 — Policyholders (Existing Clients)
-- View all clients who currently hold active takaful policies
-- Create new policyholder records
-- Edit and update client details
-- Attach one or more policies to each client (plan type, coverage, start/renewal date)
-- See at a glance when each client was last contacted and what was discussed
-- Filter by plan type (Medical, CI, PA, Group, Hibah, etc.)
-- Search by name or phone number
+If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-### Module 2 — Leads Database (Warm & Hot)
-- Maintain a separate list of prospective clients not yet converted
-- Tag each lead as **Hot** (ready to close) or **Warm** (nurturing stage)
-- Record interest area, lead source (referral, social media, event, etc.)
-- Track follow-up urgency and set a next-contact date
-- Promote a lead to policyholder once they sign up
+## Laravel Sponsors
 
-### Module 3 — Follow-up Log (Touchpoint Tracker)
-- Log every outreach interaction against a client or lead
-- Record: date, channel (WhatsApp, phone call, DM, in-person, email), topic discussed, and next action
-- View the full interaction history for any client
-- Dashboard alert for clients/leads who haven't been contacted in over 14 days
+We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
 
-### Module 4 — Reach Angles
-- Define named prospecting angles (e.g., "Critical Illness Awareness", "Medical Card Objections", "Hibah Planning for Married Couples")
-- Each angle has a description, target audience segment, and status
-- Tag clients and leads as having been reached through a specific angle
-- Track how many people have been reached per angle
+### Premium Partners
 
-### Dashboard Overview
-- Summary counts: total policyholders, hot leads, warm leads
-- Recent policyholders list (last 5 modified)
-- Hot & warm leads list (sorted by urgency)
-- Recent follow-up log (last 5 touchpoints)
-- Quick shortcuts: Add New Client, Log Follow-up, Add Lead
+- **[Vehikl](https://vehikl.com)**
+- **[Tighten Co.](https://tighten.co)**
+- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
+- **[64 Robots](https://64robots.com)**
+- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
+- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
+- **[Redberry](https://redberry.international/laravel-development)**
+- **[Active Logic](https://activelogic.com)**
 
----
+## Contributing
 
-## Tech Stack
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-| Layer | Technology | Reason |
-|---|---|---|
-| Backend framework | Laravel 12 | Familiar to developer, robust routing, Eloquent ORM |
-| Database | MySQL | Hosted on Hostinger, widely supported |
-| Frontend templating | Laravel Blade | Server-side rendering, simple and fast |
-| UI interactivity | Alpine.js | Lightweight, no build step, works inline with Blade |
-| CSS framework | Tailwind CSS v3 | Utility-first, fast to customise |
-| Authentication | Laravel Breeze (single user) | Simple session-based auth, no registration |
-| Icons | Heroicons (via CDN or blade-heroicons) | Clean, minimal icon set |
-| HTTP Server | Apache or Nginx (Hostinger shared/VPS) | Standard deployment target |
+## Code of Conduct
 
----
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-## System Requirements
+## Security Vulnerabilities
 
-- PHP >= 8.2
-- Composer >= 2.x
-- Node.js >= 18.x and npm >= 9.x
-- MySQL >= 8.0
-- Laravel 12 compatible environment
-- A Hostinger hosting account with subdomain support (or any LAMP/LEMP stack)
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
----
+## License
 
-## Installation
-
-Clone the repository and install dependencies:
-
-```bash
-git clone https://github.com/YOUR_USERNAME/drtakaful-cms.git
-cd drtakaful-cms
-
-# Install PHP dependencies
-composer install
-
-# Install Node dependencies
-npm install
-
-# Copy environment file
-cp .env.example .env
-
-# Generate application key
-php artisan key:generate
-```
-
----
-
-## Environment Configuration
-
-Edit `.env` to match your local or production environment:
-
-```env
-APP_NAME="Dr Takaful CMS"
-APP_ENV=production
-APP_KEY=           # generated by php artisan key:generate
-APP_DEBUG=false
-APP_URL=https://list.drtakaful.com
-
-LOG_CHANNEL=stack
-LOG_LEVEL=error
-
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=drtakaful_cms
-DB_USERNAME=your_db_user
-DB_PASSWORD=your_db_password
-
-SESSION_DRIVER=file
-SESSION_LIFETIME=480
-
-CACHE_STORE=file
-QUEUE_CONNECTION=sync
-```
-
----
-
-## Database Setup
-
-Run the migrations to create all tables:
-
-```bash
-php artisan migrate
-```
-
-Then seed the initial admin user:
-
-```bash
-php artisan db:seed --class=AdminUserSeeder
-```
-
-The seeder creates one login account. Default credentials (change immediately after first login):
-
-```
-Email:    admin@drtakaful.com
-Password: takaful2024!
-```
-
-To reset the password manually:
-
-```bash
-php artisan tinker
->>> \App\Models\User::first()->update(['password' => bcrypt('your_new_password')]);
-```
-
----
-
-## Folder Structure
-
-```
-drtakaful-cms/
-├── app/
-│   ├── Http/
-│   │   └── Controllers/
-│   │       ├── DashboardController.php
-│   │       ├── ClientController.php         # Policyholders CRUD
-│   │       ├── LeadController.php           # Warm/Hot Leads CRUD
-│   │       ├── TouchpointController.php     # Follow-up log entries
-│   │       └── ReachAngleController.php     # Audience angles CRUD
-│   └── Models/
-│       ├── User.php
-│       ├── Client.php
-│       ├── Policy.php
-│       ├── Lead.php
-│       ├── Touchpoint.php
-│       └── ReachAngle.php
-├── database/
-│   ├── migrations/
-│   │   ├── create_clients_table.php
-│   │   ├── create_policies_table.php
-│   │   ├── create_leads_table.php
-│   │   ├── create_touchpoints_table.php
-│   │   └── create_reach_angles_table.php
-│   └── seeders/
-│       └── AdminUserSeeder.php
-├── resources/
-│   └── views/
-│       ├── layouts/
-│       │   └── app.blade.php               # Main shell: sidebar + topbar
-│       ├── dashboard/
-│       │   └── index.blade.php
-│       ├── clients/
-│       │   ├── index.blade.php
-│       │   ├── show.blade.php
-│       │   ├── create.blade.php
-│       │   └── edit.blade.php
-│       ├── leads/
-│       │   ├── index.blade.php
-│       │   ├── create.blade.php
-│       │   └── edit.blade.php
-│       ├── touchpoints/
-│       │   ├── index.blade.php
-│       │   └── create.blade.php
-│       └── angles/
-│           ├── index.blade.php
-│           └── create.blade.php
-├── routes/
-│   └── web.php
-├── public/
-├── .env.example
-├── tailwind.config.js
-├── vite.config.js
-└── package.json
-```
-
----
-
-## Modules
-
-### Database Schema
-
-#### `clients` table
-```
-id               bigint (PK)
-name             string
-phone            string (Malaysian format: 60xxxxxxxxx)
-ic_no            string (nullable)
-email            string (nullable)
-type             enum: policyholder, lead
-notes            text (nullable)
-created_at
-updated_at
-```
-
-#### `policies` table
-```
-id               bigint (PK)
-client_id        FK → clients.id
-plan_type        enum: medical, critical_illness, personal_accident, group, hibah, income, other
-plan_name        string (e.g. "A-Plus Med")
-coverage_amount  decimal (nullable)
-start_date       date
-renewal_date     date (nullable)
-premium_monthly  decimal (nullable)
-notes            text (nullable)
-created_at
-updated_at
-```
-
-#### `leads` table
-```
-id               bigint (PK)
-name             string
-phone            string
-source           enum: referral, social_media, cold_outreach, event, walk_in, other
-interest_area    string (free text: e.g. "Medical Card + CI")
-temperature      enum: hot, warm
-stage            enum: new, contacted, presented, negotiating, stalled
-next_contact     date (nullable)
-notes            text (nullable)
-converted_at     timestamp (nullable, set when promoted to client)
-created_at
-updated_at
-```
-
-#### `touchpoints` table
-```
-id               bigint (PK)
-touchable_type   string (polymorphic: App\Models\Client or App\Models\Lead)
-touchable_id     bigint (polymorphic FK)
-contacted_at     datetime
-channel          enum: whatsapp, phone_call, in_person, dm_instagram, dm_facebook, email, other
-topic            string
-notes            text (nullable)
-next_action      string (nullable)
-next_action_date date (nullable)
-created_at
-updated_at
-```
-
-#### `reach_angles` table
-```
-id               bigint (PK)
-title            string
-description      text
-target_segment   string (e.g. "Working adults 30–45", "Married couples")
-status           enum: active, paused, archived
-created_at
-updated_at
-```
-
-#### `angle_client` (pivot table)
-```
-id               bigint (PK)
-reach_angle_id   FK → reach_angles.id
-client_id        FK → clients.id (can also be leads if you expand later)
-reached_at       timestamp
-```
-
----
-
-## UI Theme
-
-The application uses a **Matcha × Strawberry** colour palette — calm and professional with a warm accent.
-
-### Colour Tokens (Tailwind CSS custom theme)
-
-```js
-// tailwind.config.js
-theme: {
-  extend: {
-    colors: {
-      matcha: {
-        50:  '#e8f0eb',
-        100: '#c5d9cc',
-        400: '#6a9b78',
-        600: '#4a7c59',
-        800: '#2d5a3d',
-        900: '#1a3324',
-      },
-      strawberry: {
-        50:  '#fceef2',
-        100: '#f5c8d5',
-        400: '#e07090',
-        600: '#c94f6d',
-        800: '#8f2a47',
-      }
-    }
-  }
-}
-```
-
-### Design Principles
-
-- **Sidebar**: dark matcha (`#2d5a3d`) with white text
-- **Active nav item**: left border accent in strawberry, slightly lighter background
-- **Primary buttons**: matcha green
-- **Hot lead tags**: strawberry light background, strawberry text
-- **Warm lead tags**: amber/orange tones
-- **Active policyholder tags**: matcha light background, matcha text
-- **Card surfaces**: clean white with subtle matcha-tinted border (`rgba(74,124,89,0.15)`)
-- **Typography**: system sans-serif for UI, generous line height
-- **Overall feel**: Claude-like simplicity — lots of whitespace, no clutter, every element purposeful
-
----
-
-## Authentication
-
-This system uses **Laravel Breeze** configured for **single-user session login**. There is no public registration endpoint — the registration routes are removed.
-
-Only one user account exists. Login is via email and password at `list.drtakaful.com/login`.
-
-Session lifetime is set to 480 minutes (8 hours) for convenience during a full workday.
-
-To protect all routes, every controller and route group is wrapped in the `auth` middleware.
-
----
-
-## Deployment
-
-### Build assets for production
-
-```bash
-npm run build
-```
-
-### Upload to Hostinger
-
-Upload the entire project to your Hostinger file manager or via FTP/SSH to the subdomain directory (e.g. `/public_html/list/` or a dedicated subdomain folder).
-
-Point the document root to the `/public` directory of the Laravel project.
-
-### Set correct permissions
-
-```bash
-chmod -R 755 storage bootstrap/cache
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-```
-
----
-
-## Subdomain Setup on Hostinger
-
-1. Log in to Hostinger hPanel
-2. Go to **Domains → Subdomains**
-3. Create subdomain: `list` → points to `drtakaful.com`
-4. Set the **document root** to the `/public` folder of this project
-5. If on shared hosting, ensure `.htaccess` is enabled for Laravel routing
-6. Make sure `mod_rewrite` is active (standard on Hostinger shared)
-
----
-
-## Roadmap
-
-- [ ] Module 1: Policyholders CRUD
-- [ ] Module 2: Leads DB (Warm/Hot)
-- [ ] Module 3: Follow-up Log
-- [ ] Module 4: Reach Angles
-- [ ] Dashboard with stats
-- [ ] Search across all clients
-- [ ] Export clients to CSV
-- [ ] WhatsApp deep link from lead/client card (`wa.me/60...`)
-- [ ] Renewal date alert on dashboard (policies renewing in next 30 days)
-- [ ] Birthday reminder (if DOB stored)
-- [ ] Mobile-optimised views
-- [ ] Dark mode toggle
-
----
-
-## Author
-
-**Hana** — Life Planner & Takaful Consultant  
-AIA Public Takaful · Dr Takaful brand  
-Website: [drtakaful.com](https://drtakaful.com)  
-IG: [@nufas](https://instagram.com/nufas)
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
