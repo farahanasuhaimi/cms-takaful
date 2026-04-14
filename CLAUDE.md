@@ -24,7 +24,7 @@ The system helps the agent:
 
 | Layer | Technology | Notes |
 |---|---|---|
-| Backend | **Laravel 11** | Use the latest Laravel 11 conventions. Do not use Laravel 10 patterns. |
+| Backend | **Laravel 12** | Use the latest Laravel 12 conventions. Do not use Laravel 10 or 11 patterns. |
 | Database | **MySQL 8** | Hosted on Hostinger. All migrations must be MySQL-compatible. |
 | Templating | **Laravel Blade** | All views are Blade. Do NOT use Livewire, Inertia, or Vue. |
 | UI interactivity | **Alpine.js v3** | Load via CDN in the layout. Use for dropdowns, modals, toggles only. |
@@ -611,7 +611,7 @@ After installing Breeze:
 
 Build in this exact sequence to avoid dependency issues:
 
-1. Run `laravel new drtakaful-cms --breeze --stack=blade`
+1. Run `laravel new drtakaful-cms` and select **Blade** stack when prompted (Laravel 12 interactive installer)
 2. Configure `.env` database credentials
 3. Run Tailwind config setup, install `@tailwindcss/forms`
 4. Remove registration routes

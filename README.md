@@ -2,7 +2,7 @@
 
 > A private, self-hosted CRM and dashboard for a Malaysian takaful agent (AIA Public Takaful).  
 > Deployed at: `list.drtakaful.com`  
-> Built with: **Laravel 11 · MySQL · Blade · Alpine.js · Tailwind CSS**
+> Built with: **Laravel 12 · MySQL · Blade · Alpine.js · Tailwind CSS**
 
 ---
 
@@ -83,7 +83,7 @@ The agent's main public-facing website is at `drtakaful.com`. This CMS lives on 
 
 | Layer | Technology | Reason |
 |---|---|---|
-| Backend framework | Laravel 11 | Familiar to developer, robust routing, Eloquent ORM |
+| Backend framework | Laravel 12 | Familiar to developer, robust routing, Eloquent ORM |
 | Database | MySQL | Hosted on Hostinger, widely supported |
 | Frontend templating | Laravel Blade | Server-side rendering, simple and fast |
 | UI interactivity | Alpine.js | Lightweight, no build step, works inline with Blade |
@@ -100,7 +100,7 @@ The agent's main public-facing website is at `drtakaful.com`. This CMS lives on 
 - Composer >= 2.x
 - Node.js >= 18.x and npm >= 9.x
 - MySQL >= 8.0
-- Laravel 11 compatible environment
+- Laravel 12 compatible environment
 - A Hostinger hosting account with subdomain support (or any LAMP/LEMP stack)
 
 ---
