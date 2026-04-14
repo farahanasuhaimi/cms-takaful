@@ -1,59 +1,129 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Dr Takaful CMS
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> Private client management system for a Malaysian takaful agent (AIA Public Takaful).
+> Deployed at: `list.drtakaful.com`
+> Built with: **Laravel 12 · MySQL · Blade · Alpine.js v3 · Tailwind CSS**
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## What This Is
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+A single-user CRM dashboard for Hana, a takaful consultant running the **Dr Takaful** brand. Manages policyholders, leads, outreach interactions, and prospecting strategy — all in one place.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Modules
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+| Module | Status | Description |
+|---|---|---|
+| Auth | ✅ Done | Login only (no registration). Breeze, matcha-themed. |
+| Dashboard | ✅ Done | Stats, recent clients, hot leads, follow-up log, reach angles. |
+| Policyholders | ✅ Done | Full CRUD. Inline policy attach with catalog selector. Touchpoint log. |
+| Leads | ✅ Done | Hot/warm split, stage tracking, convert to client. Inline touchpoint log. |
+| Follow-up Log | ✅ Done | Polymorphic touchpoints across clients and leads. Filter by channel. |
+| Reach Angles | ✅ Done | Prospecting strategy cards. Tag clients to angles. |
+| Plan Catalog | ✅ Done | Register plan products with dynamic JSON attributes. Under Settings. |
+| Auto-renewal | ✅ Done | Renewal date computed from start date + frequency. Never goes stale. |
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## Roadmap (Not Yet Built)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- [ ] Renewal alert on dashboard — highlight policies renewing in the next 30 days
+- [ ] Export clients to CSV
+- [ ] Birthday reminder (if DOB stored)
+- [ ] Mobile-optimised views
+- [ ] Dark mode toggle
+- [ ] Search across leads (currently search only covers clients)
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Stack
 
-## Contributing
+| Layer | Technology |
+|---|---|
+| Backend | Laravel 12 (PHP 8.2+) |
+| Database | MySQL 8 |
+| Templating | Laravel Blade |
+| UI interactivity | Alpine.js v3 (CDN) |
+| CSS | Tailwind CSS v3 — matcha × strawberry theme |
+| Auth | Laravel Breeze (session, single user) |
+| Build tool | Vite |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## Local Setup
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+git clone https://github.com/farahanasuhaimi/cms-takaful.git
+cd cms-takaful
 
-## Security Vulnerabilities
+composer install
+npm install
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+cp .env.example .env
+php artisan key:generate
+```
 
-## License
+Edit `.env` — set your DB credentials:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=cms_takaful
+DB_USERNAME=root
+DB_PASSWORD=your_password
+```
+
+Then:
+
+```bash
+php artisan migrate
+php artisan db:seed --class=AdminUserSeeder
+npm run build
+php artisan serve
+```
+
+Visit `http://localhost:8000` and log in:
+
+```
+Email:    admin@drtakaful.com
+Password: takaful2024!
+```
+
+Change the password after first login via tinker:
+```bash
+php artisan tinker
+>>> \App\Models\User::first()->update(['password' => bcrypt('your_new_password')]);
+```
+
+---
+
+## Deployment (Hostinger)
+
+1. Upload project to subdomain directory (e.g. `/public_html/list/`)
+2. Set document root to the `/public` folder
+3. Ensure `mod_rewrite` is enabled (standard on Hostinger shared)
+4. Run on server:
+
+```bash
+composer install --no-dev --optimize-autoloader
+npm run build
+php artisan migrate --force
+php artisan db:seed --class=AdminUserSeeder
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+chmod -R 755 storage bootstrap/cache
+```
+
+---
+
+## Login
+
+`list.drtakaful.com/login` — session-based, 8-hour lifetime. No public registration.
+
+---
+
+*Built by Hana · AIA Public Takaful · Dr Takaful brand*
