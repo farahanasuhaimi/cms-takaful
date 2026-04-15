@@ -27,6 +27,24 @@ class Policy extends Model
     }
 
     /**
+     * Estimated first-year commission in RM.
+     * Uses planProduct commission_first_year (%) × annualised premium.
+     * Returns null if any required data is missing.
+     */
+    public function estimatedCommissionFirstYear(): ?float
+    {
+        if (! $this->premium_monthly || ! $this->planProduct?->commission_first_year) {
+            return null;
+        }
+
+        $annualPremium = $this->frequency === 'yearly'
+            ? $this->premium_monthly
+            : $this->premium_monthly * 12;
+
+        return round($annualPremium * ($this->planProduct->commission_first_year / 100), 2);
+    }
+
+    /**
      * Compute the next upcoming renewal date from today, based on start_date + frequency.
      * Monthly: same day-of-month each month.
      * Yearly:  same day-of-year each year.

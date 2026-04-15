@@ -319,6 +319,39 @@
                 @endif
             </div>
 
+            {{-- 1st Year Commission Estimate --}}
+            @php
+                $commissionBreakdown = $client->policies
+                    ->map(fn($p) => ['policy' => $p, 'amount' => $p->estimatedCommissionFirstYear()])
+                    ->filter(fn($row) => $row['amount'] !== null)
+                    ->values();
+                $totalCommission = $commissionBreakdown->sum('amount');
+            @endphp
+            @if ($commissionBreakdown->count())
+            <div class="bg-amber-50 rounded-xl border border-amber-200 p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-semibold text-amber-800">Est. Commission (Yr 1)</h3>
+                    <span class="text-sm font-bold text-amber-700">RM {{ number_format($totalCommission, 2) }}</span>
+                </div>
+                <ul class="divide-y divide-amber-100">
+                    @foreach ($commissionBreakdown as $row)
+                        <li class="py-2 flex items-start justify-between">
+                            <div>
+                                <p class="text-xs font-medium text-gray-700">{{ $row['policy']->planProduct->name }}</p>
+                                <p class="text-xs text-gray-400">
+                                    {{ $row['policy']->planProduct->commission_first_year }}% ×
+                                    RM {{ number_format($row['policy']->premium_monthly, 2) }}/{{ $row['policy']->frequency ?? 'mo' }}
+                                </p>
+                            </div>
+                            <span class="text-xs font-semibold text-amber-600 ml-2 whitespace-nowrap">
+                                RM {{ number_format($row['amount'], 2) }}
+                            </span>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+
             {{-- Reach Angles --}}
             <div class="bg-white rounded-xl border border-gray-200 p-5">
                 <h3 class="text-sm font-semibold text-gray-700 mb-3">Reach Angles</h3>

@@ -9,7 +9,7 @@
     </x-slot>
 
     {{-- Stats row --}}
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <div class="bg-white rounded-xl border border-gray-200 px-5 py-4">
             <p class="text-xs text-gray-500 uppercase tracking-wide font-medium">Total Policyholders</p>
             <p class="text-3xl font-bold text-matcha-800 mt-1">{{ $totalClients }}</p>
@@ -32,7 +32,51 @@
                 <p class="text-sm text-gray-400 mt-2">No outreach yet</p>
             @endif
         </div>
+        <div class="bg-white rounded-xl border border-gray-200 px-5 py-4">
+            <p class="text-xs text-gray-500 uppercase tracking-wide font-medium">Est. Commission (Yr 1)</p>
+            @if ($totalEstimatedCommission > 0)
+                <p class="text-3xl font-bold text-amber-600 mt-1">RM {{ number_format($totalEstimatedCommission, 0) }}</p>
+            @else
+                <p class="text-sm text-gray-400 mt-2">No data yet</p>
+            @endif
+        </div>
     </div>
+
+    {{-- Renewal alert --}}
+    @if ($renewingSoon->count())
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-4">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-sm font-semibold text-amber-800">Renewals in the Next 30 Days</h2>
+                <span class="text-xs font-medium bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full">
+                    {{ $renewingSoon->count() }} {{ Str::plural('policy', $renewingSoon->count()) }}
+                </span>
+            </div>
+            <ul class="divide-y divide-amber-100">
+                @foreach ($renewingSoon as $policy)
+                    @php $daysLeft = (int) now()->startOfDay()->diffInDays($policy->computed_renewal, false); @endphp
+                    <li class="py-2.5 flex items-center justify-between">
+                        <div>
+                            <a href="{{ route('clients.show', $policy->client) }}"
+                               class="text-sm font-medium text-gray-800 hover:text-matcha-600">
+                                {{ $policy->client->name }}
+                            </a>
+                            <p class="text-xs text-gray-500">
+                                {{ ucfirst(str_replace('_', ' ', $policy->plan_type)) }}
+                                @if ($policy->plan_name) · {{ $policy->plan_name }} @endif
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3 ml-2">
+                            <span class="text-xs text-gray-500">{{ $policy->computed_renewal->format('d M Y') }}</span>
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap
+                                {{ $daysLeft <= 7 ? 'bg-strawberry-100 text-strawberry-700' : 'bg-amber-100 text-amber-700' }}">
+                                {{ $daysLeft === 0 ? 'Today' : $daysLeft . 'd left' }}
+                            </span>
+                        </div>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
     {{-- Two-column: Recent Clients + Urgent Leads --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
@@ -110,6 +154,57 @@
         </div>
 
     </div>
+
+    {{-- Two-column: Top Commission + Top Plan Conversion --}}
+    @if ($topCommissionClients->count() || $topPlanProducts->count())
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+
+        {{-- Top Commission Revenue --}}
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+            <h2 class="text-sm font-semibold text-gray-700 mb-4">Top Commission Revenue (Yr 1)</h2>
+            @if ($topCommissionClients->count())
+                <ul class="divide-y divide-gray-100">
+                    @foreach ($topCommissionClients as $c)
+                        <li class="py-2.5 flex items-center justify-between">
+                            <a href="{{ route('clients.show', $c) }}"
+                               class="text-sm font-medium text-gray-800 hover:text-matcha-600">
+                                {{ $c->name }}
+                            </a>
+                            <span class="text-sm font-semibold text-amber-600 ml-2 whitespace-nowrap">
+                                RM {{ number_format($c->total_commission, 2) }}
+                            </span>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="text-sm text-gray-400">No commission data yet. Add plan products with commission rates.</p>
+            @endif
+        </div>
+
+        {{-- Top Plan Conversion --}}
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+            <h2 class="text-sm font-semibold text-gray-700 mb-4">Top Plans by Conversion</h2>
+            @if ($topPlanProducts->count())
+                <ul class="divide-y divide-gray-100">
+                    @foreach ($topPlanProducts as $product)
+                        <li class="py-2.5 flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">{{ $product->name }}</p>
+                                <p class="text-xs text-gray-400">{{ ucfirst(str_replace('_', ' ', $product->plan_type)) }}</p>
+                            </div>
+                            <span class="text-sm font-semibold text-matcha-600 ml-2 whitespace-nowrap">
+                                {{ $product->policies_count }} {{ Str::plural('policy', $product->policies_count) }}
+                            </span>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="text-sm text-gray-400">No policies linked to plan products yet.</p>
+            @endif
+        </div>
+
+    </div>
+    @endif
 
     {{-- Two-column: Follow-up Log + Reach Angles --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">

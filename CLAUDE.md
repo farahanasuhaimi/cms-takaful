@@ -202,6 +202,22 @@ Schema::create('reach_angles', function (Blueprint $table) {
 });
 ```
 
+### Migration: `create_plan_products_table`
+
+```php
+Schema::create('plan_products', function (Blueprint $table) {
+    $table->id();
+    $table->enum('plan_type', ['medical','critical_illness','personal_accident','group','hibah','income','other']);
+    $table->string('name');
+    $table->decimal('commission_first_year', 10, 2)->nullable(); // percentage, e.g. 12.50 = 12.5%
+    $table->json('attributes')->nullable();
+    $table->text('notes')->nullable();
+    $table->timestamps();
+});
+```
+
+> **Note:** `policies` table no longer has a `renewal_date` column. It was replaced with `frequency` enum (`monthly`/`yearly`). Renewal date is computed dynamically via `Policy::nextRenewalDate()`. The `policies` table also has `plan_product_id` (nullable FK to `plan_products`).
+
 ### Migration: `create_angle_client_table` (pivot)
 
 ```php
@@ -244,18 +260,21 @@ class Client extends Model {
 ```php
 class Policy extends Model {
     protected $fillable = [
-        'client_id', 'plan_type', 'plan_name',
-        'coverage_amount', 'start_date', 'renewal_date', 'premium_monthly', 'notes'
+        'client_id', 'plan_product_id', 'plan_type', 'plan_name',
+        'coverage_amount', 'start_date', 'frequency', 'premium_monthly', 'notes'
     ];
 
-    protected $casts = [
-        'start_date'   => 'date',
-        'renewal_date' => 'date',
-    ];
+    protected $casts = ['start_date' => 'date'];
 
-    public function client() {
-        return $this->belongsTo(Client::class);
-    }
+    public function client() { return $this->belongsTo(Client::class); }
+    public function planProduct() { return $this->belongsTo(PlanProduct::class); }
+
+    // Computes next renewal date from start_date + frequency (monthly/yearly)
+    public function nextRenewalDate(): ?Carbon { ... }
+
+    // Estimated 1st year commission in RM: annualised premium × planProduct commission rate
+    // Monthly: premium × 12 × rate%. Yearly: premium × rate%. Returns null if data missing.
+    public function estimatedCommissionFirstYear(): ?float { ... }
 }
 ```
 
@@ -359,6 +378,10 @@ Remove the default `/register` route from `routes/auth.php` or the Breeze-genera
   - `$recentClients` — latest 5 clients (by `updated_at`)
   - `$urgentLeads` — leads where `temperature = hot` and `converted_at IS NULL`, ordered by `next_contact ASC`, limit 5
   - `$recentTouchpoints` — latest 5 touchpoints, eager-load `touchable` (either client or lead)
+  - `$renewingSoon` — policies whose computed `nextRenewalDate()` falls within 30 days, ordered ascending (PHP collection — no `renewal_date` column)
+  - `$topCommissionClients` — top 5 clients ranked by total estimated 1st-year commission (PHP computed via `estimatedCommissionFirstYear()`)
+  - `$totalEstimatedCommission` — sum of all clients' estimated 1st-year commission
+  - `$topPlanProducts` — top 5 plan products ranked by number of policies using them
 
 ### `ClientController`
 - Full resourceful CRUD
@@ -477,8 +500,10 @@ export default {
 ## Layout Shell — `resources/views/layouts/app.blade.php`
 
 The entire app lives inside a two-column shell:
-- Left: fixed sidebar (220px wide, dark matcha background)
+- Left: sidebar (220px wide, dark matcha background) — fixed overlay on mobile (hamburger toggle via Alpine.js), static in flex flow on desktop (`lg:`)
 - Right: flex column — topbar (56px) + scrollable main content area
+
+**Mobile behaviour:** sidebar is hidden by default, slides in from left when hamburger is tapped. Dark backdrop closes it on tap. Topbar search is hidden on mobile (`hidden lg:block`). Tables use `overflow-x-auto` wrappers.
 
 ### Sidebar structure (top to bottom):
 1. Logo area: "Dr Takaful" in white, "list.drtakaful.com" in muted white below

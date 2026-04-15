@@ -23,9 +23,10 @@ class PlanProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'plan_type' => 'required|in:medical,critical_illness,personal_accident,group,hibah,income,other',
-            'name'      => 'required|string|max:255',
-            'notes'     => 'nullable|string',
+            'plan_type'             => 'required|in:medical,critical_illness,personal_accident,group,hibah,income,other',
+            'name'                  => 'required|string|max:255',
+            'commission_first_year' => 'nullable|numeric|min:0|max:100',
+            'notes'                 => 'nullable|string',
         ]);
 
         // Build attributes array from parallel key/value arrays
@@ -41,10 +42,11 @@ class PlanProductController extends Controller
         }
 
         PlanProduct::create([
-            'plan_type'  => $request->plan_type,
-            'name'       => $request->name,
-            'attributes' => $attributes ?: null,
-            'notes'      => $request->notes,
+            'plan_type'             => $request->plan_type,
+            'name'                  => $request->name,
+            'commission_first_year' => $request->commission_first_year,
+            'attributes'            => $attributes ?: null,
+            'notes'                 => $request->notes,
         ]);
 
         return redirect()->route('plan-products.index')
@@ -59,9 +61,10 @@ class PlanProductController extends Controller
     public function update(Request $request, PlanProduct $planProduct)
     {
         $request->validate([
-            'plan_type' => 'required|in:medical,critical_illness,personal_accident,group,hibah,income,other',
-            'name'      => 'required|string|max:255',
-            'notes'     => 'nullable|string',
+            'plan_type'             => 'required|in:medical,critical_illness,personal_accident,group,hibah,income,other',
+            'name'                  => 'required|string|max:255',
+            'commission_first_year' => 'nullable|numeric|min:0|max:100',
+            'notes'                 => 'nullable|string',
         ]);
 
         $attributes = [];
@@ -76,10 +79,11 @@ class PlanProductController extends Controller
         }
 
         $planProduct->update([
-            'plan_type'  => $request->plan_type,
-            'name'       => $request->name,
-            'attributes' => $attributes ?: null,
-            'notes'      => $request->notes,
+            'plan_type'             => $request->plan_type,
+            'name'                  => $request->name,
+            'commission_first_year' => $request->commission_first_year,
+            'attributes'            => $attributes ?: null,
+            'notes'                 => $request->notes,
         ]);
 
         return redirect()->route('plan-products.index')

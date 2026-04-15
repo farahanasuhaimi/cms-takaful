@@ -11,10 +11,25 @@
 <body class="bg-matcha-50 font-sans text-gray-800">
 
 {{-- App shell: sidebar + main --}}
-<div class="flex h-screen overflow-hidden">
+<div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false }">
+
+    {{-- Mobile backdrop --}}
+    <div x-show="sidebarOpen"
+         @click="sidebarOpen = false"
+         x-transition:enter="transition-opacity ease-linear duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition-opacity ease-linear duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-black/40 z-20 lg:hidden">
+    </div>
 
     {{-- Sidebar --}}
-    <aside class="w-56 flex-shrink-0 bg-matcha-800 flex flex-col overflow-y-auto">
+    <aside class="fixed inset-y-0 left-0 z-30 w-56 bg-matcha-800 flex flex-col overflow-y-auto
+                  transform -translate-x-full transition-transform duration-300 ease-in-out
+                  lg:relative lg:translate-x-0 lg:flex-shrink-0 lg:z-auto"
+           :class="{ 'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen }">
 
         {{-- Logo area --}}
         <div class="px-5 py-6 border-b border-matcha-900">
@@ -115,18 +130,26 @@
     </aside>
 
     {{-- Right side: topbar + content --}}
-    <div class="flex-1 flex flex-col overflow-hidden">
+    <div class="flex-1 flex flex-col overflow-hidden min-w-0">
 
         {{-- Topbar --}}
-        <header class="h-14 bg-white border-b border-gray-200 flex items-center px-6 gap-4 flex-shrink-0">
+        <header class="h-14 bg-white border-b border-gray-200 flex items-center px-4 lg:px-6 gap-3 flex-shrink-0">
+
+            {{-- Hamburger (mobile only) --}}
+            <button @click="sidebarOpen = !sidebarOpen"
+                    class="lg:hidden p-1.5 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-100 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
 
             {{-- Page title --}}
             <h1 class="text-sm font-semibold text-gray-700 whitespace-nowrap">
                 {{ $pageTitle ?? 'Dashboard' }}
             </h1>
 
-            {{-- Search (centre) --}}
-            <div class="flex-1 max-w-sm mx-auto">
+            {{-- Search (desktop only — per-page search bars handle mobile) --}}
+            <div class="flex-1 max-w-sm mx-auto hidden lg:block">
                 <form method="GET" action="{{ route('clients.index') }}">
                     <input type="text" name="q" value="{{ request('q') }}"
                            placeholder="Search clients..."

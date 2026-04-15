@@ -30,6 +30,7 @@
     {{-- Table --}}
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         @if ($clients->count())
+            <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="border-b border-gray-100 bg-gray-50 text-left">
@@ -84,6 +85,8 @@
                     @endforeach
                 </tbody>
             </table>
+
+            </div>{{-- end overflow-x-auto --}}
 
             {{-- Pagination --}}
             @if ($clients->hasPages())

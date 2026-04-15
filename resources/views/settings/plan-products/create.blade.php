@@ -32,6 +32,15 @@
                         </div>
                     </div>
 
+                    <div>
+                        <label for="commission_first_year" class="block text-sm font-medium text-gray-700 mb-1">1st Year Commission (%)</label>
+                        <input type="number" id="commission_first_year" name="commission_first_year" step="0.01" min="0" max="100"
+                               value="{{ old('commission_first_year') }}"
+                               placeholder="e.g. 12.50"
+                               class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400 @error('commission_first_year') border-red-400 @enderror" />
+                        @error('commission_first_year') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    </div>
+
                     {{-- Dynamic Attributes --}}
                     @php
                         $initialRows = [];

@@ -17,22 +17,23 @@ A single-user CRM dashboard for Hana, a takaful consultant running the **Dr Taka
 | Module | Status | Description |
 |---|---|---|
 | Auth | ✅ Done | Login only (no registration). Breeze, matcha-themed. |
-| Dashboard | ✅ Done | Stats, recent clients, hot leads, follow-up log, reach angles. |
-| Policyholders | ✅ Done | Full CRUD. Inline policy attach with catalog selector. Touchpoint log. |
+| Dashboard | ✅ Done | Stats (clients, leads, commission, last outreach), renewal alerts, top commission revenue, top plan conversion, recent clients, hot leads, follow-up log, reach angles. |
+| Policyholders | ✅ Done | Full CRUD. Inline policy attach with catalog selector. Touchpoint log. 1st year commission estimate card per client. |
 | Leads | ✅ Done | Hot/warm split, stage tracking, convert to client. Inline touchpoint log. |
 | Follow-up Log | ✅ Done | Polymorphic touchpoints across clients and leads. Filter by channel. |
 | Reach Angles | ✅ Done | Prospecting strategy cards. Tag clients to angles. |
-| Plan Catalog | ✅ Done | Register plan products with dynamic JSON attributes. Under Settings. |
+| Plan Catalog | ✅ Done | Register plan products with dynamic JSON attributes and 1st year commission rate (%). Under Settings. |
 | Auto-renewal | ✅ Done | Renewal date computed from start date + frequency. Never goes stale. |
+| Renewal Alert | ✅ Done | Dashboard banner for policies renewing within 30 days. Red badge ≤ 7 days. |
+| Commission Tracking | ✅ Done | Per-plan commission rate (%). Estimated 1st year commission per client and across all policyholders. |
+| Mobile UI | ✅ Done | Collapsible sidebar with hamburger + backdrop. Tables scroll horizontally on small screens. |
 
 ---
 
 ## Roadmap (Not Yet Built)
 
-- [ ] Renewal alert on dashboard — highlight policies renewing in the next 30 days
 - [ ] Export clients to CSV
 - [ ] Birthday reminder (if DOB stored)
-- [ ] Mobile-optimised views
 - [ ] Dark mode toggle
 - [ ] Search across leads (currently search only covers clients)
 

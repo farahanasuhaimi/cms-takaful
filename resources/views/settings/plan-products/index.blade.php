@@ -45,6 +45,12 @@
                                     </ul>
                                 @endif
 
+                                @if ($product->commission_first_year)
+                                    <p class="mt-2 text-xs text-amber-600 font-medium">
+                                        Commission (yr 1): {{ number_format($product->commission_first_year, 2) }}%
+                                    </p>
+                                @endif
+
                                 @if ($product->notes)
                                     <p class="mt-2 text-xs text-gray-400 border-t border-gray-100 pt-2">{{ $product->notes }}</p>
                                 @endif

@@ -19,6 +19,7 @@
 
         @if ($hotLeads->count())
             <div class="bg-white rounded-xl border border-strawberry-100 overflow-hidden">
+                <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b border-gray-100 bg-strawberry-50/60 text-left">
@@ -105,6 +106,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                </div>{{-- end overflow-x-auto --}}
             </div>
         @else
             <div class="bg-white rounded-xl border border-gray-200 px-5 py-8 text-center">
@@ -124,6 +126,7 @@
 
         @if ($warmLeads->count())
             <div class="bg-white rounded-xl border border-amber-100 overflow-hidden">
+                <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b border-gray-100 bg-amber-50/60 text-left">
@@ -209,6 +212,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                </div>{{-- end overflow-x-auto --}}
             </div>
         @else
             <div class="bg-white rounded-xl border border-gray-200 px-5 py-8 text-center">
