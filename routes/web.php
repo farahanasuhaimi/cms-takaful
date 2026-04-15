@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
 
     // Reach Angles
     Route::resource('angles', ReachAngleController::class);
+    Route::get('content-library', [ReachAngleController::class, 'library'])->name('angles.library');
     Route::post('angles/{angle}/clients/{client}', [ReachAngleController::class, 'attachClient'])->name('angles.attach');
     Route::post('angles/{angle}/generate', [ReachAngleController::class, 'generate'])->name('angles.generate');
     Route::patch('angle-contents/{content}/pin', [ReachAngleController::class, 'pin'])->name('angle-contents.pin');

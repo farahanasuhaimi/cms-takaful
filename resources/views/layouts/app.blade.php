@@ -91,12 +91,21 @@
                 <p class="px-2 text-matcha-200 text-xs font-semibold uppercase tracking-wider mb-1">Strategy</p>
                 <a href="{{ route('angles.index') }}"
                    class="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition
-                          {{ request()->routeIs('angles.*') ? 'bg-white/10 text-white border-l-2 border-strawberry-400' : 'text-matcha-100 hover:bg-white/5 hover:text-white' }}">
+                          {{ request()->routeIs('angles.index') || request()->routeIs('angles.create') || request()->routeIs('angles.edit') ? 'bg-white/10 text-white border-l-2 border-strawberry-400' : 'text-matcha-100 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                     Reach Angles
+                </a>
+                <a href="{{ route('angles.library') }}"
+                   class="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition
+                          {{ request()->routeIs('angles.library') ? 'bg-white/10 text-white border-l-2 border-strawberry-400' : 'text-matcha-100 hover:bg-white/5 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
+                    Content Library
                 </a>
             </div>
 

@@ -68,6 +68,17 @@ class ReachAngleController extends Controller
             ->with('success', 'Angle removed.');
     }
 
+    public function library()
+    {
+        $pinned = AngleContent::with('angle')
+            ->where('is_pinned', true)
+            ->latest()
+            ->get()
+            ->groupBy('angle_id');
+
+        return view('angles.library', compact('pinned'));
+    }
+
     public function generate(ReachAngle $angle, AngleContentService $service)
     {
         try {
