@@ -8,23 +8,17 @@
             <h2 class="text-sm font-semibold text-gray-800 mb-1">DeepSeek API</h2>
             <p class="text-xs text-gray-400 mb-6">Used for AI content generation in Reach Angles. Keys are stored in the database — never in code.</p>
 
-            <form method="POST" action="{{ route('settings.api.update') }}" x-data="{ show: false }">
+            <form method="POST" action="{{ route('settings.api.update') }}">
                 @csrf
 
                 {{-- API Key --}}
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
-                    <div class="relative">
-                        <input :type="show ? 'text' : 'password'"
-                               name="api_key"
-                               value="{{ $apiKey }}"
-                               placeholder="sk-..."
-                               class="w-full rounded-lg border-gray-300 text-sm pr-16 focus:ring-matcha-400 focus:border-matcha-400" />
-                        <button type="button" @click="show = !show"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600">
-                            <span x-text="show ? 'Hide' : 'Show'"></span>
-                        </button>
-                    </div>
+                    <input type="password"
+                           name="api_key"
+                           value="{{ $apiKey }}"
+                           placeholder="sk-..."
+                           class="w-full rounded-lg border-gray-300 text-sm focus:ring-matcha-400 focus:border-matcha-400" />
                     <p class="text-xs text-gray-400 mt-1">Leave blank to keep the existing key unchanged.</p>
                     @error('api_key') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                 </div>
