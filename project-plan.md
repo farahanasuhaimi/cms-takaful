@@ -5,7 +5,7 @@ Source: CLAUDE.md + README.md
 ## Instructions
 - Auto-commit code after each completed todo item
 - Update this file every 5 completed items (checkpoint save)
-- Do not commit this plan file — it is your AI's working reference
+- Commit this file alongside code changes to keep project history in sync
 
 ## Architecture
 
