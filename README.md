@@ -14,19 +14,19 @@ A single-user CRM dashboard for Hana, a takaful consultant running the **Dr Taka
 
 ## Modules
 
-| Module | Status | Description |
-|---|---|---|
-| Auth | ✅ Done | Login only (no registration). Breeze, matcha-themed. |
-| Dashboard | ✅ Done | Stats (clients, leads, commission, last outreach), renewal alerts, top commission revenue, top plan conversion, recent clients, hot leads, follow-up log, reach angles. |
-| Policyholders | ✅ Done | Full CRUD. Inline policy attach with catalog selector. Touchpoint log. 1st year commission estimate card per client. |
-| Leads | ✅ Done | Hot/warm split, stage tracking, convert to client. Inline touchpoint log. |
-| Follow-up Log | ✅ Done | Polymorphic touchpoints across clients and leads. Filter by channel. |
-| Reach Angles | ✅ Done | Prospecting strategy cards. Tag clients to angles. |
-| Plan Catalog | ✅ Done | Register plan products with dynamic JSON attributes and 1st year commission rate (%). Under Settings. |
-| Auto-renewal | ✅ Done | Renewal date computed from start date + frequency. Never goes stale. |
-| Renewal Alert | ✅ Done | Dashboard banner for policies renewing within 30 days. Red badge ≤ 7 days. |
-| Commission Tracking | ✅ Done | Per-plan commission rate (%). Estimated 1st year commission per client and across all policyholders. |
-| Mobile UI | ✅ Done | Collapsible sidebar with hamburger + backdrop. Tables scroll horizontally on small screens. |
+| Module              | Status  | Description                                                                                                                                                             |
+| ------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Auth                | ✅ Done | Login only (no registration). Breeze, matcha-themed.                                                                                                                    |
+| Dashboard           | ✅ Done | Stats (clients, leads, commission, last outreach), renewal alerts, top commission revenue, top plan conversion, recent clients, hot leads, follow-up log, reach angles. |
+| Policyholders       | ✅ Done | Full CRUD. Inline policy attach with catalog selector. Touchpoint log. 1st year commission estimate card per client.                                                    |
+| Leads               | ✅ Done | Hot/warm split, stage tracking, convert to client. Inline touchpoint log.                                                                                               |
+| Follow-up Log       | ✅ Done | Polymorphic touchpoints across clients and leads. Filter by channel.                                                                                                    |
+| Reach Angles        | ✅ Done | Prospecting strategy cards. Tag clients to angles.                                                                                                                      |
+| Plan Catalog        | ✅ Done | Register plan products with dynamic JSON attributes and 1st year commission rate (%). Under Settings.                                                                   |
+| Auto-renewal        | ✅ Done | Renewal date computed from start date + frequency. Never goes stale.                                                                                                    |
+| Renewal Alert       | ✅ Done | Dashboard banner for policies renewing within 30 days. Red badge ≤ 7 days.                                                                                              |
+| Commission Tracking | ✅ Done | Per-plan commission rate (%). Estimated 1st year commission per client and across all policyholders.                                                                    |
+| Mobile UI           | ✅ Done | Collapsible sidebar with hamburger + backdrop. Tables scroll horizontally on small screens.                                                                             |
 
 ---
 
@@ -41,15 +41,15 @@ A single-user CRM dashboard for Hana, a takaful consultant running the **Dr Taka
 
 ## Stack
 
-| Layer | Technology |
-|---|---|
-| Backend | Laravel 12 (PHP 8.2+) |
-| Database | MySQL 8 |
-| Templating | Laravel Blade |
-| UI interactivity | Alpine.js v3 (CDN) |
-| CSS | Tailwind CSS v3 — matcha × strawberry theme |
-| Auth | Laravel Breeze (session, single user) |
-| Build tool | Vite |
+| Layer            | Technology                                  |
+| ---------------- | ------------------------------------------- |
+| Backend          | Laravel 12 (PHP 8.2+)                       |
+| Database         | MySQL 8                                     |
+| Templating       | Laravel Blade                               |
+| UI interactivity | Alpine.js v3 (CDN)                          |
+| CSS              | Tailwind CSS v3 — matcha × strawberry theme |
+| Auth             | Laravel Breeze (session, single user)       |
+| Build tool       | Vite                                        |
 
 ---
 
@@ -88,12 +88,8 @@ php artisan serve
 
 Visit `http://localhost:8000` and log in:
 
-```
-Email:    admin@drtakaful.com
-Password: takaful2024!
-```
-
 Change the password after first login via tinker:
+
 ```bash
 php artisan tinker
 >>> \App\Models\User::first()->update(['password' => bcrypt('your_new_password')]);
@@ -127,4 +123,4 @@ chmod -R 755 storage bootstrap/cache
 
 ---
 
-*Built by Hana · AIA Public Takaful · Dr Takaful brand*
+_Built by Hana · AIA Public Takaful · Dr Takaful brand_
