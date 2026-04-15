@@ -112,6 +112,15 @@
                     </svg>
                     Plan Catalog
                 </a>
+                <a href="{{ route('settings.api') }}"
+                   class="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition
+                          {{ request()->routeIs('settings.*') ? 'bg-white/10 text-white border-l-2 border-strawberry-400' : 'text-matcha-100 hover:bg-white/5 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
+                    API Settings
+                </a>
             </div>
 
         </nav>

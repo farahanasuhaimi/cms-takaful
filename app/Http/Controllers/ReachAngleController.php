@@ -2,15 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AngleContent;
 use App\Models\Client;
 use App\Models\ReachAngle;
+use App\Services\AngleContentService;
 use Illuminate\Http\Request;
 
 class ReachAngleController extends Controller
 {
     public function index()
     {
-        $angles = ReachAngle::withCount('clients')->latest()->get();
+        $angles = ReachAngle::withCount('clients')
+            ->with('pinnedContents')
+            ->latest()
+            ->get();
 
         return view('angles.index', compact('angles'));
     }
@@ -61,6 +66,22 @@ class ReachAngleController extends Controller
 
         return redirect()->route('angles.index')
             ->with('success', 'Angle removed.');
+    }
+
+    public function generate(ReachAngle $angle, AngleContentService $service)
+    {
+        try {
+            $contents = $service->generate($angle);
+            return response()->json(['success' => true, 'contents' => $contents]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+    }
+
+    public function pin(AngleContent $content, AngleContentService $service)
+    {
+        $content = $service->togglePin($content);
+        return response()->json(['is_pinned' => $content->is_pinned]);
     }
 
     public function attachClient(ReachAngle $angle, Client $client)

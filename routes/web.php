@@ -6,6 +6,7 @@ use App\Http\Controllers\LeadController;
 use App\Http\Controllers\TouchpointController;
 use App\Http\Controllers\ReachAngleController;
 use App\Http\Controllers\PlanProductController;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
@@ -31,9 +32,15 @@ Route::middleware('auth')->group(function () {
     // Reach Angles
     Route::resource('angles', ReachAngleController::class);
     Route::post('angles/{angle}/clients/{client}', [ReachAngleController::class, 'attachClient'])->name('angles.attach');
+    Route::post('angles/{angle}/generate', [ReachAngleController::class, 'generate'])->name('angles.generate');
+    Route::patch('angle-contents/{content}/pin', [ReachAngleController::class, 'pin'])->name('angle-contents.pin');
 
     // Settings — Plan Product Catalog
     Route::resource('plan-products', PlanProductController::class)->except(['show']);
+
+    // Settings — API
+    Route::get('settings/api', [SettingController::class, 'api'])->name('settings.api');
+    Route::post('settings/api', [SettingController::class, 'updateApi'])->name('settings.api.update');
 
 });
 
