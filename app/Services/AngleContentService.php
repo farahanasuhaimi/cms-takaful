@@ -62,6 +62,7 @@ class AngleContentService
     {
         $response = Http::withToken($apiKey)
             ->timeout(30)
+            ->withoutVerifying()
             ->post(rtrim($baseUrl, '/') . '/chat/completions', [
                 'model'           => $model,
                 'messages'        => [

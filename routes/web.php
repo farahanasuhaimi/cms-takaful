@@ -44,4 +44,10 @@ Route::middleware('auth')->group(function () {
 
 });
 
+// TEMP — run once on live, then remove
+Route::get('/run-migrations-temp-x9k2', function () {
+    Artisan::call('migrate', ['--force' => true]);
+    return '<pre>' . Artisan::output() . '</pre>';
+});
+
 require __DIR__.'/auth.php';
