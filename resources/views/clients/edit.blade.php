@@ -60,10 +60,7 @@
                         </button>
                         <div x-show="confirm" class="flex items-center gap-2">
                             <span class="text-xs text-gray-600">Are you sure?</span>
-                            <form method="POST" action="{{ route('clients.destroy', $client) }}">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="text-xs text-strawberry-600 font-medium hover:underline">Yes, delete</button>
-                            </form>
+                            <button type="submit" form="delete-client-form" class="text-xs text-strawberry-600 font-medium hover:underline">Yes, delete</button>
                             <button type="button" @click="confirm = false" class="text-xs text-gray-400 hover:text-gray-600">Cancel</button>
                         </div>
                     </div>
@@ -71,5 +68,11 @@
             </form>
         </div>
     </div>
+
+    <!-- Hidden delete form -->
+    <form id="delete-client-form" method="POST" action="{{ route('clients.destroy', $client) }}" class="hidden">
+        @csrf
+        @method('DELETE')
+    </form>
 
 </x-app-layout>

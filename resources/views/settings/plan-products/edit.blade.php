@@ -119,16 +119,19 @@
                                 class="text-xs text-strawberry-500 hover:text-strawberry-700">Delete</button>
                         <div x-show="confirm" class="flex items-center gap-2">
                             <span class="text-xs text-gray-600">Sure?</span>
-                            <form method="POST" action="{{ route('plan-products.destroy', $planProduct) }}">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="text-xs text-strawberry-600 font-medium hover:underline">Yes</button>
-                            </form>
-                            <button @click="confirm = false" class="text-xs text-gray-400">No</button>
+                            <button type="submit" form="delete-plan-form" class="text-xs text-strawberry-600 font-medium hover:underline">Yes</button>
+                            <button type="button" @click="confirm = false" class="text-xs text-gray-400">No</button>
                         </div>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+
+    <!-- Hidden delete form -->
+    <form id="delete-plan-form" method="POST" action="{{ route('plan-products.destroy', $planProduct) }}" class="hidden">
+        @csrf
+        @method('DELETE')
+    </form>
 
 </x-app-layout>
