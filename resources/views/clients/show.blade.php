@@ -8,7 +8,7 @@
         </a>
     </x-slot>
 
-    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6" x-data="{ logOpen: false, prefillTopic: '' }">
 
         {{-- Left column (60%) --}}
         <div class="lg:col-span-3 space-y-5">
@@ -225,16 +225,16 @@
             </div>
 
             {{-- Log Touchpoint --}}
-            <div class="bg-white rounded-xl border border-gray-200 p-6" x-data="{ open: false }">
+            <div class="bg-white rounded-xl border border-gray-200 p-6" id="log-interaction-panel">
                 <div class="flex items-center justify-between">
                     <h3 class="text-sm font-semibold text-gray-700">Log Touchpoint</h3>
-                    <button @click="open = !open"
+                    <button @click="logOpen = !logOpen"
                             class="text-xs text-matcha-600 border border-matcha-200 hover:bg-matcha-50 px-3 py-1.5 rounded-lg transition">
-                        <span x-text="open ? 'Cancel' : '+ Log Interaction'"></span>
+                        <span x-text="logOpen ? 'Cancel' : '+ Log Interaction'"></span>
                     </button>
                 </div>
 
-                <div x-show="open" x-transition class="mt-4">
+                <div x-show="logOpen" x-transition class="mt-4">
                     <form method="POST" action="{{ route('clients.touchpoints.store', $client) }}">
                         @csrf
                         <div class="grid grid-cols-2 gap-3">
@@ -255,7 +255,7 @@
                             </div>
                             <div class="col-span-2">
                                 <label class="block text-xs font-medium text-gray-600 mb-1">Topic <span class="text-strawberry-500">*</span></label>
-                                <input type="text" name="topic" required
+                                <input type="text" name="topic" required x-model="prefillTopic"
                                        class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
                             </div>
                             <div>
@@ -266,7 +266,9 @@
                             <div>
                                 <label class="block text-xs font-medium text-gray-600 mb-1">Next Action Date</label>
                                 <input type="date" name="next_action_date"
+                                       value="{{ now()->addDays(14)->format('Y-m-d') }}"
                                        class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
+                                <p class="text-[10px] text-gray-400 mt-1">Defaults to 14 days (a fortnight).</p>
                             </div>
                             <div class="col-span-2">
                                 <label class="block text-xs font-medium text-gray-600 mb-1">Notes</label>
@@ -302,11 +304,18 @@
                                 </div>
                                 <p class="text-sm text-gray-700 mt-0.5">{{ $tp->topic }}</p>
                                 @if ($tp->next_action)
-                                    <p class="text-xs text-matcha-600 mt-0.5">→ {{ $tp->next_action }}
-                                        @if ($tp->next_action_date)
-                                            <span class="text-gray-400">({{ $tp->next_action_date->format('d M') }})</span>
-                                        @endif
-                                    </p>
+                                    <div class="flex items-center gap-2 mt-0.5">
+                                        <p class="text-xs text-matcha-600">→ {{ $tp->next_action }}
+                                            @if ($tp->next_action_date)
+                                                <span class="text-gray-400">({{ $tp->next_action_date->format('d M') }})</span>
+                                            @endif
+                                        </p>
+                                        <button type="button" 
+                                                @click="logOpen = true; prefillTopic = '{{ addslashes($tp->next_action) }}'; document.getElementById('log-interaction-panel').scrollIntoView({behavior: 'smooth', block: 'center'})" 
+                                                class="text-sm bg-matcha-50 text-matcha-600 hover:bg-matcha-100 hover:text-matcha-800 px-1.5 py-0.5 rounded border border-matcha-200 transition">
+                                            Log this
+                                        </button>
+                                    </div>
                                 @endif
                             </li>
                         @endforeach

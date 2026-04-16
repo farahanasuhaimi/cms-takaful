@@ -36,6 +36,7 @@ A single-user CRM dashboard for Hana, a takaful consultant running the **Dr Taka
 - [ ] Birthday reminder (if DOB stored)
 - [ ] Dark mode toggle
 - [ ] Search across leads (currently search only covers clients)
+- [ ] Create an interaction button to directly open the WhatsApp app
 
 ---
 
