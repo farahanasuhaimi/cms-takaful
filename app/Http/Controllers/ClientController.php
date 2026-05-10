@@ -129,6 +129,34 @@ class ClientController extends Controller
             ->with('success', 'Policy added.');
     }
 
+    public function updatePolicy(Request $request, Client $client, Policy $policy)
+    {
+        $request->validate([
+            'policy_number'   => 'nullable|string|max:100',
+            'plan_type'       => 'required|in:medical,critical_illness,personal_accident,group,hibah,income,other',
+            'plan_name'       => 'nullable|string|max:255',
+            'coverage_amount' => 'nullable|numeric|min:0',
+            'start_date'      => 'nullable|date',
+            'frequency'       => 'nullable|in:monthly,yearly',
+            'premium_monthly' => 'nullable|numeric|min:0',
+            'notes'           => 'nullable|string',
+        ]);
+
+        $policy->update([
+            'policy_number'   => $request->policy_number ?: null,
+            'plan_type'       => $request->plan_type,
+            'plan_name'       => $request->plan_name,
+            'coverage_amount' => $request->coverage_amount,
+            'start_date'      => $request->start_date,
+            'frequency'       => $request->frequency,
+            'premium_monthly' => $request->premium_monthly,
+            'notes'           => $request->notes,
+        ]);
+
+        return redirect()->route('clients.show', $client)
+            ->with('success', 'Policy updated.');
+    }
+
     public function destroyPolicy(Client $client, Policy $policy)
     {
         $policy->delete();

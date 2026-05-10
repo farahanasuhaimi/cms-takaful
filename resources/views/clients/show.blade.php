@@ -176,8 +176,9 @@
 
                 {{-- Policy list --}}
                 @forelse ($client->policies as $policy)
-                    <div class="py-3 border-t border-gray-100 first:border-t-0" x-data="{ del: false }">
-                        <div class="flex items-start justify-between">
+                    <div class="py-3 border-t border-gray-100 first:border-t-0" x-data="{ del: false, editing: false }">
+                        {{-- Policy summary row --}}
+                        <div class="flex items-start justify-between" x-show="!editing">
                             <div>
                                 <span class="inline-block text-xs bg-matcha-50 text-matcha-700 rounded px-2 py-0.5 font-medium">
                                     {{ ucfirst(str_replace('_', ' ', $policy->plan_type)) }}
@@ -213,10 +214,12 @@
                                     @endif
                                 </div>
                             </div>
-                            <div>
+                            <div class="flex items-center gap-3 ml-3 shrink-0">
+                                <button type="button" @click="editing = true"
+                                        class="text-xs text-matcha-600 hover:text-matcha-800">Edit</button>
                                 <button type="button" @click="del = !del"
                                         class="text-xs text-strawberry-400 hover:text-strawberry-600">Remove</button>
-                                <div x-show="del" class="mt-1 flex items-center gap-2">
+                                <div x-show="del" class="flex items-center gap-2">
                                     <span class="text-xs text-gray-500">Sure?</span>
                                     <form method="POST" action="{{ route('clients.policies.destroy', [$client, $policy]) }}">
                                         @csrf @method('DELETE')
@@ -225,6 +228,81 @@
                                     <button @click="del = false" class="text-xs text-gray-400">No</button>
                                 </div>
                             </div>
+                        </div>
+
+                        {{-- Inline edit form --}}
+                        <div x-show="editing" x-transition class="mt-2 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <p class="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wide">Edit Policy</p>
+                            <form method="POST" action="{{ route('clients.policies.update', [$client, $policy]) }}">
+                                @csrf @method('PUT')
+                                <div class="mb-3">
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Policy Number</label>
+                                    <input type="text" name="policy_number" value="{{ $policy->policy_number }}"
+                                           placeholder="e.g. P-123456789"
+                                           class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Plan Type <span class="text-strawberry-500">*</span></label>
+                                        <select name="plan_type" required
+                                                class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400">
+                                            @foreach (['medical','critical_illness','personal_accident','group','hibah','income','other'] as $type)
+                                                <option value="{{ $type }}" @selected($policy->plan_type === $type)>
+                                                    {{ ucfirst(str_replace('_', ' ', $type)) }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Plan Name</label>
+                                        <input type="text" name="plan_name" value="{{ $policy->plan_name }}"
+                                               class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Coverage Amount (RM)</label>
+                                        <input type="number" step="0.01" name="coverage_amount" value="{{ $policy->coverage_amount }}"
+                                               class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Monthly Premium (RM)</label>
+                                        <input type="number" step="0.01" name="premium_monthly" value="{{ $policy->premium_monthly }}"
+                                               class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Start Date</label>
+                                        <input type="date" name="start_date" value="{{ $policy->start_date?->format('Y-m-d') }}"
+                                               class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Premium Frequency</label>
+                                        <div class="flex rounded-lg border border-gray-300 overflow-hidden text-sm">
+                                            <label class="flex-1 flex items-center justify-center gap-1.5 py-2 cursor-pointer has-[:checked]:bg-matcha-600 has-[:checked]:text-white transition">
+                                                <input type="radio" name="frequency" value="monthly" class="sr-only"
+                                                       @checked($policy->frequency === 'monthly' || !$policy->frequency) />
+                                                Monthly
+                                            </label>
+                                            <label class="flex-1 flex items-center justify-center gap-1.5 py-2 cursor-pointer border-l border-gray-300 has-[:checked]:bg-matcha-600 has-[:checked]:text-white transition">
+                                                <input type="radio" name="frequency" value="yearly" class="sr-only"
+                                                       @checked($policy->frequency === 'yearly') />
+                                                Yearly
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Notes</label>
+                                    <textarea name="notes" rows="2"
+                                              class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400">{{ $policy->notes }}</textarea>
+                                </div>
+                                <div class="mt-3 flex gap-2">
+                                    <button type="submit"
+                                            class="bg-matcha-600 hover:bg-matcha-800 text-white text-xs px-4 py-2 rounded-lg transition">
+                                        Save Changes
+                                    </button>
+                                    <button type="button" @click="editing = false"
+                                            class="text-xs text-gray-500 hover:text-gray-700 px-3 py-2">Cancel</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 @empty

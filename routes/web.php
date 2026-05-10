@@ -18,6 +18,7 @@ Route::middleware('auth')->group(function () {
 
     // Policies (nested under clients)
     Route::post('clients/{client}/policies', [ClientController::class, 'storePolicy'])->name('clients.policies.store');
+    Route::put('clients/{client}/policies/{policy}', [ClientController::class, 'updatePolicy'])->name('clients.policies.update');
     Route::delete('clients/{client}/policies/{policy}', [ClientController::class, 'destroyPolicy'])->name('clients.policies.destroy');
 
     // Leads
