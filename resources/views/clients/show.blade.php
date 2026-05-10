@@ -105,6 +105,11 @@
                         <p class="text-xs text-gray-400 mb-3">— or fill in manually below —</p>
                         @endif
 
+                        <div class="mb-3">
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Policy Number</label>
+                            <input type="text" name="policy_number" placeholder="e.g. P-123456789"
+                                   class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
+                        </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div x-show="!selectedProduct">
                                 <label class="block text-xs font-medium text-gray-600 mb-1">Plan Type <span class="text-strawberry-500">*</span></label>
@@ -179,6 +184,9 @@
                                 </span>
                                 @if ($policy->plan_name)
                                     <span class="text-sm text-gray-700 ml-1.5">{{ $policy->plan_name }}</span>
+                                @endif
+                                @if ($policy->policy_number)
+                                    <span class="text-xs text-gray-400 ml-1.5 font-mono">#{{ $policy->policy_number }}</span>
                                 @endif
                                 {{-- Catalog attributes --}}
                                 @if ($policy->planProduct && $policy->planProduct->attributes)

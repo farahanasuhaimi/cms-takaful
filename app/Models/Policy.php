@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Policy extends Model
 {
     protected $fillable = [
-        'client_id', 'plan_product_id', 'plan_type', 'plan_name',
+        'client_id', 'policy_number', 'plan_product_id', 'plan_type', 'plan_name',
         'coverage_amount', 'start_date', 'frequency', 'premium_monthly', 'notes',
     ];
 

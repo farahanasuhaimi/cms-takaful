@@ -92,6 +92,7 @@ class ClientController extends Controller
     public function storePolicy(Request $request, Client $client)
     {
         $request->validate([
+            'policy_number'   => 'nullable|string|max:100',
             'plan_product_id' => 'nullable|exists:plan_products,id',
             'plan_type'       => 'required|in:medical,critical_illness,personal_accident,group,hibah,income,other',
             'plan_name'       => 'nullable|string|max:255',
@@ -113,6 +114,7 @@ class ClientController extends Controller
         }
 
         $client->policies()->create([
+            'policy_number'   => $request->policy_number ?: null,
             'plan_product_id' => $request->plan_product_id ?: null,
             'plan_type'       => $planType,
             'plan_name'       => $planName,
