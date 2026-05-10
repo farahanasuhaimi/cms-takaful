@@ -42,11 +42,15 @@
         </div>
     </div>
 
-    {{-- Renewal alert --}}
-    @if ($renewingSoon->count())
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-4">
+    {{-- Action Required — Renewals + Overdue Follow-ups --}}
+    @if ($renewingSoon->count() || $overdueFollowUps->count())
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+
+        {{-- Renewals in 7 days --}}
+        @if ($renewingSoon->count())
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-5">
             <div class="flex items-center justify-between mb-3">
-                <h2 class="text-sm font-semibold text-amber-800">Renewals in the Next 30 Days</h2>
+                <h2 class="text-sm font-semibold text-amber-800">Renewals This Week</h2>
                 <span class="text-xs font-medium bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full">
                     {{ $renewingSoon->count() }} {{ Str::plural('policy', $renewingSoon->count()) }}
                 </span>
@@ -68,7 +72,7 @@
                         <div class="flex items-center gap-3 ml-2">
                             <span class="text-xs text-gray-500">{{ $policy->computed_renewal->format('d M Y') }}</span>
                             <span class="text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap
-                                {{ $daysLeft <= 7 ? 'bg-strawberry-100 text-strawberry-700' : 'bg-amber-100 text-amber-700' }}">
+                                {{ $daysLeft <= 3 ? 'bg-strawberry-100 text-strawberry-700' : 'bg-amber-100 text-amber-700' }}">
                                 {{ $daysLeft === 0 ? 'Today' : $daysLeft . 'd left' }}
                             </span>
                         </div>
@@ -76,10 +80,72 @@
                 @endforeach
             </ul>
         </div>
+        @endif
+
+        {{-- Overdue Follow-ups --}}
+        @if ($overdueFollowUps->count())
+        <div class="bg-strawberry-50 border border-strawberry-200 rounded-xl p-5">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-sm font-semibold text-strawberry-800">Overdue Follow-ups</h2>
+                <span class="text-xs font-medium bg-strawberry-200 text-strawberry-800 px-2 py-0.5 rounded-full">
+                    {{ $overdueFollowUps->count() }}
+                </span>
+            </div>
+            <ul class="divide-y divide-strawberry-100">
+                @foreach ($overdueFollowUps as $tp)
+                    @php $daysOverdue = (int) now()->startOfDay()->diffInDays($tp->next_action_date); @endphp
+                    <li class="py-2.5 flex items-start justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">{{ $tp->touchable?->name ?? '—' }}</p>
+                            <p class="text-xs text-gray-500 truncate max-w-[180px]">{{ $tp->next_action }}</p>
+                        </div>
+                        <span class="text-xs font-semibold bg-strawberry-100 text-strawberry-700 px-2 py-0.5 rounded-full whitespace-nowrap ml-2">
+                            {{ $daysOverdue }}d overdue
+                        </span>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
+    </div>
     @endif
 
-    {{-- Two-column: Recent Clients + Urgent Leads --}}
+    {{-- Two-column: Hot Leads + Recent Clients --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+
+        {{-- Hot & Warm Leads --}}
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-sm font-semibold text-gray-700">Hot &amp; Warm Leads</h2>
+                <a href="{{ route('leads.index') }}" class="text-xs text-matcha-600 hover:underline">View all</a>
+            </div>
+            @if ($urgentLeads->count())
+                <ul class="divide-y divide-gray-100">
+                    @foreach ($urgentLeads as $lead)
+                        <li class="py-2.5 flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">{{ $lead->name }}</p>
+                                @if ($lead->interest_area)
+                                    <p class="text-xs text-gray-400">{{ $lead->interest_area }}</p>
+                                @endif
+                            </div>
+                            <div class="flex items-center gap-2 ml-2">
+                                @if ($lead->next_contact)
+                                    <span class="text-xs text-gray-400">{{ $lead->next_contact->format('d M') }}</span>
+                                @endif
+                                <span class="text-xs font-medium px-2 py-0.5 rounded-full
+                                    {{ $lead->temperature === 'hot' ? 'bg-strawberry-50 text-strawberry-600' : 'bg-amber-50 text-amber-600' }}">
+                                    {{ ucfirst($lead->temperature) }}
+                                </span>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="text-sm text-gray-400">No active hot leads right now.</p>
+            @endif
+        </div>
 
         {{-- Recent Policyholders --}}
         <div class="bg-white rounded-xl border border-gray-200 p-5">
@@ -117,39 +183,6 @@
                 </ul>
             @else
                 <p class="text-sm text-gray-400">No clients yet. <a href="{{ route('clients.create') }}" class="text-matcha-600 hover:underline">Add your first policyholder.</a></p>
-            @endif
-        </div>
-
-        {{-- Hot & Warm Leads --}}
-        <div class="bg-white rounded-xl border border-gray-200 p-5">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-sm font-semibold text-gray-700">Hot &amp; Warm Leads</h2>
-                <a href="{{ route('leads.index') }}" class="text-xs text-matcha-600 hover:underline">View all</a>
-            </div>
-            @if ($urgentLeads->count())
-                <ul class="divide-y divide-gray-100">
-                    @foreach ($urgentLeads as $lead)
-                        <li class="py-2.5 flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-800">{{ $lead->name }}</p>
-                                @if ($lead->interest_area)
-                                    <p class="text-xs text-gray-400">{{ $lead->interest_area }}</p>
-                                @endif
-                            </div>
-                            <div class="flex items-center gap-2 ml-2">
-                                @if ($lead->next_contact)
-                                    <span class="text-xs text-gray-400">{{ $lead->next_contact->format('d M') }}</span>
-                                @endif
-                                <span class="text-xs font-medium px-2 py-0.5 rounded-full
-                                    {{ $lead->temperature === 'hot' ? 'bg-strawberry-50 text-strawberry-600' : 'bg-amber-50 text-amber-600' }}">
-                                    {{ ucfirst($lead->temperature) }}
-                                </span>
-                            </div>
-                        </li>
-                    @endforeach
-                </ul>
-            @else
-                <p class="text-sm text-gray-400">No active hot leads right now.</p>
             @endif
         </div>
 
@@ -219,7 +252,6 @@
                 <ul class="divide-y divide-gray-100">
                     @foreach ($recentTouchpoints as $tp)
                         <li class="py-2.5 flex items-start gap-3">
-                            {{-- Channel dot --}}
                             <span class="mt-1.5 w-2 h-2 rounded-full flex-shrink-0
                                 {{ $tp->channel === 'whatsapp' ? 'bg-green-400' :
                                    ($tp->channel === 'phone_call' ? 'bg-blue-400' :

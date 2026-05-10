@@ -65,7 +65,7 @@ class DashboardController extends Controller
             ->filter(fn ($p) => $p->policies_count > 0)
             ->values();
 
-        $cutoff = now()->startOfDay()->addDays(30);
+        $cutoff = now()->startOfDay()->addDays(7);
         $renewingSoon = Policy::with('client')
             ->whereNotNull('start_date')
             ->whereNotNull('frequency')
@@ -76,7 +76,16 @@ class DashboardController extends Controller
             })
             ->filter(fn($policy) => $policy->computed_renewal?->lte($cutoff))
             ->sortBy('computed_renewal')
+            ->take(5)
             ->values();
+
+        $overdueFollowUps = Touchpoint::with('touchable')
+            ->whereNotNull('next_action_date')
+            ->whereNotNull('next_action')
+            ->where('next_action_date', '<', now()->startOfDay())
+            ->orderBy('next_action_date', 'asc')
+            ->limit(5)
+            ->get();
 
         return view('dashboard.index', compact(
             'totalClients',
@@ -87,6 +96,7 @@ class DashboardController extends Controller
             'recentTouchpoints',
             'activeAngles',
             'renewingSoon',
+            'overdueFollowUps',
             'topCommissionClients',
             'totalEstimatedCommission',
             'topPlanProducts',
