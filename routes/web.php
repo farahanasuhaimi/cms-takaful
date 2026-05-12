@@ -50,6 +50,7 @@ Route::middleware('auth')->group(function () {
     // Admin — users + invitations
     Route::middleware(EnsureIsAdmin::class)->prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('index');
+        Route::get('activity', [AdminController::class, 'activity'])->name('activity');
         Route::patch('users/{user}/toggle', [AdminController::class, 'toggleActive'])->name('users.toggle');
         Route::get('invitations', [InvitationController::class, 'index'])->name('invitations.index');
         Route::post('invitations', [InvitationController::class, 'store'])->name('invitations.store');

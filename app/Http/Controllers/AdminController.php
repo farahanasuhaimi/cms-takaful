@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -15,6 +16,15 @@ class AdminController extends Controller
         ])->orderBy('id')->get();
 
         return view('admin.index', compact('users'));
+    }
+
+    public function activity()
+    {
+        $logs = ActivityLog::with('user')
+            ->latest()
+            ->paginate(50);
+
+        return view('admin.activity', compact('logs'));
     }
 
     public function toggleActive(User $user)
