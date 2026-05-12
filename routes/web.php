@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MarketplacePolicyController;
 use App\Http\Controllers\MarketplaceStrategyController;
+use App\Http\Controllers\StrategyController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\LeadController;
@@ -57,6 +58,20 @@ Route::middleware('auth')->group(function () {
     Route::get('marketplace/policies', [MarketplacePolicyController::class, 'index'])->name('marketplace.policies');
     Route::post('marketplace/policies/{product}/star', [MarketplacePolicyController::class, 'star'])->name('marketplace.policies.star');
     Route::post('marketplace/policies/{product}/import', [MarketplacePolicyController::class, 'import'])->name('marketplace.policies.import');
+
+    // Strategy Library (user's own + platform-provided)
+    Route::get('strategies', [StrategyController::class, 'index'])->name('strategies.index');
+    Route::get('strategies/create', [StrategyController::class, 'create'])->name('strategies.create');
+    Route::post('strategies', [StrategyController::class, 'store'])->name('strategies.store');
+    Route::post('strategies/generate', [StrategyController::class, 'generate'])->name('strategies.generate');
+    Route::post('strategies/store-generated', [StrategyController::class, 'storeGenerated'])->name('strategies.store-generated');
+    Route::get('strategies/{strategy}', [StrategyController::class, 'show'])->name('strategies.show');
+    Route::get('strategies/{strategy}/edit', [StrategyController::class, 'edit'])->name('strategies.edit');
+    Route::put('strategies/{strategy}', [StrategyController::class, 'update'])->name('strategies.update');
+    Route::delete('strategies/{strategy}', [StrategyController::class, 'destroy'])->name('strategies.destroy');
+    Route::post('strategies/{strategy}/steps', [StrategyController::class, 'storeStep'])->name('strategies.steps.store');
+    Route::put('strategies/{strategy}/steps/{step}', [StrategyController::class, 'updateStep'])->name('strategies.steps.update');
+    Route::delete('strategies/{strategy}/steps/{step}', [StrategyController::class, 'destroyStep'])->name('strategies.steps.destroy');
 
     // Marketplace — Strategy (credits)
     Route::get('marketplace/strategies', [MarketplaceStrategyController::class, 'index'])->name('marketplace.strategies');

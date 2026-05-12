@@ -8,7 +8,7 @@ class MarketplacePurchase extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = ['buyer_user_id', 'listing_id', 'credits_paid', 'imported_content_id'];
+    protected $fillable = ['buyer_user_id', 'listing_id', 'credits_paid', 'imported_content_id', 'imported_strategy_id'];
 
     public function buyer()
     {
