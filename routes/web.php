@@ -1,12 +1,15 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\TouchpointController;
 use App\Http\Controllers\ReachAngleController;
 use App\Http\Controllers\PlanProductController;
 use App\Http\Controllers\SettingController;
+use App\Http\Middleware\EnsureIsAdmin;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
@@ -44,6 +47,21 @@ Route::middleware('auth')->group(function () {
     Route::get('settings/api', [SettingController::class, 'api'])->name('settings.api');
     Route::post('settings/api', [SettingController::class, 'updateApi'])->name('settings.api.update');
 
+    // Admin — users + invitations
+    Route::middleware(EnsureIsAdmin::class)->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/', [AdminController::class, 'index'])->name('index');
+        Route::patch('users/{user}/toggle', [AdminController::class, 'toggleActive'])->name('users.toggle');
+        Route::get('invitations', [InvitationController::class, 'index'])->name('invitations.index');
+        Route::post('invitations', [InvitationController::class, 'store'])->name('invitations.store');
+        Route::delete('invitations/{invitation}', [InvitationController::class, 'destroy'])->name('invitations.destroy');
+    });
+
+});
+
+// Invite registration (guest only)
+Route::middleware('guest')->group(function () {
+    Route::get('invite/{token}', [InvitationController::class, 'show'])->name('invite.show');
+    Route::post('invite/{token}', [InvitationController::class, 'register'])->name('invite.register');
 });
 
 require __DIR__.'/auth.php';

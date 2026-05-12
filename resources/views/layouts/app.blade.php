@@ -134,10 +134,26 @@
 
         </nav>
 
-        {{-- Agent name at bottom --}}
+        {{-- Admin link --}}
+        @if (auth()->user()?->is_admin)
+            <div class="px-3 pb-2">
+                <a href="{{ route('admin.index') }}"
+                   class="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition
+                          {{ request()->routeIs('admin.*') ? 'bg-white/10 text-white border-l-2 border-strawberry-400' : 'text-matcha-100 hover:bg-white/5 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                    Admin Panel
+                </a>
+            </div>
+        @endif
+
+        {{-- User + logout at bottom --}}
         <div class="px-5 py-4 border-t border-matcha-900">
-            <p class="text-matcha-200 text-xs">Hana · AIA Public Takaful</p>
-            <form method="POST" action="{{ route('logout') }}" class="mt-1">
+            <p class="text-matcha-100 text-xs font-medium">{{ auth()->user()?->name }}</p>
+            <p class="text-matcha-200/60 text-xs truncate">{{ auth()->user()?->email }}</p>
+            <form method="POST" action="{{ route('logout') }}" class="mt-2">
                 @csrf
                 <button type="submit" class="text-matcha-200/60 text-xs hover:text-matcha-100 transition">
                     Log out
@@ -180,8 +196,13 @@
                 {{ $actions ?? '' }}
 
                 {{-- Avatar --}}
-                <div class="w-8 h-8 rounded-full bg-matcha-600 flex items-center justify-center text-white text-xs font-semibold">
-                    HN
+                @php
+                    $initials = collect(explode(' ', auth()->user()?->name ?? ''))
+                        ->take(2)->map(fn($w) => strtoupper($w[0] ?? ''))->implode('');
+                @endphp
+                <div class="w-8 h-8 rounded-full bg-matcha-600 flex items-center justify-center text-white text-xs font-semibold"
+                     title="{{ auth()->user()?->name }}">
+                    {{ $initials }}
                 </div>
             </div>
 
