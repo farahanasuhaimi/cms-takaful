@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -11,13 +12,10 @@ return new class extends Migration
         Schema::table('marketplace_listings', function (Blueprint $table) {
             $table->foreignId('strategy_id')->nullable()->after('angle_content_id')
                   ->constrained()->nullOnDelete();
-            $table->change('angle_content_id', function (Blueprint $col) {});
         });
 
-        // Make angle_content_id nullable (separate statement for compatibility)
-        Schema::table('marketplace_listings', function (Blueprint $table) {
-            $table->unsignedBigInteger('angle_content_id')->nullable()->change();
-        });
+        // Make angle_content_id nullable — raw SQL to avoid doctrine/dbal dependency
+        DB::statement('ALTER TABLE marketplace_listings MODIFY COLUMN angle_content_id BIGINT UNSIGNED NULL');
 
         Schema::table('marketplace_purchases', function (Blueprint $table) {
             $table->foreignId('imported_strategy_id')->nullable()->after('imported_content_id')
@@ -35,7 +33,8 @@ return new class extends Migration
         Schema::table('marketplace_listings', function (Blueprint $table) {
             $table->dropForeign(['strategy_id']);
             $table->dropColumn('strategy_id');
-            $table->unsignedBigInteger('angle_content_id')->nullable(false)->change();
         });
+
+        DB::statement('ALTER TABLE marketplace_listings MODIFY COLUMN angle_content_id BIGINT UNSIGNED NOT NULL');
     }
 };
