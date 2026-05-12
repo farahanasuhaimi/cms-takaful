@@ -37,7 +37,8 @@
                         {{-- Content cards --}}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             @foreach ($contents as $content)
-                                <div x-data="{ copied: false, visible: true }"
+                                @php $isListed = isset($listedIds[$content->id]); @endphp
+                                <div x-data="{ copied: false, visible: true, selling: false }"
                                      x-show="visible && (filter === 'all' || filter === '{{ $content->style }}')"
                                      class="bg-white border border-gray-200 rounded-xl p-4">
 
@@ -69,8 +70,40 @@
                                     {{-- Content --}}
                                     <p class="text-sm text-gray-700 leading-relaxed">{{ $content->content }}</p>
 
-                                    {{-- Meta --}}
-                                    <p class="text-xs text-gray-300 mt-3">{{ $content->created_at->format('d M Y') }} · {{ $angle->title }}</p>
+                                    {{-- Meta + sell button --}}
+                                    <div class="flex items-center justify-between mt-3">
+                                        <p class="text-xs text-gray-300">{{ $content->created_at->format('d M Y') }} · {{ $angle->title }}</p>
+                                        @if ($isListed)
+                                            <span class="text-xs text-amber-500 font-medium">Listed</span>
+                                        @else
+                                            <button @click="selling = !selling"
+                                                    class="text-xs text-matcha-600 hover:text-matcha-800 font-medium transition">
+                                                Sell
+                                            </button>
+                                        @endif
+                                    </div>
+
+                                    {{-- Sell form (inline collapse) --}}
+                                    @if (! $isListed)
+                                        <div x-show="selling" x-transition class="mt-3 pt-3 border-t border-gray-100">
+                                            <form method="POST" action="{{ route('marketplace.strategies.store') }}" class="space-y-2">
+                                                @csrf
+                                                <input type="hidden" name="angle_content_id" value="{{ $content->id }}">
+                                                <input type="text" name="title" placeholder="Listing title" required maxlength="255"
+                                                       class="w-full text-xs border-gray-200 rounded-lg px-2.5 py-1.5 focus:ring-matcha-400 focus:border-matcha-400">
+                                                <textarea name="description" placeholder="Short description (optional)" rows="2" maxlength="1000"
+                                                          class="w-full text-xs border-gray-200 rounded-lg px-2.5 py-1.5 focus:ring-matcha-400 focus:border-matcha-400 resize-none"></textarea>
+                                                <div class="flex items-center gap-2">
+                                                    <input type="number" name="price_credits" placeholder="Price (credits)" min="1" max="500" required
+                                                           class="w-32 text-xs border-gray-200 rounded-lg px-2.5 py-1.5 focus:ring-matcha-400 focus:border-matcha-400">
+                                                    <button type="submit"
+                                                            class="flex-1 text-xs bg-matcha-600 hover:bg-matcha-800 text-white px-3 py-1.5 rounded-lg transition">
+                                                        List for Sale
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    @endif
                                 </div>
                             @endforeach
                         </div>

@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MarketplacePolicyController;
+use App\Http\Controllers\MarketplaceStrategyController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\LeadController;
@@ -56,6 +57,13 @@ Route::middleware('auth')->group(function () {
     Route::get('marketplace/policies', [MarketplacePolicyController::class, 'index'])->name('marketplace.policies');
     Route::post('marketplace/policies/{product}/star', [MarketplacePolicyController::class, 'star'])->name('marketplace.policies.star');
     Route::post('marketplace/policies/{product}/import', [MarketplacePolicyController::class, 'import'])->name('marketplace.policies.import');
+
+    // Marketplace — Strategy (credits)
+    Route::get('marketplace/strategies', [MarketplaceStrategyController::class, 'index'])->name('marketplace.strategies');
+    Route::get('marketplace/strategies/my-listings', [MarketplaceStrategyController::class, 'myListings'])->name('marketplace.strategies.my');
+    Route::post('marketplace/strategies', [MarketplaceStrategyController::class, 'store'])->name('marketplace.strategies.store');
+    Route::post('marketplace/strategies/{listing}/buy', [MarketplaceStrategyController::class, 'buy'])->name('marketplace.strategies.buy');
+    Route::delete('marketplace/strategies/{listing}', [MarketplaceStrategyController::class, 'destroy'])->name('marketplace.strategies.destroy');
 
     // Admin — users + invitations
     Route::middleware(EnsureIsAdmin::class)->prefix('admin')->name('admin.')->group(function () {

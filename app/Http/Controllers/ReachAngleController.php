@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AngleContent;
 use App\Models\Client;
+use App\Models\MarketplaceListing;
 use App\Models\ReachAngle;
 use App\Services\AngleContentService;
 use Illuminate\Http\Request;
@@ -77,7 +78,12 @@ class ReachAngleController extends Controller
             ->get()
             ->groupBy('angle_id');
 
-        return view('angles.library', compact('pinned'));
+        $listedIds = MarketplaceListing::where('seller_user_id', auth()->id())
+            ->where('status', 'active')
+            ->pluck('angle_content_id')
+            ->flip();
+
+        return view('angles.library', compact('pinned', 'listedIds'));
     }
 
     public function generate(ReachAngle $angle, AngleContentService $service)
