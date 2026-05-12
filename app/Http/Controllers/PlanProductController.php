@@ -66,6 +66,8 @@ class PlanProductController extends Controller
             'name'                  => 'required|string|max:255',
             'commission_first_year' => 'nullable|numeric|min:0|max:100',
             'notes'                 => 'nullable|string',
+            'is_shared'             => 'nullable|boolean',
+            'shared_note'           => 'nullable|string',
         ]);
 
         $attributes = [];
@@ -85,6 +87,8 @@ class PlanProductController extends Controller
             'commission_first_year' => $request->commission_first_year,
             'attributes'            => $attributes ?: null,
             'notes'                 => $request->notes,
+            'is_shared'             => (bool) $request->input('is_shared', false),
+            'shared_note'           => $request->shared_note,
         ]);
 
         return redirect()->route('plan-products.index')

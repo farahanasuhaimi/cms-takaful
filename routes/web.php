@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MarketplacePolicyController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\LeadController;
@@ -50,6 +51,11 @@ Route::middleware('auth')->group(function () {
     // Settings — API
     Route::get('settings/api', [SettingController::class, 'api'])->name('settings.api');
     Route::post('settings/api', [SettingController::class, 'updateApi'])->name('settings.api.update');
+
+    // Marketplace — Policy (free)
+    Route::get('marketplace/policies', [MarketplacePolicyController::class, 'index'])->name('marketplace.policies');
+    Route::post('marketplace/policies/{product}/star', [MarketplacePolicyController::class, 'star'])->name('marketplace.policies.star');
+    Route::post('marketplace/policies/{product}/import', [MarketplacePolicyController::class, 'import'])->name('marketplace.policies.import');
 
     // Admin — users + invitations
     Route::middleware(EnsureIsAdmin::class)->prefix('admin')->name('admin.')->group(function () {

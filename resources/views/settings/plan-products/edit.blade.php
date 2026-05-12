@@ -102,6 +102,28 @@
                                   class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400">{{ old('notes', $planProduct->notes) }}</textarea>
                     </div>
 
+                    {{-- Marketplace sharing --}}
+                    <div class="border-t border-gray-100 pt-4" x-data="{ shared: {{ old('is_shared', $planProduct->is_shared) ? 'true' : 'false' }} }">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Share to Policy Marketplace</p>
+                                <p class="text-xs text-gray-400 mt-0.5">Others can view, star, and import this plan into their own catalog.</p>
+                            </div>
+                            <button type="button" @click="shared = !shared"
+                                    :class="shared ? 'bg-matcha-600' : 'bg-gray-200'"
+                                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none">
+                                <span :class="shared ? 'translate-x-6' : 'translate-x-1'"
+                                      class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"></span>
+                            </button>
+                            <input type="hidden" name="is_shared" :value="shared ? '1' : '0'" />
+                        </div>
+                        <div x-show="shared" class="mt-3">
+                            <label for="shared_note" class="block text-xs font-medium text-gray-600 mb-1">Marketplace description <span class="text-gray-400">(optional)</span></label>
+                            <textarea id="shared_note" name="shared_note" rows="2" placeholder="What makes this plan worth sharing?"
+                                      class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400">{{ old('shared_note', $planProduct->shared_note) }}</textarea>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="flex items-center justify-between mt-6">

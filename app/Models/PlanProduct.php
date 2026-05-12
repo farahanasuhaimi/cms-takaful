@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class PlanProduct extends Model
 {
-    protected $fillable = ['user_id', 'plan_type', 'name', 'commission_first_year', 'attributes', 'notes'];
+    protected $fillable = ['user_id', 'plan_type', 'name', 'commission_first_year', 'attributes', 'notes', 'is_shared', 'shared_note'];
 
     protected $casts = [
         'attributes' => 'array',
+        'is_shared'  => 'boolean',
     ];
 
     protected static function booted(): void
@@ -29,6 +30,16 @@ class PlanProduct extends Model
     public function policies()
     {
         return $this->hasMany(Policy::class);
+    }
+
+    public function stars()
+    {
+        return $this->hasMany(MarketplacePolicyStar::class);
+    }
+
+    public function starredByCurrentUser(): bool
+    {
+        return $this->stars()->where('user_id', auth()->id())->exists();
     }
 
     public function planTypeLabel(): string
