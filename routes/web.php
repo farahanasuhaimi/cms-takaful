@@ -42,10 +42,12 @@ Route::middleware('auth')->group(function () {
 
     // Reach Angles
     Route::resource('angles', ReachAngleController::class);
-    Route::get('content-library', [ReachAngleController::class, 'library'])->name('angles.library');
-    Route::post('angles/{angle}/clients/{client}', [ReachAngleController::class, 'attachClient'])->name('angles.attach');
-    Route::post('angles/{angle}/generate', [ReachAngleController::class, 'generate'])->name('angles.generate');
-    Route::patch('angle-contents/{content}/pin', [ReachAngleController::class, 'pin'])->name('angle-contents.pin');
+    Route::post('angles/{angle}/leads/{lead}', [ReachAngleController::class, 'attachLead'])->name('angles.leads.attach');
+    Route::delete('angles/{angle}/leads/{lead}', [ReachAngleController::class, 'detachLead'])->name('angles.leads.detach');
+    Route::post('angles/{angle}/clients/{client}', [ReachAngleController::class, 'attachClient'])->name('angles.clients.attach');
+    Route::delete('angles/{angle}/clients/{client}', [ReachAngleController::class, 'detachClient'])->name('angles.clients.detach');
+    Route::post('angles/{angle}/strategies/{strategy}', [ReachAngleController::class, 'attachStrategy'])->name('angles.strategies.attach');
+    Route::delete('angles/{angle}/strategies/{strategy}', [ReachAngleController::class, 'detachStrategy'])->name('angles.strategies.detach');
 
     // Settings — Plan Product Catalog
     Route::resource('plan-products', PlanProductController::class)->except(['show']);

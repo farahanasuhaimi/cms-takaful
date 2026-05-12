@@ -37,6 +37,11 @@ class Lead extends Model
         return $this->morphMany(Touchpoint::class, 'touchable')->latest('contacted_at');
     }
 
+    public function angles()
+    {
+        return $this->belongsToMany(ReachAngle::class, 'angle_lead')->withPivot('linked_at');
+    }
+
     public function isConverted(): bool
     {
         return $this->converted_at !== null;

@@ -27,13 +27,13 @@ class ReachAngle extends Model
         return $this->belongsToMany(Client::class, 'angle_client')->withPivot('reached_at');
     }
 
-    public function contents()
+    public function leads()
     {
-        return $this->hasMany(AngleContent::class, 'angle_id');
+        return $this->belongsToMany(Lead::class, 'angle_lead')->withPivot('linked_at');
     }
 
-    public function pinnedContents()
+    public function strategies()
     {
-        return $this->hasMany(AngleContent::class, 'angle_id')->where('is_pinned', true)->latest();
+        return $this->belongsToMany(Strategy::class, 'angle_strategy')->withPivot('linked_at');
     }
 }

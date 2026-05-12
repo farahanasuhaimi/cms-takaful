@@ -2,23 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AngleContent;
 use App\Models\Client;
-use App\Models\MarketplaceListing;
+use App\Models\Lead;
 use App\Models\ReachAngle;
-use App\Services\AngleContentService;
+use App\Models\Strategy;
 use Illuminate\Http\Request;
 
 class ReachAngleController extends Controller
 {
     public function index()
     {
-        $angles = ReachAngle::withCount('clients')
-            ->with('pinnedContents')
+        $angles = ReachAngle::with(['clients', 'leads', 'strategies'])
             ->latest()
             ->get();
 
-        return view('angles.index', compact('angles'));
+        $allLeads      = Lead::orderBy('id', 'desc')->get(['id', 'name']);
+        $allClients    = Client::orderBy('id', 'desc')->get(['id', 'name']);
+        $allStrategies = Strategy::orderBy('title')->get(['id', 'title', 'category']);
+
+        return view('angles.index', compact('angles', 'allLeads', 'allClients', 'allStrategies'));
     }
 
     public function create()
@@ -38,8 +40,7 @@ class ReachAngleController extends Controller
         $validated['user_id'] = auth()->id();
         ReachAngle::create($validated);
 
-        return redirect()->route('angles.index')
-            ->with('success', 'Reach angle created.');
+        return redirect()->route('angles.index')->with('success', 'Reach angle created.');
     }
 
     public function edit(ReachAngle $angle)
@@ -58,49 +59,35 @@ class ReachAngleController extends Controller
 
         $angle->update($validated);
 
-        return redirect()->route('angles.index')
-            ->with('success', 'Angle updated.');
+        return redirect()->route('angles.index')->with('success', 'Angle updated.');
     }
 
     public function destroy(ReachAngle $angle)
     {
         $angle->delete();
 
-        return redirect()->route('angles.index')
-            ->with('success', 'Angle removed.');
+        return redirect()->route('angles.index')->with('success', 'Angle removed.');
     }
 
-    public function library()
+    // --- Lead linking ---
+
+    public function attachLead(ReachAngle $angle, Lead $lead)
     {
-        $pinned = AngleContent::with('angle')
-            ->where('is_pinned', true)
-            ->latest()
-            ->get()
-            ->groupBy('angle_id');
-
-        $listedIds = MarketplaceListing::where('seller_user_id', auth()->id())
-            ->where('status', 'active')
-            ->pluck('angle_content_id')
-            ->flip();
-
-        return view('angles.library', compact('pinned', 'listedIds'));
-    }
-
-    public function generate(ReachAngle $angle, AngleContentService $service)
-    {
-        try {
-            $contents = $service->generate($angle);
-            return response()->json(['success' => true, 'contents' => $contents]);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        if (! $angle->leads()->where('lead_id', $lead->id)->exists()) {
+            $angle->leads()->attach($lead->id);
         }
+
+        return back()->with('success', "{$lead->name} linked to angle.");
     }
 
-    public function pin(AngleContent $content, AngleContentService $service)
+    public function detachLead(ReachAngle $angle, Lead $lead)
     {
-        $content = $service->togglePin($content);
-        return response()->json(['is_pinned' => $content->is_pinned]);
+        $angle->leads()->detach($lead->id);
+
+        return back()->with('success', 'Lead removed from angle.');
     }
+
+    // --- Client linking ---
 
     public function attachClient(ReachAngle $angle, Client $client)
     {
@@ -108,6 +95,31 @@ class ReachAngleController extends Controller
             $angle->clients()->attach($client->id);
         }
 
-        return back()->with('success', "{$client->name} linked to this angle.");
+        return back()->with('success', "{$client->name} linked to angle.");
+    }
+
+    public function detachClient(ReachAngle $angle, Client $client)
+    {
+        $angle->clients()->detach($client->id);
+
+        return back()->with('success', 'Client removed from angle.');
+    }
+
+    // --- Strategy linking ---
+
+    public function attachStrategy(ReachAngle $angle, Strategy $strategy)
+    {
+        if (! $angle->strategies()->where('strategy_id', $strategy->id)->exists()) {
+            $angle->strategies()->attach($strategy->id);
+        }
+
+        return back()->with('success', "Strategy linked to angle.");
+    }
+
+    public function detachStrategy(ReachAngle $angle, Strategy $strategy)
+    {
+        $angle->strategies()->detach($strategy->id);
+
+        return back()->with('success', 'Strategy removed from angle.');
     }
 }

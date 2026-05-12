@@ -26,6 +26,11 @@ class Strategy extends Model
         return $this->hasOne(MarketplaceListing::class)->where('status', 'active');
     }
 
+    public function angles()
+    {
+        return $this->belongsToMany(ReachAngle::class, 'angle_strategy')->withPivot('linked_at');
+    }
+
     public function isOwnedBy(int $userId): bool
     {
         return $this->user_id === $userId;
