@@ -13,7 +13,7 @@
         <input type="hidden" name="data" id="q-data">
     </form>
 
-    <div x-data="quotationBuilder()" class="space-y-6">
+    <div x-data="quotationBuilder(null, {{ json_encode($planCatalog) }})" class="space-y-6">
 
         {{-- Title --}}
         <div class="bg-white rounded-xl border border-gray-200 p-5">
@@ -56,6 +56,20 @@
                 <div class="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
 
                     {{-- Plan header --}}
+                    {{-- Catalog picker --}}
+                    <template x-if="planCatalog.length > 0">
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Load from Plan Catalog</label>
+                            <select @change="loadFromCatalog(j, $event.target.value); $event.target.value = ''"
+                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400 bg-matcha-50">
+                                <option value="">— pick a plan to auto-fill fields —</option>
+                                <template x-for="p in planCatalog" :key="p.id">
+                                    <option :value="p.id" x-text="p.name + ' (' + p.category + ')'"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </template>
+
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex-1 grid grid-cols-2 gap-3">
                             <div>
@@ -161,7 +175,7 @@
     </div>
 
     <script>
-    function quotationBuilder(initial) {
+    function quotationBuilder(initial, planCatalog) {
         const defaults = initial || {
             title: '',
             people: [{ name: '', age: '' }, { name: '', age: '' }],
@@ -175,6 +189,27 @@
 
         return {
             ...defaults,
+            planCatalog: planCatalog || [],
+
+            loadFromCatalog(j, id) {
+                if (!id) return;
+                const c = this.planCatalog.find(p => p.id == id);
+                if (!c) return;
+                const plan = this.plans[j];
+                const a = c.attributes || {};
+                plan.plan_name       = c.name;
+                plan.category        = c.category;
+                plan.type            = a['Type'] || a['type'] || '';
+                plan.coverage        = a['Coverage'] || a['coverage'] || '';
+                plan.umur_matang     = a['Umur Matang'] || a['umur_matang'] || '';
+                plan.pampasan_matang = a['Pampasan Matang'] || a['pampasan_matang'] || '';
+                plan.kenaikan        = a['Kenaikan'] || a['kenaikan'] || '';
+                plan.privilege       = a['Privilege'] || a['privilege'] || '';
+                const w = (a['Waiver'] || a['waiver'] || '').toLowerCase();
+                plan.waiver = (w === 'yes' || w === 'true') ? 'yes' : 'no';
+                const pt = (a['Plan'] || a['plan_type'] || '').toLowerCase();
+                plan.plan_type = pt.includes('invest') && !pt.includes('no') ? 'investment' : 'no_investment';
+            },
 
             addPerson() {
                 this.people.push({ name: '', age: '' });

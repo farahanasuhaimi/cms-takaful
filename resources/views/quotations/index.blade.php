@@ -27,6 +27,10 @@
                     <div class="flex items-center gap-3 flex-shrink-0">
                         <a href="{{ route('quotations.show', $q) }}"
                            class="text-xs text-matcha-600 hover:underline">View</a>
+                        <form method="POST" action="{{ route('quotations.duplicate', $q) }}">
+                            @csrf
+                            <button type="submit" class="text-xs text-gray-400 hover:text-matcha-600 transition">Duplicate</button>
+                        </form>
                         <div>
                             <button @click="del = !del" x-show="!del"
                                     class="text-xs text-strawberry-400 hover:text-strawberry-600">Delete</button>

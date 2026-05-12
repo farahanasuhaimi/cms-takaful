@@ -11,6 +11,13 @@
                class="text-xs bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition print:hidden">
                 Edit
             </a>
+            <form method="POST" action="{{ route('quotations.duplicate', $quotation) }}" class="print:hidden">
+                @csrf
+                <button type="submit"
+                        class="text-xs bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition">
+                    Duplicate
+                </button>
+            </form>
             <button onclick="window.print()"
                     class="text-xs bg-matcha-600 hover:bg-matcha-800 text-white font-medium px-3 py-1.5 rounded-lg transition print:hidden">
                 Print / Save PDF

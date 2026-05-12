@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PlanProduct;
 use App\Models\Quotation;
 use App\Models\QuotationPerson;
 use App\Models\QuotationPlan;
@@ -22,7 +23,8 @@ class QuotationController extends Controller
 
     public function create()
     {
-        return view('quotations.create');
+        $planCatalog = $this->catalogForJs();
+        return view('quotations.create', compact('planCatalog'));
     }
 
     public function store(Request $request)
@@ -142,7 +144,8 @@ class QuotationController extends Controller
             })->values()->toArray(),
         ];
 
-        return view('quotations.edit', compact('quotation', 'initial'));
+        $planCatalog = $this->catalogForJs();
+        return view('quotations.edit', compact('quotation', 'initial', 'planCatalog'));
     }
 
     public function update(Request $request, Quotation $quotation)
@@ -203,6 +206,67 @@ class QuotationController extends Controller
         }
 
         return redirect()->route('quotations.show', $quotation)->with('success', 'Quotation updated.');
+    }
+
+    public function duplicate(Quotation $quotation)
+    {
+        abort_if($quotation->user_id !== auth()->id(), 403);
+
+        $copy = Quotation::create([
+            'user_id' => auth()->id(),
+            'title'   => 'Copy of ' . $quotation->title,
+            'notes'   => $quotation->notes,
+        ]);
+
+        $personMap = [];
+        foreach ($quotation->people as $person) {
+            $new = QuotationPerson::create([
+                'quotation_id' => $copy->id,
+                'name'         => $person->name,
+                'age'          => $person->age,
+                'sort_order'   => $person->sort_order,
+            ]);
+            $personMap[$person->id] = $new->id;
+        }
+
+        foreach ($quotation->plans->load('premiums') as $plan) {
+            $newPlan = QuotationPlan::create([
+                'quotation_id'    => $copy->id,
+                'category'        => $plan->category,
+                'plan_name'       => $plan->plan_name,
+                'type'            => $plan->type,
+                'coverage'        => $plan->coverage,
+                'umur_matang'     => $plan->umur_matang,
+                'pampasan_matang' => $plan->pampasan_matang,
+                'kenaikan'        => $plan->kenaikan,
+                'plan_type'       => $plan->plan_type,
+                'privilege'       => $plan->privilege,
+                'waiver'          => $plan->waiver,
+                'notes'           => $plan->notes,
+                'sort_order'      => $plan->sort_order,
+            ]);
+
+            foreach ($plan->premiums as $premium) {
+                if (! isset($personMap[$premium->quotation_person_id])) continue;
+                QuotationPremium::create([
+                    'quotation_plan_id'   => $newPlan->id,
+                    'quotation_person_id' => $personMap[$premium->quotation_person_id],
+                    'amount'              => $premium->amount,
+                ]);
+            }
+        }
+
+        return redirect()->route('quotations.edit', $copy)->with('success', 'Quotation duplicated. Edit and save.');
+    }
+
+    private function catalogForJs(): array
+    {
+        return PlanProduct::get()->map(fn($p) => [
+            'id'         => $p->id,
+            'name'       => $p->name,
+            'category'   => ucfirst(str_replace('_', ' ', $p->plan_type)),
+            'attributes' => $p->attributes ?? [],
+        ])->values()->toArray();
     }
 
     public function destroy(Quotation $quotation)

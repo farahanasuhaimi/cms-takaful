@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
 
     // Quotations
     Route::resource('quotations', QuotationController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+    Route::post('quotations/{quotation}/duplicate', [QuotationController::class, 'duplicate'])->name('quotations.duplicate');
 
     // Reach Angles
     Route::resource('angles', ReachAngleController::class);
