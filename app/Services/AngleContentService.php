@@ -28,6 +28,7 @@ class AngleContentService
         $contents = [];
         foreach (['casual', 'story', 'factual'] as $style) {
             $contents[] = AngleContent::create([
+                'user_id'   => auth()->id(),
                 'angle_id'  => $angle->id,
                 'batch'     => $batch,
                 'style'     => $style,

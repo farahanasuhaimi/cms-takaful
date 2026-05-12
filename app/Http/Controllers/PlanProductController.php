@@ -42,6 +42,7 @@ class PlanProductController extends Controller
         }
 
         PlanProduct::create([
+            'user_id'               => auth()->id(),
             'plan_type'             => $request->plan_type,
             'name'                  => $request->name,
             'commission_first_year' => $request->commission_first_year,

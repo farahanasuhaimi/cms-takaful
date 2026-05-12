@@ -6,22 +6,31 @@ use App\Models\Client;
 use App\Models\PlanProduct;
 use App\Models\Policy;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ClientController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Client::with(['policies', 'touchpoints']);
+        $all = Client::with(['policies', 'touchpoints'])->latest('updated_at')->get();
 
         if ($request->filled('q')) {
-            $q = $request->q;
-            $query->where(function ($builder) use ($q) {
-                $builder->where('name', 'like', "%{$q}%")
-                        ->orWhere('phone', 'like', "%{$q}%");
-            });
+            $q = strtolower($request->q);
+            $all = $all->filter(fn($c) =>
+                str_contains(strtolower($c->name ?? ''), $q) ||
+                str_contains(strtolower($c->phone ?? ''), $q)
+            )->values();
         }
 
-        $clients = $query->latest('updated_at')->paginate(20)->withQueryString();
+        $perPage = 20;
+        $page    = $request->input('page', 1);
+        $clients = new LengthAwarePaginator(
+            $all->slice(($page - 1) * $perPage, $perPage)->values(),
+            $all->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
 
         return view('clients.index', compact('clients'));
     }
@@ -41,6 +50,7 @@ class ClientController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        $validated['user_id'] = auth()->id();
         $client = Client::create($validated);
 
         return redirect()->route('clients.show', $client)
@@ -114,6 +124,7 @@ class ClientController extends Controller
         }
 
         $client->policies()->create([
+            'user_id'         => auth()->id(),
             'policy_number'   => $request->policy_number ?: null,
             'plan_product_id' => $request->plan_product_id ?: null,
             'plan_type'       => $planType,

@@ -8,13 +8,27 @@ use Illuminate\Database\Eloquent\Model;
 class Policy extends Model
 {
     protected $fillable = [
-        'client_id', 'policy_number', 'plan_product_id', 'plan_type', 'plan_name',
+        'user_id', 'client_id', 'policy_number', 'plan_product_id', 'plan_type', 'plan_name',
         'coverage_amount', 'start_date', 'frequency', 'premium_monthly', 'notes',
     ];
 
     protected $casts = [
         'start_date' => 'date',
     ];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('user', function ($q) {
+            if (auth()->check()) {
+                $q->where('user_id', auth()->id());
+            }
+        });
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function client()
     {
@@ -26,11 +40,6 @@ class Policy extends Model
         return $this->belongsTo(PlanProduct::class);
     }
 
-    /**
-     * Estimated first-year commission in RM.
-     * Uses planProduct commission_first_year (%) × annualised premium.
-     * Returns null if any required data is missing.
-     */
     public function estimatedCommissionFirstYear(): ?float
     {
         if (! $this->premium_monthly || ! $this->planProduct?->commission_first_year) {
@@ -44,11 +53,6 @@ class Policy extends Model
         return round($annualPremium * ($this->planProduct->commission_first_year / 100), 2);
     }
 
-    /**
-     * Compute the next upcoming renewal date from today, based on start_date + frequency.
-     * Monthly: same day-of-month each month.
-     * Yearly:  same day-of-year each year.
-     */
     public function nextRenewalDate(): ?Carbon
     {
         if (! $this->start_date || ! $this->frequency) {
@@ -59,13 +63,11 @@ class Policy extends Model
         $start = $this->start_date->copy();
 
         if ($this->frequency === 'monthly') {
-            // Same day of month; if that day has already passed this month, go next month
             $next = $today->copy()->day($start->day);
             if ($next->lt($today)) {
                 $next->addMonthNoOverflow();
             }
         } else {
-            // Yearly: same month + day; if already passed this year, go next year
             $next = $today->copy()->month($start->month)->day($start->day);
             if ($next->lt($today)) {
                 $next->addYear();

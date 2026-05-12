@@ -6,7 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
-    protected $fillable = ['key', 'value'];
+    protected $fillable = ['user_id', 'key', 'value'];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('user', function ($q) {
+            if (auth()->check()) {
+                $q->where('user_id', auth()->id());
+            }
+        });
+    }
 
     public static function get(string $key, ?string $default = null): ?string
     {
@@ -15,6 +24,9 @@ class Setting extends Model
 
     public static function set(string $key, ?string $value): void
     {
-        static::updateOrCreate(['key' => $key], ['value' => $value]);
+        static::updateOrCreate(
+            ['key' => $key, 'user_id' => auth()->id()],
+            ['value' => $value]
+        );
     }
 }

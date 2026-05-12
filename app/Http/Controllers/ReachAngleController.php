@@ -34,6 +34,7 @@ class ReachAngleController extends Controller
             'status'         => 'required|in:active,paused,archived',
         ]);
 
+        $validated['user_id'] = auth()->id();
         ReachAngle::create($validated);
 
         return redirect()->route('angles.index')

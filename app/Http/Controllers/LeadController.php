@@ -41,6 +41,7 @@ class LeadController extends Controller
             'notes'         => 'nullable|string',
         ]);
 
+        $validated['user_id'] = auth()->id();
         Lead::create($validated);
 
         return redirect()->route('leads.index')
@@ -87,9 +88,10 @@ class LeadController extends Controller
         }
 
         $client = Client::create([
-            'name'  => $lead->name,
-            'phone' => $lead->phone,
-            'notes' => $lead->notes,
+            'user_id' => auth()->id(),
+            'name'    => $lead->name,
+            'phone'   => $lead->phone,
+            'notes'   => $lead->notes,
         ]);
 
         $lead->update(['converted_at' => now()]);

@@ -30,6 +30,7 @@ class TouchpointController extends Controller
     public function storeForClient(Request $request, Client $client)
     {
         $validated = $this->validateTouchpoint($request);
+        $validated['user_id'] = auth()->id();
         $client->touchpoints()->create($validated);
 
         return redirect()->route('clients.show', $client)
@@ -39,6 +40,7 @@ class TouchpointController extends Controller
     public function storeForLead(Request $request, Lead $lead)
     {
         $validated = $this->validateTouchpoint($request);
+        $validated['user_id'] = auth()->id();
         $lead->touchpoints()->create($validated);
 
         return redirect()->route('leads.index')

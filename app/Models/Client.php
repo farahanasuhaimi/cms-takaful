@@ -6,7 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class Client extends Model
 {
-    protected $fillable = ['name', 'phone', 'ic_no', 'email', 'notes'];
+    protected $fillable = ['user_id', 'name', 'phone', 'ic_no', 'email', 'notes'];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('user', function ($q) {
+            if (auth()->check()) {
+                $q->where('user_id', auth()->id());
+            }
+        });
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function policies()
     {

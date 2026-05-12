@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Touchpoint extends Model
 {
     protected $fillable = [
-        'touchable_type', 'touchable_id',
+        'user_id', 'touchable_type', 'touchable_id',
         'contacted_at', 'channel', 'topic', 'notes',
         'next_action', 'next_action_date',
     ];
@@ -16,6 +16,20 @@ class Touchpoint extends Model
         'contacted_at'     => 'datetime',
         'next_action_date' => 'date',
     ];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('user', function ($q) {
+            if (auth()->check()) {
+                $q->where('user_id', auth()->id());
+            }
+        });
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function touchable()
     {
