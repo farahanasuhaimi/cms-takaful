@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Services\CreditService;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -25,6 +26,16 @@ class AdminController extends Controller
             ->paginate(50);
 
         return view('admin.activity', compact('logs'));
+    }
+
+    public function addCredits(Request $request, User $user)
+    {
+        $request->validate(['amount' => 'required|integer|min:1|max:10000']);
+
+        CreditService::award($user, (int) $request->amount, 'topup', "Admin top-up by " . auth()->user()->name);
+        ActivityLog::record('credits.topup', "Added {$request->amount} credits to {$user->name}");
+
+        return back()->with('success', "{$request->amount} credits added to {$user->name}.");
     }
 
     public function toggleActive(User $user)

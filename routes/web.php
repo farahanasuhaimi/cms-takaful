@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ClientController;
@@ -15,6 +16,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth')->group(function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Account
+    Route::get('account/credits', [AccountController::class, 'credits'])->name('account.credits');
 
     // Policyholders
     Route::resource('clients', ClientController::class);
@@ -52,6 +56,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('index');
         Route::get('activity', [AdminController::class, 'activity'])->name('activity');
         Route::patch('users/{user}/toggle', [AdminController::class, 'toggleActive'])->name('users.toggle');
+        Route::post('users/{user}/credits', [AdminController::class, 'addCredits'])->name('users.credits');
         Route::get('invitations', [InvitationController::class, 'index'])->name('invitations.index');
         Route::post('invitations', [InvitationController::class, 'store'])->name('invitations.store');
         Route::delete('invitations/{invitation}', [InvitationController::class, 'destroy'])->name('invitations.destroy');

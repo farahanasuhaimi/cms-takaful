@@ -28,6 +28,7 @@
                         <th class="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Role</th>
                         <th class="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">Clients</th>
                         <th class="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">Leads</th>
+                        <th class="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">Credits</th>
                         <th class="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Joined</th>
                         <th class="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
                         <th class="px-5 py-3"></th>
@@ -53,6 +54,18 @@
                             </td>
                             <td class="px-5 py-3 text-center text-gray-600 font-medium">{{ $user->clients_count }}</td>
                             <td class="px-5 py-3 text-center text-gray-600 font-medium">{{ $user->leads_count }}</td>
+                            <td class="px-5 py-3 text-center" x-data="{ open: false }">
+                                <span class="text-amber-600 font-medium text-sm">{{ $user->credits }}</span>
+                                <button @click="open = !open" class="ml-1 text-xs text-gray-400 hover:text-gray-600">+</button>
+                                <div x-show="open" x-cloak class="mt-1">
+                                    <form method="POST" action="{{ route('admin.users.credits', $user) }}" class="flex items-center gap-1 justify-center">
+                                        @csrf
+                                        <input type="number" name="amount" min="1" max="10000" placeholder="amt"
+                                               class="w-16 text-xs rounded border-gray-200 py-0.5 px-1 focus:ring-matcha-400 focus:border-matcha-400" />
+                                        <button type="submit" class="text-xs bg-matcha-600 text-white px-2 py-0.5 rounded hover:bg-matcha-800 transition">Add</button>
+                                    </form>
+                                </div>
+                            </td>
                             <td class="px-5 py-3 text-xs text-gray-500">{{ $user->created_at->format('d M Y') }}</td>
                             <td class="px-5 py-3">
                                 @if ($user->is_active)

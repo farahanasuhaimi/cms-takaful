@@ -168,11 +168,18 @@
             </div>
         @endif
 
-        {{-- User + logout at bottom --}}
+        {{-- User + credits + logout at bottom --}}
         <div class="px-5 py-4 border-t border-matcha-900">
             <p class="text-matcha-100 text-xs font-medium">{{ auth()->user()?->name }}</p>
             <p class="text-matcha-200/60 text-xs truncate">{{ auth()->user()?->email }}</p>
-            <form method="POST" action="{{ route('logout') }}" class="mt-2">
+            <a href="{{ route('account.credits') }}"
+               class="mt-1.5 inline-flex items-center gap-1 text-xs text-amber-300 hover:text-amber-200 transition">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.736 6.979C9.208 6.193 9.696 6 10 6c.304 0 .792.193 1.264.979a1 1 0 001.715-1.029C12.279 4.784 11.232 4 10 4s-2.279.784-2.979 1.95c-.285.475-.507 1.003-.67 1.55H6a1 1 0 000 2h.013a9.358 9.358 0 000 1H6a1 1 0 100 2h.351c.163.547.385 1.075.67 1.55C7.721 15.216 8.768 16 10 16s2.279-.784 2.979-1.95a1 1 0 10-1.715-1.029C10.792 13.807 10.304 14 10 14c-.304 0-.792-.193-1.264-.979a4.265 4.265 0 01-.264-.521H10a1 1 0 100-2H8.017a7.36 7.36 0 010-1H10a1 1 0 100-2H8.472c.08-.185.167-.36.264-.521z"/>
+                </svg>
+                {{ auth()->user()?->credits ?? 0 }} credits
+            </a>
+            <form method="POST" action="{{ route('logout') }}" class="mt-1.5">
                 @csrf
                 <button type="submit" class="text-matcha-200/60 text-xs hover:text-matcha-100 transition">
                     Log out

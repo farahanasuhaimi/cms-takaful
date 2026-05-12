@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Invitation;
 use App\Models\User;
+use App\Services\CreditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -75,6 +76,8 @@ class InvitationController extends Controller
         ]);
 
         $invitation->update(['used_at' => now()]);
+
+        CreditService::award($user, 10, 'bonus', 'Welcome credits');
 
         auth()->login($user);
 
