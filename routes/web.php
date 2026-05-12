@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MarketplacePolicyController;
@@ -39,6 +40,9 @@ Route::middleware('auth')->group(function () {
     Route::get('follow-up', [TouchpointController::class, 'index'])->name('touchpoints.index');
     Route::post('clients/{client}/touchpoints', [TouchpointController::class, 'storeForClient'])->name('clients.touchpoints.store');
     Route::post('leads/{lead}/touchpoints', [TouchpointController::class, 'storeForLead'])->name('leads.touchpoints.store');
+
+    // Quotations
+    Route::resource('quotations', QuotationController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
 
     // Reach Angles
     Route::resource('angles', ReachAngleController::class);
