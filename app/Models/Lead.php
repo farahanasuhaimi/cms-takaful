@@ -12,6 +12,8 @@ class Lead extends Model
     ];
 
     protected $casts = [
+        'name'        => 'encrypted',
+        'phone'       => 'encrypted',
         'next_contact' => 'date',
         'converted_at' => 'datetime',
     ];

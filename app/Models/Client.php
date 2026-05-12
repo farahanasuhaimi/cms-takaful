@@ -8,6 +8,12 @@ class Client extends Model
 {
     protected $fillable = ['user_id', 'name', 'phone', 'ic_no', 'email', 'notes'];
 
+    protected $casts = [
+        'name'  => 'encrypted',
+        'phone' => 'encrypted',
+        'ic_no' => 'encrypted',
+    ];
+
     protected static function booted(): void
     {
         static::addGlobalScope('user', function ($q) {
