@@ -8,5 +8,7 @@ class QuotationPremium extends Model
 {
     public $timestamps = false;
 
+    protected $table = 'quotation_premiums';
+
     protected $fillable = ['quotation_plan_id', 'quotation_person_id', 'amount'];
 }
