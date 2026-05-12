@@ -104,6 +104,107 @@ class QuotationController extends Controller
         return view('quotations.show', compact('quotation', 'people', 'plans', 'grouped', 'premiumMap'));
     }
 
+    public function edit(Quotation $quotation)
+    {
+        abort_if($quotation->user_id !== auth()->id(), 403);
+
+        $people = $quotation->people;
+        $plans  = $quotation->plans->load('premiums');
+
+        $personIndex = $people->pluck('id')->flip();
+
+        $initial = [
+            'title'  => $quotation->title,
+            'notes'  => $quotation->notes ?? '',
+            'people' => $people->map(fn($p) => ['name' => $p->name, 'age' => $p->age])->values()->toArray(),
+            'plans'  => $plans->map(function ($plan) use ($people, $personIndex) {
+                $premiums = array_fill(0, $people->count(), '');
+                foreach ($plan->premiums as $premium) {
+                    $idx = $personIndex[$premium->quotation_person_id] ?? null;
+                    if ($idx !== null) {
+                        $premiums[$idx] = $premium->amount;
+                    }
+                }
+                return [
+                    'category'        => $plan->category ?? '',
+                    'plan_name'       => $plan->plan_name,
+                    'type'            => $plan->type ?? '',
+                    'coverage'        => $plan->coverage ?? '',
+                    'umur_matang'     => $plan->umur_matang ?? '',
+                    'pampasan_matang' => $plan->pampasan_matang ?? '',
+                    'kenaikan'        => $plan->kenaikan ?? '',
+                    'plan_type'       => $plan->plan_type ?? 'no_investment',
+                    'privilege'       => $plan->privilege ?? '',
+                    'waiver'          => $plan->waiver ?? 'yes',
+                    'notes'           => $plan->notes ?? '',
+                    'premiums'        => array_values($premiums),
+                ];
+            })->values()->toArray(),
+        ];
+
+        return view('quotations.edit', compact('quotation', 'initial'));
+    }
+
+    public function update(Request $request, Quotation $quotation)
+    {
+        abort_if($quotation->user_id !== auth()->id(), 403);
+        $request->validate(['data' => 'required|string']);
+
+        $data = json_decode($request->data, true);
+        abort_if(empty(trim($data['title'] ?? '')), 422, 'Title is required.');
+
+        $quotation->update([
+            'title' => trim($data['title']),
+            'notes' => trim($data['notes'] ?? '') ?: null,
+        ]);
+
+        // Wipe and rebuild — simpler than diffing
+        $quotation->people()->delete();
+        $quotation->plans()->delete();
+
+        $personIds = [];
+        foreach (($data['people'] ?? []) as $i => $row) {
+            if (empty(trim($row['name'] ?? ''))) continue;
+            $person = QuotationPerson::create([
+                'quotation_id' => $quotation->id,
+                'name'         => trim($row['name']),
+                'age'          => is_numeric($row['age'] ?? '') ? (int) $row['age'] : null,
+                'sort_order'   => $i,
+            ]);
+            $personIds[$i] = $person->id;
+        }
+
+        foreach (($data['plans'] ?? []) as $j => $row) {
+            if (empty(trim($row['plan_name'] ?? ''))) continue;
+            $plan = QuotationPlan::create([
+                'quotation_id'    => $quotation->id,
+                'category'        => trim($row['category'] ?? '') ?: null,
+                'plan_name'       => trim($row['plan_name']),
+                'type'            => trim($row['type'] ?? '') ?: null,
+                'coverage'        => trim($row['coverage'] ?? '') ?: null,
+                'umur_matang'     => trim($row['umur_matang'] ?? '') ?: null,
+                'pampasan_matang' => trim($row['pampasan_matang'] ?? '') ?: null,
+                'kenaikan'        => trim($row['kenaikan'] ?? '') ?: null,
+                'plan_type'       => $row['plan_type'] ?? null,
+                'privilege'       => trim($row['privilege'] ?? '') ?: null,
+                'waiver'          => $row['waiver'] ?? null,
+                'notes'           => trim($row['notes'] ?? '') ?: null,
+                'sort_order'      => $j,
+            ]);
+
+            foreach (($row['premiums'] ?? []) as $i => $amount) {
+                if (! isset($personIds[$i])) continue;
+                QuotationPremium::create([
+                    'quotation_plan_id'   => $plan->id,
+                    'quotation_person_id' => $personIds[$i],
+                    'amount'              => is_numeric($amount) ? $amount : null,
+                ]);
+            }
+        }
+
+        return redirect()->route('quotations.show', $quotation)->with('success', 'Quotation updated.');
+    }
+
     public function destroy(Quotation $quotation)
     {
         abort_if($quotation->user_id !== auth()->id(), 403);

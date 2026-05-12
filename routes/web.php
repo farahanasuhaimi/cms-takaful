@@ -42,7 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::post('leads/{lead}/touchpoints', [TouchpointController::class, 'storeForLead'])->name('leads.touchpoints.store');
 
     // Quotations
-    Route::resource('quotations', QuotationController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
+    Route::resource('quotations', QuotationController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
 
     // Reach Angles
     Route::resource('angles', ReachAngleController::class);

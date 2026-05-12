@@ -7,6 +7,10 @@
                class="text-xs bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition print:hidden">
                 ← Back
             </a>
+            <a href="{{ route('quotations.edit', $quotation) }}"
+               class="text-xs bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition print:hidden">
+                Edit
+            </a>
             <button onclick="window.print()"
                     class="text-xs bg-matcha-600 hover:bg-matcha-800 text-white font-medium px-3 py-1.5 rounded-lg transition print:hidden">
                 Print / Save PDF
