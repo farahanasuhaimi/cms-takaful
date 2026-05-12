@@ -3,16 +3,62 @@
     <x-slot name="pageTitle">{{ $strategy->title }}</x-slot>
 
     <x-slot name="actions">
-        <div class="flex items-center gap-2">
+        <div class="relative flex items-center gap-2" x-data="{ sellOpen: false }">
             <a href="{{ route('strategies.index') }}"
                class="text-xs bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition">
                 ← Library
             </a>
             @if ($strategy->user_id === auth()->id())
                 <a href="{{ route('strategies.edit', $strategy) }}"
-                   class="text-xs bg-matcha-600 hover:bg-matcha-700 text-white px-3 py-1.5 rounded-lg transition">
+                   class="text-xs bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition">
                     Edit
                 </a>
+                @if ($listing)
+                    <span class="text-xs bg-amber-50 border border-amber-200 text-amber-600 font-medium px-3 py-1.5 rounded-lg">
+                        ✓ Listed · {{ $listing->price_credits }} credits
+                    </span>
+                @else
+                    <button @click="sellOpen = !sellOpen"
+                            class="text-xs bg-amber-500 hover:bg-amber-600 text-white font-medium px-3 py-1.5 rounded-lg transition">
+                        Sell on Marketplace
+                    </button>
+                @endif
+            @endif
+
+            {{-- Sell dropdown --}}
+            @if ($strategy->user_id === auth()->id() && ! $listing)
+                <div x-show="sellOpen"
+                     x-transition
+                     @click.outside="sellOpen = false"
+                     class="absolute top-full right-0 mt-2 z-40 bg-white border border-gray-200 rounded-xl shadow-lg p-4 w-80">
+                    <p class="text-sm font-semibold text-gray-800 mb-3">List on Marketplace</p>
+                    <form method="POST" action="{{ route('marketplace.strategies.store') }}" class="space-y-3">
+                        @csrf
+                        <input type="hidden" name="strategy_id" value="{{ $strategy->id }}">
+                        <input type="hidden" name="title" value="{{ $strategy->title }}">
+                        <div>
+                            <label class="text-xs text-gray-500 mb-1 block">Description <span class="text-gray-300">(optional)</span></label>
+                            <textarea name="description" rows="2" maxlength="1000"
+                                      class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-400 resize-none"
+                                      placeholder="What makes this strategy useful?"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 mb-1 block">Price (credits)</label>
+                            <input type="number" name="price_credits" min="1" max="500" value="10"
+                                   class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-400">
+                        </div>
+                        <div class="flex gap-2 pt-1">
+                            <button type="submit"
+                                    class="flex-1 text-sm bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 rounded-lg transition">
+                                List for Sale
+                            </button>
+                            <button type="button" @click="sellOpen = false"
+                                    class="text-sm text-gray-400 hover:text-gray-600 px-3 py-2 transition">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
             @endif
         </div>
     </x-slot>
@@ -235,48 +281,21 @@
         </div>
     @endif
 
-    {{-- Marketplace listing --}}
-    @if ($strategy->user_id === auth()->id())
-        <div class="bg-white rounded-xl border border-gray-200 p-5">
-            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">Marketplace</p>
-
-            @if ($listing)
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-700">Listed — {{ $listing->price_credits }} credits</p>
-                        <p class="text-xs text-gray-400">{{ $listing->purchases_count ?? 0 }} sold</p>
-                    </div>
-                    <form method="POST" action="{{ route('marketplace.strategies.destroy', $listing) }}">
-                        @csrf @method('DELETE')
-                        <button type="submit"
-                                onclick="return confirm('Remove from marketplace?')"
-                                class="text-xs text-red-400 hover:text-red-600 transition">
-                            Delist
-                        </button>
-                    </form>
-                </div>
-            @else
-                <form method="POST" action="{{ route('marketplace.strategies.store') }}" class="flex flex-wrap gap-3 items-end">
-                    @csrf
-                    <input type="hidden" name="strategy_id" value="{{ $strategy->id }}">
-                    <input type="hidden" name="title" value="{{ $strategy->title }}">
-                    <div>
-                        <label class="text-xs text-gray-500 mb-1 block">Description (optional)</label>
-                        <input type="text" name="description"
-                               class="text-sm border border-gray-200 rounded-lg px-3 py-2 w-64 focus:outline-none focus:ring-1 focus:ring-matcha-400"
-                               placeholder="What makes this strategy worth buying?">
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 mb-1 block">Price (credits)</label>
-                        <input type="number" name="price_credits" min="1" max="500" value="10"
-                               class="text-sm border border-gray-200 rounded-lg px-3 py-2 w-24 focus:outline-none focus:ring-1 focus:ring-matcha-400">
-                    </div>
-                    <button type="submit"
-                            class="text-xs bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg transition">
-                        List for Sale
-                    </button>
-                </form>
-            @endif
+    {{-- Delist option (shown only when already listed) --}}
+    @if ($strategy->user_id === auth()->id() && $listing)
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-amber-700">Listed on Marketplace · {{ $listing->price_credits }} credits</p>
+                <p class="text-xs text-amber-500 mt-0.5">{{ $listing->purchases_count ?? 0 }} sold</p>
+            </div>
+            <form method="POST" action="{{ route('marketplace.strategies.destroy', $listing) }}">
+                @csrf @method('DELETE')
+                <button type="submit"
+                        onclick="return confirm('Remove from marketplace?')"
+                        class="text-xs text-red-400 hover:text-red-600 transition">
+                    Delist
+                </button>
+            </form>
         </div>
     @endif
 
