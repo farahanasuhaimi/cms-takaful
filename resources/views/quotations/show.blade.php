@@ -25,9 +25,23 @@
         </div>
     </x-slot>
 
-    {{-- Notes --}}
+    {{-- Print-only header --}}
+    <div class="hidden print:block mb-6 border-b border-gray-300 pb-4">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-lg font-bold text-gray-800">{{ $quotation->title }}</p>
+                <p class="text-xs text-gray-500 mt-0.5">Disediakan oleh: {{ auth()->user()->name }}</p>
+            </div>
+            <div class="text-right text-xs text-gray-500">
+                <p>{{ now()->format('d M Y') }}</p>
+                <p class="mt-0.5">AIA PUBLIC Takaful Bhd.</p>
+            </div>
+        </div>
+    </div>
+
+    {{-- Internal notes (screen only) --}}
     @if ($quotation->notes)
-        <p class="text-sm text-gray-500 mb-5 print:mb-3">{{ $quotation->notes }}</p>
+        <p class="text-sm text-gray-500 mb-5 print:hidden">{{ $quotation->notes }}</p>
     @endif
 
     {{-- Comparison Table --}}
@@ -73,6 +87,29 @@
                     </tr>
                 @endforeach
 
+                {{-- Total monthly row --}}
+                @if ($people->count() > 1)
+                    @php
+                        $hasAnyPremium = collect($plans)->contains(fn($plan) =>
+                            collect($people)->contains(fn($person) => isset($premiumMap[$plan->id][$person->id]))
+                        );
+                    @endphp
+                    @if ($hasAnyPremium)
+                        <tr class="bg-matcha-50 font-semibold">
+                            <td class="border border-gray-300 px-3 py-2 text-gray-700 text-xs">Total</td>
+                            <td class="border border-gray-300 px-3 py-2 text-center text-gray-500 text-xs">—</td>
+                            @foreach ($plans as $plan)
+                                @php
+                                    $total = collect($people)->sum(fn($person) => $premiumMap[$plan->id][$person->id] ?? 0);
+                                @endphp
+                                <td class="border border-gray-300 px-3 py-2 text-center text-matcha-800 text-xs">
+                                    {{ $total > 0 ? 'RM'.number_format($total, 2) : '—' }}
+                                </td>
+                            @endforeach
+                        </tr>
+                    @endif
+                @endif
+
                 {{-- Attribute rows — only shown when at least one plan has a value --}}
                 @php
                     $attrs = [
@@ -105,8 +142,6 @@
                                         @elseif ($plan->kenaikan === 'yes') <span class="text-green-600 text-base">✅</span>
                                         @else {{ $plan->kenaikan }}
                                         @endif
-                                    @elseif ($field === 'plan_type')
-                                        {{ $plan->plan_type === 'investment' ? 'Investment' : ($plan->plan_type === 'no_investment' ? 'No Investment' : ($plan->plan_type ?: '—')) }}
                                     @else
                                         {{ $plan->$field ?: '—' }}
                                     @endif
@@ -130,9 +165,40 @@
         </table>
     </div>
 
+    {{-- Prospect block --}}
+    @if ($quotation->prospect_name || $quotation->prospect_phone || $quotation->prospect_notes)
+        <div class="mt-6 border border-gray-200 rounded-xl p-5 bg-gray-50 print:mt-5 print:rounded-none print:border-gray-300">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Untuk Pertimbangan</p>
+            @if ($quotation->prospect_name || $quotation->prospect_phone)
+                <div class="flex flex-wrap gap-6 mb-3 text-sm">
+                    @if ($quotation->prospect_name)
+                        <div>
+                            <span class="text-xs text-gray-400">Nama</span>
+                            <p class="font-medium text-gray-800">{{ $quotation->prospect_name }}</p>
+                        </div>
+                    @endif
+                    @if ($quotation->prospect_phone)
+                        <div>
+                            <span class="text-xs text-gray-400">No. Telefon</span>
+                            <p class="font-medium text-gray-800">{{ $quotation->prospect_phone }}</p>
+                        </div>
+                    @endif
+                </div>
+            @endif
+            @if ($quotation->prospect_notes)
+                <p class="text-sm text-gray-600 leading-relaxed">{{ $quotation->prospect_notes }}</p>
+            @endif
+        </div>
+    @endif
+
+    {{-- Print-only disclaimer --}}
+    <div class="hidden print:block mt-6 text-xs text-gray-400 border-t border-gray-200 pt-3">
+        <p>Dokumen ini adalah ilustrasi sahaja dan bukan kontrak insurans. Caruman sebenar tertakluk kepada penilaian risiko dan terma polisi AIA PUBLIC Takaful Bhd. Sah sebagai rujukan sahaja.</p>
+    </div>
+
     {{-- Footer --}}
-    <div class="mt-6 text-xs text-gray-400 print:mt-4">
-        Prepared by {{ auth()->user()->name }} · {{ now()->format('d M Y') }}
+    <div class="mt-6 text-xs text-gray-400 print:mt-3">
+        Disediakan oleh {{ auth()->user()->name }} · {{ now()->format('d M Y') }}
     </div>
 
     {{-- Delete --}}
@@ -149,13 +215,60 @@
         </div>
     </div>
 
+    {{-- Print-only watermark --}}
+    <div class="watermark" aria-hidden="true">
+        @for ($i = 0; $i < 20; $i++)
+            <div class="watermark-tile">
+                <span>{{ auth()->user()->name }}</span>
+                <span>Rujukan Sahaja</span>
+            </div>
+        @endfor
+    </div>
+
 </x-app-layout>
 
 <style>
+/* ── Screen ── */
+.watermark { display: none; }
+
+/* ── Print ── */
 @media print {
     aside, header, .print\:hidden { display: none !important; }
     body { background: white !important; }
     main { padding: 0 !important; overflow: visible !important; }
     table { font-size: 11px; }
+
+    /* Watermark */
+    .watermark {
+        display: block;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        z-index: 9999;
+        pointer-events: none;
+        overflow: hidden;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+    }
+    .watermark-tile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 200px;
+        height: 120px;
+        transform: rotate(-30deg);
+        opacity: 0.07;
+        color: #000;
+        font-size: 11px;
+        font-weight: 600;
+        text-align: center;
+        line-height: 1.5;
+        letter-spacing: 0.03em;
+        flex-shrink: 0;
+    }
 }
 </style>

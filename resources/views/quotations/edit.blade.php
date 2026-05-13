@@ -23,6 +23,28 @@
                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
         </div>
 
+        {{-- Prospect --}}
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Prospect</p>
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                    <label class="text-xs text-gray-400 mb-1 block">Name</label>
+                    <input x-model="prospect_name" type="text" placeholder="e.g. Ahmad bin Ali"
+                           class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400 mb-1 block">Phone Number</label>
+                    <input x-model="prospect_phone" type="text" placeholder="e.g. 012-3456789"
+                           class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                </div>
+            </div>
+            <div>
+                <label class="text-xs text-gray-400 mb-1 block">Notes for Prospect <span class="text-gray-300">(optional — shown on printout)</span></label>
+                <textarea x-model="prospect_notes" rows="2" placeholder="e.g. Perlindungan ini sesuai untuk anda sebagai penyara keluarga..."
+                          class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400 resize-none"></textarea>
+            </div>
+        </div>
+
         {{-- People --}}
         <div class="bg-white rounded-xl border border-gray-200 p-5">
             <div class="flex items-center justify-between mb-3">
@@ -123,12 +145,9 @@
                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
                         </div>
                         <div>
-                            <label class="text-xs text-gray-400 mb-1 block">Plan Type</label>
-                            <select x-model="plan.plan_type"
-                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
-                                <option value="no_investment">No Investment</option>
-                                <option value="investment">Investment</option>
-                            </select>
+                            <label class="text-xs text-gray-400 mb-1 block">Plan</label>
+                            <input x-model="plan.plan_type" type="text" placeholder="e.g. 10 tahun / 20 tahun"
+                                   class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
                         </div>
                         <div>
                             <label class="text-xs text-gray-400 mb-1 block">Waiver</label>
@@ -180,11 +199,12 @@
     function quotationBuilder(initial, planCatalog) {
         const defaults = initial || {
             title: '',
+            prospect_name: '', prospect_phone: '', prospect_notes: '',
             people: [{ name: '', age: '' }, { name: '', age: '' }],
             plans: [{
                 category: '', plan_name: '', type: '', coverage: '', room_board: '',
                 umur_matang: '', pampasan_matang: '', kenaikan: '',
-                plan_type: 'no_investment', privilege: '', waiver: 'yes',
+                plan_type: '', privilege: '', waiver: 'yes',
                 notes: '', premiums: ['', '']
             }]
         };
@@ -199,19 +219,19 @@
                 if (!c) return;
                 const plan = this.plans[j];
                 const a = c.attributes || {};
+                const t1 = val => val ? val.split('|')[0].trim() : '';
                 plan.plan_name       = c.name;
                 plan.category        = c.category;
                 plan.type            = a['Type'] || a['type'] || '';
-                plan.room_board      = a['Room & Board'] || a['room_board'] || '';
-                plan.coverage        = a['Coverage'] || a['coverage'] || '';
-                plan.umur_matang     = a['Umur Matang'] || a['umur_matang'] || '';
-                plan.pampasan_matang = a['Pampasan Matang'] || a['pampasan_matang'] || '';
-                plan.kenaikan        = a['Kenaikan'] || a['kenaikan'] || '';
-                plan.privilege       = a['Privilege'] || a['privilege'] || '';
+                plan.room_board      = t1(a['Room & Board'] || a['room_board'] || '');
+                plan.coverage        = t1(a['Coverage'] || a['coverage'] || '');
+                plan.umur_matang     = t1(a['Umur Matang'] || a['umur_matang'] || '');
+                plan.pampasan_matang = t1(a['Pampasan Matang'] || a['pampasan_matang'] || '');
+                plan.kenaikan        = t1(a['Kenaikan'] || a['kenaikan'] || '');
+                plan.privilege       = t1(a['Privilege'] || a['privilege'] || '');
                 const w = (a['Waiver'] || a['waiver'] || '').toLowerCase();
-                plan.waiver = (w === 'yes' || w === 'true') ? 'yes' : 'no';
-                const pt = (a['Plan'] || a['plan_type'] || '').toLowerCase();
-                plan.plan_type = pt.includes('invest') && !pt.includes('no') ? 'investment' : 'no_investment';
+                plan.waiver    = (w === 'yes' || w === 'true') ? 'yes' : 'no';
+                plan.plan_type = a['Plan'] || a['plan_type'] || '';
             },
 
             addPerson() {
@@ -229,7 +249,7 @@
                 this.plans.push({
                     category: '', plan_name: '', type: '', coverage: '', room_board: '',
                     umur_matang: '', pampasan_matang: '', kenaikan: '',
-                    plan_type: 'no_investment', privilege: '', waiver: 'yes',
+                    plan_type: '', privilege: '', waiver: 'yes',
                     notes: '', premiums: this.people.map(() => '')
                 });
             },
@@ -243,6 +263,9 @@
                 if (!this.title.trim()) { alert('Please enter a quotation title.'); return; }
                 document.getElementById('q-data').value = JSON.stringify({
                     title: this.title,
+                    prospect_name: this.prospect_name,
+                    prospect_phone: this.prospect_phone,
+                    prospect_notes: this.prospect_notes,
                     people: this.people,
                     plans: this.plans,
                 });

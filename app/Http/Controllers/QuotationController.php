@@ -36,9 +36,12 @@ class QuotationController extends Controller
         abort_if(empty(trim($data['title'] ?? '')), 422, 'Title is required.');
 
         $quotation = Quotation::create([
-            'user_id' => auth()->id(),
-            'title'   => trim($data['title']),
-            'notes'   => trim($data['notes'] ?? '') ?: null,
+            'user_id'        => auth()->id(),
+            'title'          => trim($data['title']),
+            'notes'          => trim($data['notes'] ?? '') ?: null,
+            'prospect_name'  => trim($data['prospect_name'] ?? '') ?: null,
+            'prospect_phone' => trim($data['prospect_phone'] ?? '') ?: null,
+            'prospect_notes' => trim($data['prospect_notes'] ?? '') ?: null,
         ]);
 
         $personIds = [];
@@ -117,8 +120,11 @@ class QuotationController extends Controller
         $personIndex = $people->pluck('id')->flip();
 
         $initial = [
-            'title'  => $quotation->title,
-            'notes'  => $quotation->notes ?? '',
+            'title'          => $quotation->title,
+            'notes'          => $quotation->notes ?? '',
+            'prospect_name'  => $quotation->prospect_name ?? '',
+            'prospect_phone' => $quotation->prospect_phone ?? '',
+            'prospect_notes' => $quotation->prospect_notes ?? '',
             'people' => $people->map(fn($p) => ['name' => $p->name, 'age' => $p->age])->values()->toArray(),
             'plans'  => $plans->map(function ($plan) use ($people, $personIndex) {
                 $premiums = array_fill(0, $people->count(), '');
@@ -159,8 +165,11 @@ class QuotationController extends Controller
         abort_if(empty(trim($data['title'] ?? '')), 422, 'Title is required.');
 
         $quotation->update([
-            'title' => trim($data['title']),
-            'notes' => trim($data['notes'] ?? '') ?: null,
+            'title'          => trim($data['title']),
+            'notes'          => trim($data['notes'] ?? '') ?: null,
+            'prospect_name'  => trim($data['prospect_name'] ?? '') ?: null,
+            'prospect_phone' => trim($data['prospect_phone'] ?? '') ?: null,
+            'prospect_notes' => trim($data['prospect_notes'] ?? '') ?: null,
         ]);
 
         // Wipe and rebuild — simpler than diffing
@@ -216,9 +225,12 @@ class QuotationController extends Controller
         abort_if($quotation->user_id !== auth()->id(), 403);
 
         $copy = Quotation::create([
-            'user_id' => auth()->id(),
-            'title'   => 'Copy of ' . $quotation->title,
-            'notes'   => $quotation->notes,
+            'user_id'        => auth()->id(),
+            'title'          => 'Copy of ' . $quotation->title,
+            'notes'          => $quotation->notes,
+            'prospect_name'  => $quotation->prospect_name,
+            'prospect_phone' => $quotation->prospect_phone,
+            'prospect_notes' => $quotation->prospect_notes,
         ]);
 
         $personMap = [];
