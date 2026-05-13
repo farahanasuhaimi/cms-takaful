@@ -104,7 +104,12 @@
                     <div class="border-t border-gray-100 pt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
                         <div>
                             <label class="text-xs text-gray-400 mb-1 block">Type</label>
-                            <input x-model="plan.type" type="text" placeholder="e.g. Hibah, Personal Accident"
+                            <input x-model="plan.type" type="text" placeholder="e.g. Stand-alone, ILP Hibah"
+                                   class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Room &amp; Board</label>
+                            <input x-model="plan.room_board" type="text" placeholder="e.g. RM180/malam"
                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
                         </div>
                         <div>
@@ -113,18 +118,8 @@
                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
                         </div>
                         <div>
-                            <label class="text-xs text-gray-400 mb-1 block">Umur Matang</label>
-                            <input x-model="plan.umur_matang" type="text" placeholder="e.g. 60, 70, 85"
-                                   class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-400 mb-1 block">Pampasan Matang</label>
-                            <input x-model="plan.pampasan_matang" type="text" placeholder="e.g. RM30k, &lt;RM1000"
-                                   class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
-                        </div>
-                        <div>
                             <label class="text-xs text-gray-400 mb-1 block">Kenaikan</label>
-                            <input x-model="plan.kenaikan" type="text" placeholder="e.g. Max: RM45/bln, or leave empty"
+                            <input x-model="plan.kenaikan" type="text" placeholder="e.g. Setiap tahun, Tiada"
                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
                         </div>
                         <div>
@@ -135,11 +130,6 @@
                                 <option value="investment">Investment</option>
                             </select>
                         </div>
-                        <div class="col-span-2 sm:col-span-2">
-                            <label class="text-xs text-gray-400 mb-1 block">Privilege</label>
-                            <input x-model="plan.privilege" type="text" placeholder="e.g. Conversion, ICU RM100/hari"
-                                   class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
-                        </div>
                         <div>
                             <label class="text-xs text-gray-400 mb-1 block">Waiver</label>
                             <select x-model="plan.waiver"
@@ -147,6 +137,21 @@
                                 <option value="yes">✓ Yes</option>
                                 <option value="no">✗ No</option>
                             </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Umur Matang</label>
+                            <input x-model="plan.umur_matang" type="text" placeholder="e.g. 60, 70, 85"
+                                   class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Pampasan Matang</label>
+                            <input x-model="plan.pampasan_matang" type="text" placeholder="e.g. RM30k, nilai akaun"
+                                   class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                        </div>
+                        <div class="col-span-2 sm:col-span-1">
+                            <label class="text-xs text-gray-400 mb-1 block">Privilege</label>
+                            <input x-model="plan.privilege" type="text" placeholder="e.g. ICU RM500/hari, GIO"
+                                   class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
                         </div>
                     </div>
 
@@ -177,7 +182,7 @@
             title: '',
             people: [{ name: '', age: '' }, { name: '', age: '' }],
             plans: [{
-                category: '', plan_name: '', type: '', coverage: '',
+                category: '', plan_name: '', type: '', coverage: '', room_board: '',
                 umur_matang: '', pampasan_matang: '', kenaikan: '',
                 plan_type: 'no_investment', privilege: '', waiver: 'yes',
                 notes: '', premiums: ['', '']
@@ -197,6 +202,7 @@
                 plan.plan_name       = c.name;
                 plan.category        = c.category;
                 plan.type            = a['Type'] || a['type'] || '';
+                plan.room_board      = a['Room & Board'] || a['room_board'] || '';
                 plan.coverage        = a['Coverage'] || a['coverage'] || '';
                 plan.umur_matang     = a['Umur Matang'] || a['umur_matang'] || '';
                 plan.pampasan_matang = a['Pampasan Matang'] || a['pampasan_matang'] || '';
@@ -221,7 +227,7 @@
 
             addPlan() {
                 this.plans.push({
-                    category: '', plan_name: '', type: '', coverage: '',
+                    category: '', plan_name: '', type: '', coverage: '', room_board: '',
                     umur_matang: '', pampasan_matang: '', kenaikan: '',
                     plan_type: 'no_investment', privilege: '', waiver: 'yes',
                     notes: '', premiums: this.people.map(() => '')

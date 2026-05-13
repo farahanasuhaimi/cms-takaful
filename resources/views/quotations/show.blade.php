@@ -73,43 +73,47 @@
                     </tr>
                 @endforeach
 
-                {{-- Attribute rows --}}
+                {{-- Attribute rows — only shown when at least one plan has a value --}}
                 @php
                     $attrs = [
                         'type'            => 'Type',
+                        'room_board'      => 'Room & Board',
                         'coverage'        => 'Coverage',
-                        'umur_matang'     => 'Umur Matang',
-                        'pampasan_matang' => 'Pampasan Matang',
                         'kenaikan'        => 'Kenaikan',
                         'plan_type'       => 'Plan',
                         'privilege'       => 'Privilege',
+                        'umur_matang'     => 'Umur Matang',
+                        'pampasan_matang' => 'Pampasan Matang',
                         'waiver'          => 'Waiver',
                     ];
+                    $hasValue = fn($field) => $plans->contains(fn($p) => filled($p->$field));
                 @endphp
 
                 @foreach ($attrs as $field => $label)
-                    <tr class="bg-white">
-                        <td class="border border-gray-300 px-3 py-2 text-gray-500 text-xs" colspan="1"></td>
-                        <td class="border border-gray-300 px-3 py-2 text-gray-600 font-medium text-xs">{{ $label }}</td>
-                        @foreach ($plans as $plan)
-                            <td class="border border-gray-300 px-3 py-2 text-center text-gray-700 text-xs">
-                                @if ($field === 'waiver')
-                                    @if ($plan->waiver === 'yes') <span class="text-green-600 text-base">✅</span>
-                                    @else <span class="text-red-500 text-base">❌</span>
+                    @if ($field === 'waiver' || $hasValue($field))
+                        <tr class="bg-white">
+                            <td class="border border-gray-300 px-3 py-2 text-gray-500 text-xs"></td>
+                            <td class="border border-gray-300 px-3 py-2 text-gray-600 font-medium text-xs">{{ $label }}</td>
+                            @foreach ($plans as $plan)
+                                <td class="border border-gray-300 px-3 py-2 text-center text-gray-700 text-xs">
+                                    @if ($field === 'waiver')
+                                        @if ($plan->waiver === 'yes') <span class="text-green-600 text-base">✅</span>
+                                        @else <span class="text-red-500 text-base">❌</span>
+                                        @endif
+                                    @elseif ($field === 'kenaikan')
+                                        @if (!$plan->kenaikan) <span class="text-red-500 text-base">❌</span>
+                                        @elseif ($plan->kenaikan === 'yes') <span class="text-green-600 text-base">✅</span>
+                                        @else {{ $plan->kenaikan }}
+                                        @endif
+                                    @elseif ($field === 'plan_type')
+                                        {{ $plan->plan_type === 'investment' ? 'Investment' : ($plan->plan_type === 'no_investment' ? 'No Investment' : ($plan->plan_type ?: '—')) }}
+                                    @else
+                                        {{ $plan->$field ?: '—' }}
                                     @endif
-                                @elseif ($field === 'kenaikan')
-                                    @if (!$plan->kenaikan) <span class="text-red-500 text-base">❌</span>
-                                    @elseif ($plan->kenaikan === 'yes') <span class="text-green-600 text-base">✅</span>
-                                    @else {{ $plan->kenaikan }}
-                                    @endif
-                                @elseif ($field === 'plan_type')
-                                    {{ $plan->plan_type === 'investment' ? 'Investment' : 'No Investment' }}
-                                @else
-                                    {{ $plan->$field ?: '—' }}
-                                @endif
-                            </td>
-                        @endforeach
-                    </tr>
+                                </td>
+                            @endforeach
+                        </tr>
+                    @endif
                 @endforeach
 
                 {{-- Notes row — only if any plan has notes --}}
