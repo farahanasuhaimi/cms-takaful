@@ -83,14 +83,16 @@ class PlanProductSeeder extends Seeder
                 'plan_type' => 'hibah',
                 'name'      => 'A-Life Sejuta Makna',
                 'attributes' => [
-                    'Type'            => 'Hibah Term',
-                    'Coverage'        => 'Dari RM350,000',
-                    'Umur Matang'     => '60, atau tempoh 10/20 tahun',
-                    'Pampasan Matang' => 'Nilai akaun',
+                    'Type'            => 'Hibah Term (Family Takaful — Term Life)',
+                    'Coverage'        => 'Min RM350,000 | Wafat/TPD: 100% SC atau nilai akaun (mana lebih tinggi)',
+                    'Plan'            => '10 tahun / 20 tahun / sehingga umur 60',
                     'Kenaikan'        => 'Tiada',
-                    'Privilege'       => 'Hajj/Umrah 2x, Estate Management hingga RM75K, VYCB, Conversion Privilege',
+                    'Privilege'       => 'Wafat semasa Haji/Umrah: 2× SC | Estate Mgmt: RM15K–RM75K (ikut SC) | VYCB tahunan (Gold/Platinum) | Conversion Privilege (tanpa underwriting semula)',
+                    'Umur Matang'     => 'Umur 60 atau tamat tempoh 10/20 tahun',
+                    'Pampasan Matang' => 'Nilai akaun dikembalikan',
                     'Waiver'          => 'no',
                 ],
+                'notes' => 'Perlindungan nyawa tinggi bermula RM350K. Sesuai untuk breadwinner yang nak coverage maksimum dengan caruman berpatutan. Tiada komponen pelaburan — murni perlindungan + hibah.',
             ],
             // ── Critical Illness ──────────────────────────────────────────────────
             [
@@ -133,12 +135,12 @@ class PlanProductSeeder extends Seeder
             $attrs = $data['attributes'];
             unset($data['attributes']);
 
-            PlanProduct::withoutGlobalScopes()->firstOrCreate(
+            PlanProduct::withoutGlobalScopes()->updateOrCreate(
                 ['user_id' => $user->id, 'name' => $data['name']],
                 array_merge($data, [
                     'user_id'    => $user->id,
                     'attributes' => $attrs,
-                    'notes'      => null,
+                    'notes'      => $data['notes'] ?? null,
                 ])
             );
         }
