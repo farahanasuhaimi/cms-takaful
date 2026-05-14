@@ -128,28 +128,43 @@
                     <div class="border-t border-gray-100 pt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
                         <div>
                             <label class="text-xs text-gray-400 mb-1 block">Type</label>
-                            <input x-model="plan.type" type="text" placeholder="e.g. Stand-alone, ILP Hibah"
+                            <input x-model="plan.type" type="text" :list="'dl-'+j+'-type'" placeholder="e.g. Stand-alone, ILP Hibah"
                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                            <datalist :id="'dl-'+j+'-type'">
+                                <template x-for="opt in (plan.opts?.type || [])" :key="opt"><option :value="opt"></option></template>
+                            </datalist>
                         </div>
                         <div>
                             <label class="text-xs text-gray-400 mb-1 block">Room &amp; Board</label>
-                            <input x-model="plan.room_board" type="text" placeholder="e.g. RM180/malam"
+                            <input x-model="plan.room_board" type="text" :list="'dl-'+j+'-rb'" placeholder="e.g. RM180/malam"
                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                            <datalist :id="'dl-'+j+'-rb'">
+                                <template x-for="opt in (plan.opts?.room_board || [])" :key="opt"><option :value="opt"></option></template>
+                            </datalist>
                         </div>
                         <div>
                             <label class="text-xs text-gray-400 mb-1 block">Coverage</label>
-                            <input x-model="plan.coverage" type="text" placeholder="e.g. RM350k"
+                            <input x-model="plan.coverage" type="text" :list="'dl-'+j+'-cov'" placeholder="e.g. RM350k"
                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                            <datalist :id="'dl-'+j+'-cov'">
+                                <template x-for="opt in (plan.opts?.coverage || [])" :key="opt"><option :value="opt"></option></template>
+                            </datalist>
                         </div>
                         <div>
                             <label class="text-xs text-gray-400 mb-1 block">Kenaikan</label>
-                            <input x-model="plan.kenaikan" type="text" placeholder="e.g. Setiap tahun, Tiada"
+                            <input x-model="plan.kenaikan" type="text" :list="'dl-'+j+'-ken'" placeholder="e.g. Setiap tahun, Tiada"
                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                            <datalist :id="'dl-'+j+'-ken'">
+                                <template x-for="opt in (plan.opts?.kenaikan || [])" :key="opt"><option :value="opt"></option></template>
+                            </datalist>
                         </div>
                         <div>
                             <label class="text-xs text-gray-400 mb-1 block">Plan</label>
-                            <input x-model="plan.plan_type" type="text" placeholder="e.g. 10 tahun / 20 tahun"
+                            <input x-model="plan.plan_type" type="text" :list="'dl-'+j+'-pt'" placeholder="e.g. 10 tahun / 20 tahun"
                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                            <datalist :id="'dl-'+j+'-pt'">
+                                <template x-for="opt in (plan.opts?.plan_type || [])" :key="opt"><option :value="opt"></option></template>
+                            </datalist>
                         </div>
                         <div>
                             <label class="text-xs text-gray-400 mb-1 block">Waiver</label>
@@ -161,18 +176,27 @@
                         </div>
                         <div>
                             <label class="text-xs text-gray-400 mb-1 block">Umur Matang</label>
-                            <input x-model="plan.umur_matang" type="text" placeholder="e.g. 60, 70, 85"
+                            <input x-model="plan.umur_matang" type="text" :list="'dl-'+j+'-um'" placeholder="e.g. 60, 70, 85"
                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                            <datalist :id="'dl-'+j+'-um'">
+                                <template x-for="opt in (plan.opts?.umur_matang || [])" :key="opt"><option :value="opt"></option></template>
+                            </datalist>
                         </div>
                         <div>
                             <label class="text-xs text-gray-400 mb-1 block">Pampasan Matang</label>
-                            <input x-model="plan.pampasan_matang" type="text" placeholder="e.g. RM30k, nilai akaun"
+                            <input x-model="plan.pampasan_matang" type="text" :list="'dl-'+j+'-pm'" placeholder="e.g. RM30k, nilai akaun"
                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                            <datalist :id="'dl-'+j+'-pm'">
+                                <template x-for="opt in (plan.opts?.pampasan_matang || [])" :key="opt"><option :value="opt"></option></template>
+                            </datalist>
                         </div>
                         <div class="col-span-2 sm:col-span-1">
                             <label class="text-xs text-gray-400 mb-1 block">Privilege</label>
-                            <input x-model="plan.privilege" type="text" placeholder="e.g. ICU RM500/hari, GIO"
+                            <input x-model="plan.privilege" type="text" :list="'dl-'+j+'-priv'" placeholder="e.g. ICU RM500/hari, GIO"
                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                            <datalist :id="'dl-'+j+'-priv'">
+                                <template x-for="opt in (plan.opts?.privilege || [])" :key="opt"><option :value="opt"></option></template>
+                            </datalist>
                         </div>
                     </div>
 
@@ -200,16 +224,18 @@
 
     <script>
     function quotationBuilder(initial, planCatalog) {
+        const emptyPlan = () => ({
+            category: '', plan_name: '', type: '', coverage: '', room_board: '',
+            umur_matang: '', pampasan_matang: '', kenaikan: '',
+            plan_type: '', privilege: '', waiver: 'yes',
+            notes: '', premiums: ['', ''], opts: {}
+        });
+
         const defaults = initial || {
             title: '',
             prospect_name: '', prospect_phone: '', prospect_notes: '',
             people: [{ name: '', age: '' }, { name: '', age: '' }],
-            plans: [{
-                category: '', plan_name: '', type: '', coverage: '', room_board: '',
-                umur_matang: '', pampasan_matang: '', kenaikan: '',
-                plan_type: '', privilege: '', waiver: 'yes',
-                notes: '', premiums: ['', '']
-            }]
+            plans: [emptyPlan()]
         };
 
         return {
@@ -222,6 +248,7 @@
                 if (!c) return;
                 const plan = this.plans[j];
                 const a = c.attributes || {};
+                const o = c.attribute_options || {};
                 const t1 = val => val ? val.split('|')[0].trim() : '';
                 plan.plan_name       = c.name;
                 plan.category        = c.category;
@@ -235,6 +262,16 @@
                 const w = (a['Waiver'] || a['waiver'] || '').toLowerCase();
                 plan.waiver    = (w === 'yes' || w === 'true') ? 'yes' : 'no';
                 plan.plan_type = a['Plan'] || a['plan_type'] || '';
+                plan.opts = {
+                    type:            o['Type'] || [],
+                    room_board:      o['Room & Board'] || [],
+                    coverage:        o['Coverage'] || [],
+                    kenaikan:        o['Kenaikan'] || [],
+                    plan_type:       o['Plan'] || [],
+                    umur_matang:     o['Umur Matang'] || [],
+                    pampasan_matang: o['Pampasan Matang'] || [],
+                    privilege:       o['Privilege'] || [],
+                };
             },
 
             addPerson() {
@@ -253,7 +290,7 @@
                     category: '', plan_name: '', type: '', coverage: '', room_board: '',
                     umur_matang: '', pampasan_matang: '', kenaikan: '',
                     plan_type: '', privilege: '', waiver: 'yes',
-                    notes: '', premiums: this.people.map(() => '')
+                    notes: '', premiums: this.people.map(() => ''), opts: {}
                 });
             },
 

@@ -46,15 +46,24 @@
                         $initialRows = [];
                         if (old('attr_keys')) {
                             foreach (old('attr_keys', []) as $i => $k) {
-                                $initialRows[] = ['key' => $k, 'value' => old('attr_values')[$i] ?? ''];
+                                $initialRows[] = [
+                                    'key'     => $k,
+                                    'value'   => old('attr_values')[$i] ?? '',
+                                    'options' => old('attr_options')[$i] ?? '',
+                                ];
                             }
                         } elseif ($planProduct->attributes) {
+                            $existingOptions = $planProduct->attribute_options ?? [];
                             foreach ($planProduct->attributes as $k => $v) {
-                                $initialRows[] = ['key' => $k, 'value' => $v];
+                                $initialRows[] = [
+                                    'key'     => $k,
+                                    'value'   => $v,
+                                    'options' => isset($existingOptions[$k]) ? implode(', ', $existingOptions[$k]) : '',
+                                ];
                             }
                         }
                         if (empty($initialRows)) {
-                            $initialRows = [['key' => '', 'value' => '']];
+                            $initialRows = [['key' => '', 'value' => '', 'options' => '']];
                         }
                     @endphp
 
@@ -62,7 +71,7 @@
                         <div class="flex items-center justify-between mb-2">
                             <label class="block text-sm font-medium text-gray-700">Attributes</label>
                             <button type="button"
-                                    @click="rows.push({ key: '', value: '' })"
+                                    @click="rows.push({ key: '', value: '', options: '' })"
                                     class="text-xs text-matcha-600 hover:text-matcha-800 font-medium">
                                 + Add attribute
                             </button>
@@ -74,12 +83,17 @@
                                     <input type="text"
                                            :name="'attr_keys[' + i + ']'"
                                            x-model="row.key"
-                                           placeholder="e.g. Room & Board"
-                                           class="flex-1 text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
+                                           placeholder="Attribute name"
+                                           class="w-32 text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
                                     <input type="text"
                                            :name="'attr_values[' + i + ']'"
                                            x-model="row.value"
-                                           placeholder="e.g. 350"
+                                           placeholder="Default value"
+                                           class="flex-1 text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
+                                    <input type="text"
+                                           :name="'attr_options[' + i + ']'"
+                                           x-model="row.options"
+                                           placeholder="Dropdown options (comma-separated)"
                                            class="flex-1 text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
                                     <button type="button"
                                             @click="rows.splice(i, 1)"
@@ -93,7 +107,7 @@
                             </template>
                         </div>
 
-                        <p class="mt-1.5 text-xs text-gray-400">Key = attribute name &nbsp;·&nbsp; Value = what it is.</p>
+                        <p class="mt-1.5 text-xs text-gray-400">Options = choices shown as suggestions in the quotation builder (comma-separated). Leave blank for free text only.</p>
                     </div>
 
                     <div>

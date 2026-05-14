@@ -278,10 +278,11 @@ class QuotationController extends Controller
     private function catalogForJs(): array
     {
         return PlanProduct::get()->map(fn($p) => [
-            'id'         => $p->id,
-            'name'       => $p->name,
-            'category'   => ucfirst(str_replace('_', ' ', $p->plan_type)),
-            'attributes' => $p->attributes ?? [],
+            'id'                => $p->id,
+            'name'              => $p->name,
+            'category'          => ucfirst(str_replace('_', ' ', $p->plan_type)),
+            'attributes'        => $p->attributes ?? [],
+            'attribute_options' => $p->attribute_options ?? [],
         ])->values()->toArray();
     }
 

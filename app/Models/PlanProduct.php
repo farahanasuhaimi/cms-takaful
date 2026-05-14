@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class PlanProduct extends Model
 {
-    protected $fillable = ['user_id', 'plan_type', 'name', 'commission_first_year', 'attributes', 'notes', 'is_shared', 'shared_note'];
+    protected $fillable = ['user_id', 'plan_type', 'name', 'commission_first_year', 'attributes', 'attribute_options', 'notes', 'is_shared', 'shared_note'];
 
     protected $casts = [
-        'attributes' => 'array',
-        'is_shared'  => 'boolean',
+        'attributes'       => 'array',
+        'attribute_options' => 'array',
+        'is_shared'        => 'boolean',
     ];
 
     protected static function booted(): void

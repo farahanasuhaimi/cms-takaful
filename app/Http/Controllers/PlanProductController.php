@@ -29,15 +29,20 @@ class PlanProductController extends Controller
             'notes'                 => 'nullable|string',
         ]);
 
-        // Build attributes array from parallel key/value arrays
         $attributes = [];
-        $keys   = $request->input('attr_keys', []);
-        $values = $request->input('attr_values', []);
+        $attributeOptions = [];
+        $keys    = $request->input('attr_keys', []);
+        $values  = $request->input('attr_values', []);
+        $options = $request->input('attr_options', []);
 
         foreach ($keys as $i => $key) {
             $key = trim($key);
             if ($key !== '') {
                 $attributes[$key] = trim($values[$i] ?? '');
+                $optStr = trim($options[$i] ?? '');
+                if ($optStr !== '') {
+                    $attributeOptions[$key] = array_values(array_filter(array_map('trim', explode(',', $optStr))));
+                }
             }
         }
 
@@ -47,6 +52,7 @@ class PlanProductController extends Controller
             'name'                  => $request->name,
             'commission_first_year' => $request->commission_first_year,
             'attributes'            => $attributes ?: null,
+            'attribute_options'     => $attributeOptions ?: null,
             'notes'                 => $request->notes,
         ]);
 
@@ -71,13 +77,19 @@ class PlanProductController extends Controller
         ]);
 
         $attributes = [];
-        $keys   = $request->input('attr_keys', []);
-        $values = $request->input('attr_values', []);
+        $attributeOptions = [];
+        $keys    = $request->input('attr_keys', []);
+        $values  = $request->input('attr_values', []);
+        $options = $request->input('attr_options', []);
 
         foreach ($keys as $i => $key) {
             $key = trim($key);
             if ($key !== '') {
                 $attributes[$key] = trim($values[$i] ?? '');
+                $optStr = trim($options[$i] ?? '');
+                if ($optStr !== '') {
+                    $attributeOptions[$key] = array_values(array_filter(array_map('trim', explode(',', $optStr))));
+                }
             }
         }
 
@@ -86,6 +98,7 @@ class PlanProductController extends Controller
             'name'                  => $request->name,
             'commission_first_year' => $request->commission_first_year,
             'attributes'            => $attributes ?: null,
+            'attribute_options'     => $attributeOptions ?: null,
             'notes'                 => $request->notes,
             'is_shared'             => (bool) $request->input('is_shared', false),
             'shared_note'           => $request->shared_note,
