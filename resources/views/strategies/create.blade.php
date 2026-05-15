@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="title">New Strategy · Dr Takaful CMS</x-slot>
-    <x-slot name="pageTitle">New Strategy</x-slot>
+    <x-slot name="pageTitle">New Strategy{{ $angle ? ' — ' . $angle->title : '' }}</x-slot>
 
     <x-slot name="actions">
         <a href="{{ route('strategies.index') }}"
@@ -32,14 +32,15 @@
                 <label class="block text-xs text-gray-600 mb-1">Title <span class="text-red-400">*</span></label>
                 <input type="text" id="f-title" name="title"
                        class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400"
-                       placeholder="e.g. Cold WhatsApp Opener for Strangers">
+                       placeholder="e.g. Cold WhatsApp Opener for Strangers"
+                       value="{{ $angle?->title ?? '' }}">
             </div>
 
             <div class="sm:col-span-2">
                 <label class="block text-xs text-gray-600 mb-1">Description</label>
                 <textarea id="f-description" name="description" rows="2"
                           class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400"
-                          placeholder="When and how to use this strategy"></textarea>
+                          placeholder="When and how to use this strategy">{{ $angle?->description ?? '' }}</textarea>
             </div>
 
             <div>
@@ -80,6 +81,9 @@
                     <option value="corporate">Corporate</option>
                     <option value="general">General</option>
                 </select>
+                @if ($angle?->target_segment)
+                    <p class="text-xs text-gray-400 mt-1">Angle target: {{ $angle->target_segment }}</p>
+                @endif
             </div>
 
             <div>

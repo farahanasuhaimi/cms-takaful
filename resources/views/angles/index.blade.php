@@ -38,6 +38,8 @@
                             @endif
                         </div>
                         <div class="flex items-center gap-3 flex-shrink-0">
+                            <a href="{{ route('strategies.create', ['angle_id' => $angle->id]) }}"
+                               class="text-xs text-amber-600 hover:underline">+ Strategy</a>
                             <a href="{{ route('angles.edit', $angle) }}"
                                class="text-xs text-matcha-600 hover:underline">Edit</a>
                             <button type="button" @click="delConfirm = !delConfirm"

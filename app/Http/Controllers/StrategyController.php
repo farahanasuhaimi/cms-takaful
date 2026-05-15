@@ -40,9 +40,13 @@ class StrategyController extends Controller
         return view('strategies.index', compact('strategies'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('strategies.create');
+        $angle = $request->filled('angle_id')
+            ? \App\Models\ReachAngle::find($request->angle_id)
+            : null;
+
+        return view('strategies.create', compact('angle'));
     }
 
     public function store(Request $request)
