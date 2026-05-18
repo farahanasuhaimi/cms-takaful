@@ -31,6 +31,11 @@ class Strategy extends Model
         return $this->belongsToMany(ReachAngle::class, 'angle_strategy')->withPivot('linked_at');
     }
 
+    public function focusPoints()
+    {
+        return $this->belongsToMany(FocusPoint::class, 'strategy_focus_point');
+    }
+
     public function isOwnedBy(int $userId): bool
     {
         return $this->user_id === $userId;
