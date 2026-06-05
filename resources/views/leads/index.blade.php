@@ -34,7 +34,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-50">
                         @foreach ($hotLeads as $lead)
-                            <tr class="hover:bg-strawberry-50/20 transition" x-data="{ tpOpen: false }">
+                            <tr class="hover:bg-strawberry-50/20 transition" x-data="{ tpOpen: false, convertOpen: false }">
                                 <td class="px-5 py-3 font-medium text-gray-800">{{ $lead->name }}</td>
                                 <td class="px-5 py-3 text-gray-500">
                                     @if ($lead->phone)
@@ -55,18 +55,38 @@
                                 <td class="px-5 py-3 text-xs text-gray-400">{{ ucfirst(str_replace('_', ' ', $lead->source)) }}</td>
                                 <td class="px-5 py-3">
                                     <div class="flex items-center gap-2 justify-end">
-                                        <button @click="tpOpen = !tpOpen"
+                                        <button @click="tpOpen = !tpOpen; convertOpen = false"
                                                 class="text-xs text-matcha-600 hover:underline">Log</button>
                                         <a href="{{ route('leads.edit', $lead) }}"
                                            class="text-xs text-gray-400 hover:text-gray-600">Edit</a>
-                                        <form method="POST" action="{{ route('leads.convert', $lead) }}" class="inline">
+                                        <button @click="convertOpen = !convertOpen; tpOpen = false"
+                                                class="text-xs bg-matcha-600 hover:bg-matcha-800 text-white px-2.5 py-1 rounded-lg transition">
+                                            Convert
+                                        </button>
+                                    </div>
+
+                                    {{-- Inline convert confirm --}}
+                                    <div x-show="convertOpen" x-transition class="mt-3 p-3 bg-matcha-50 rounded-lg border border-matcha-200">
+                                        <p class="text-xs font-medium text-gray-700 mb-2">Convert <span class="text-matcha-700">{{ $lead->name }}</span> to Policyholder?</p>
+                                        <form method="POST" action="{{ route('leads.convert', $lead) }}">
                                             @csrf
-                                            <button type="submit"
-                                                    class="text-xs bg-matcha-600 hover:bg-matcha-800 text-white px-2.5 py-1 rounded-lg transition">
-                                                Convert
-                                            </button>
+                                            <div class="mb-2">
+                                                <label class="block text-xs text-gray-600 mb-1">IC Number <span class="text-gray-400">(optional — can add later)</span></label>
+                                                <input type="text" name="ic_no" placeholder="e.g. 900101-14-5678"
+                                                       class="w-full text-xs rounded border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
+                                            </div>
+                                            <p class="text-xs text-gray-400 mb-2">Contact history will be carried over automatically.</p>
+                                            <div class="flex gap-2">
+                                                <button type="submit"
+                                                        class="text-xs bg-matcha-600 hover:bg-matcha-800 text-white px-3 py-1.5 rounded transition">
+                                                    Yes, Convert
+                                                </button>
+                                                <button type="button" @click="convertOpen = false"
+                                                        class="text-xs text-gray-400 hover:text-gray-600">Cancel</button>
+                                            </div>
                                         </form>
                                     </div>
+
                                     {{-- Inline touchpoint form --}}
                                     <div x-show="tpOpen" x-transition class="mt-3 p-3 bg-matcha-50 rounded-lg border border-matcha-100 col-span-full">
                                         <form method="POST" action="{{ route('leads.touchpoints.store', $lead) }}">
@@ -141,7 +161,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-50">
                         @foreach ($warmLeads as $lead)
-                            <tr class="hover:bg-amber-50/20 transition" x-data="{ tpOpen: false }">
+                            <tr class="hover:bg-amber-50/20 transition" x-data="{ tpOpen: false, convertOpen: false }">
                                 <td class="px-5 py-3 font-medium text-gray-800">{{ $lead->name }}</td>
                                 <td class="px-5 py-3 text-gray-500">
                                     @if ($lead->phone)
@@ -162,18 +182,38 @@
                                 <td class="px-5 py-3 text-xs text-gray-400">{{ ucfirst(str_replace('_', ' ', $lead->source)) }}</td>
                                 <td class="px-5 py-3">
                                     <div class="flex items-center gap-2 justify-end">
-                                        <button @click="tpOpen = !tpOpen"
+                                        <button @click="tpOpen = !tpOpen; convertOpen = false"
                                                 class="text-xs text-matcha-600 hover:underline">Log</button>
                                         <a href="{{ route('leads.edit', $lead) }}"
                                            class="text-xs text-gray-400 hover:text-gray-600">Edit</a>
-                                        <form method="POST" action="{{ route('leads.convert', $lead) }}" class="inline">
+                                        <button @click="convertOpen = !convertOpen; tpOpen = false"
+                                                class="text-xs bg-matcha-600 hover:bg-matcha-800 text-white px-2.5 py-1 rounded-lg transition">
+                                            Convert
+                                        </button>
+                                    </div>
+
+                                    {{-- Inline convert confirm --}}
+                                    <div x-show="convertOpen" x-transition class="mt-3 p-3 bg-matcha-50 rounded-lg border border-matcha-200">
+                                        <p class="text-xs font-medium text-gray-700 mb-2">Convert <span class="text-matcha-700">{{ $lead->name }}</span> to Policyholder?</p>
+                                        <form method="POST" action="{{ route('leads.convert', $lead) }}">
                                             @csrf
-                                            <button type="submit"
-                                                    class="text-xs bg-matcha-600 hover:bg-matcha-800 text-white px-2.5 py-1 rounded-lg transition">
-                                                Convert
-                                            </button>
+                                            <div class="mb-2">
+                                                <label class="block text-xs text-gray-600 mb-1">IC Number <span class="text-gray-400">(optional — can add later)</span></label>
+                                                <input type="text" name="ic_no" placeholder="e.g. 900101-14-5678"
+                                                       class="w-full text-xs rounded border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
+                                            </div>
+                                            <p class="text-xs text-gray-400 mb-2">Contact history will be carried over automatically.</p>
+                                            <div class="flex gap-2">
+                                                <button type="submit"
+                                                        class="text-xs bg-matcha-600 hover:bg-matcha-800 text-white px-3 py-1.5 rounded transition">
+                                                    Yes, Convert
+                                                </button>
+                                                <button type="button" @click="convertOpen = false"
+                                                        class="text-xs text-gray-400 hover:text-gray-600">Cancel</button>
+                                            </div>
                                         </form>
                                     </div>
+
                                     <div x-show="tpOpen" x-transition class="mt-3 p-3 bg-matcha-50 rounded-lg border border-matcha-100">
                                         <form method="POST" action="{{ route('leads.touchpoints.store', $lead) }}">
                                             @csrf

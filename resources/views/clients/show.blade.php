@@ -17,7 +17,14 @@
             <div class="bg-white rounded-xl border border-gray-200 p-6">
                 <div class="flex items-start justify-between">
                     <div>
-                        <h2 class="text-xl font-semibold text-gray-800">{{ $client->name }}</h2>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h2 class="text-xl font-semibold text-gray-800">{{ $client->name }}</h2>
+                            @if ($client->lead_id)
+                                <span class="text-xs bg-matcha-50 text-matcha-600 border border-matcha-100 px-2 py-0.5 rounded-full">
+                                    Converted Lead
+                                </span>
+                            @endif
+                        </div>
                         @if ($client->phone)
                             <a href="https://wa.me/{{ $client->phone }}" target="_blank"
                                class="text-sm text-green-600 hover:underline mt-0.5 block">

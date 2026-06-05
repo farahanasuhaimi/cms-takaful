@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\Lead;
+use App\Models\Touchpoint;
 use Illuminate\Http\Request;
 
 class LeadController extends Controller
@@ -80,7 +81,7 @@ class LeadController extends Controller
             ->with('success', 'Lead removed.');
     }
 
-    public function convert(Lead $lead)
+    public function convert(Request $request, Lead $lead)
     {
         if ($lead->isConverted()) {
             return redirect()->route('leads.index')
@@ -89,14 +90,25 @@ class LeadController extends Controller
 
         $client = Client::create([
             'user_id' => auth()->id(),
+            'lead_id' => $lead->id,
             'name'    => $lead->name,
             'phone'   => $lead->phone,
+            'ic_no'   => $request->filled('ic_no') ? $request->input('ic_no') : null,
             'notes'   => $lead->notes,
         ]);
+
+        // Migrate all touchpoints from the Lead to the new Client
+        Touchpoint::where('touchable_type', Lead::class)
+            ->where('touchable_id', $lead->id)
+            ->where('user_id', auth()->id())
+            ->update([
+                'touchable_type' => Client::class,
+                'touchable_id'   => $client->id,
+            ]);
 
         $lead->update(['converted_at' => now()]);
 
         return redirect()->route('clients.show', $client)
-            ->with('success', "{$lead->name} converted to policyholder. Add their policies below.");
+            ->with('success', "{$lead->name} converted to policyholder. Contact history carried over. Add their policy below.");
     }
 }
