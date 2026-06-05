@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\Lead;
+use App\Models\Strategy;
 use App\Models\Touchpoint;
 use Illuminate\Http\Request;
 
@@ -21,7 +22,9 @@ class LeadController extends Controller
             ->orderBy('next_contact', 'asc')
             ->get();
 
-        return view('leads.index', compact('hotLeads', 'warmLeads'));
+        $strategies = Strategy::where('user_id', auth()->id())->orderBy('title')->get(['id', 'title']);
+
+        return view('leads.index', compact('hotLeads', 'warmLeads', 'strategies'));
     }
 
     public function create()

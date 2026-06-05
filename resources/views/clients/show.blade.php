@@ -363,6 +363,18 @@
                                        class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
                                 <p class="text-[10px] text-gray-400 mt-1">Defaults to 14 days (a fortnight).</p>
                             </div>
+                            @if ($strategies->count())
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Strategy Used <span class="text-gray-400">(optional)</span></label>
+                                <select name="strategy_id"
+                                        class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400">
+                                    <option value="">— None —</option>
+                                    @foreach ($strategies as $s)
+                                        <option value="{{ $s->id }}">{{ $s->title }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @endif
                             <div class="col-span-2">
                                 <label class="block text-xs font-medium text-gray-600 mb-1">Notes</label>
                                 <textarea name="notes" rows="2"
@@ -396,6 +408,9 @@
                                     </span>
                                 </div>
                                 <p class="text-sm text-gray-700 mt-0.5">{{ $tp->topic }}</p>
+                                @if ($tp->strategy)
+                                    <p class="text-xs text-matcha-500 mt-0.5">Strategy: {{ $tp->strategy->title }}</p>
+                                @endif
                                 @if ($tp->next_action)
                                     <div class="flex items-center gap-2 mt-0.5">
                                         <p class="text-xs text-matcha-600">→ {{ $tp->next_action }}

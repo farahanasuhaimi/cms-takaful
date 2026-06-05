@@ -112,6 +112,18 @@
                                                     <input type="text" name="topic" required
                                                            class="w-full text-xs rounded border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
                                                 </div>
+                                                @if ($strategies->count())
+                                                <div class="col-span-2">
+                                                    <label class="block text-xs text-gray-600 mb-1">Strategy Used <span class="text-gray-400">(optional)</span></label>
+                                                    <select name="strategy_id"
+                                                            class="w-full text-xs rounded border-gray-300 focus:ring-matcha-400 focus:border-matcha-400">
+                                                        <option value="">— None —</option>
+                                                        @foreach ($strategies as $s)
+                                                            <option value="{{ $s->id }}">{{ $s->title }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                @endif
                                             </div>
                                             <div class="mt-2 flex gap-2">
                                                 <button type="submit"
@@ -238,6 +250,18 @@
                                                     <input type="text" name="topic" required
                                                            class="w-full text-xs rounded border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
                                                 </div>
+                                                @if ($strategies->count())
+                                                <div class="col-span-2">
+                                                    <label class="block text-xs text-gray-600 mb-1">Strategy Used <span class="text-gray-400">(optional)</span></label>
+                                                    <select name="strategy_id"
+                                                            class="w-full text-xs rounded border-gray-300 focus:ring-matcha-400 focus:border-matcha-400">
+                                                        <option value="">— None —</option>
+                                                        @foreach ($strategies as $s)
+                                                            <option value="{{ $s->id }}">{{ $s->title }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                @endif
                                             </div>
                                             <div class="mt-2 flex gap-2">
                                                 <button type="submit"

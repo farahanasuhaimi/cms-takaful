@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\PlanProduct;
 use App\Models\Policy;
+use App\Models\Strategy;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -65,10 +66,11 @@ class ClientController extends Controller
             'quotations',
         ]);
 
-        $touchpoints = $client->touchpoints()->paginate(10);
+        $touchpoints = $client->touchpoints()->with('strategy')->paginate(10);
         $planProducts = PlanProduct::orderBy('plan_type')->orderBy('name')->get();
+        $strategies = Strategy::where('user_id', auth()->id())->orderBy('title')->get(['id', 'title']);
 
-        return view('clients.show', compact('client', 'touchpoints', 'planProducts'));
+        return view('clients.show', compact('client', 'touchpoints', 'planProducts', 'strategies'));
     }
 
     public function edit(Client $client)

@@ -36,6 +36,11 @@ class Strategy extends Model
         return $this->belongsToMany(FocusPoint::class, 'strategy_focus_point');
     }
 
+    public function touchpoints()
+    {
+        return $this->hasMany(Touchpoint::class);
+    }
+
     public function isOwnedBy(int $userId): bool
     {
         return $this->user_id === $userId;

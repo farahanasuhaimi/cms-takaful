@@ -27,6 +27,7 @@
                         <th class="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Person</th>
                         <th class="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Channel</th>
                         <th class="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Topic</th>
+                        <th class="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Strategy</th>
                         <th class="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Next Action</th>
                     </tr>
                 </thead>
@@ -58,6 +59,14 @@
                                 </span>
                             </td>
                             <td class="px-5 py-3 text-sm text-gray-700 max-w-xs truncate">{{ $tp->topic }}</td>
+                            <td class="px-5 py-3 text-xs text-gray-500">
+                                @if ($tp->strategy)
+                                    <a href="{{ route('strategies.show', $tp->strategy) }}"
+                                       class="text-matcha-600 hover:underline">{{ $tp->strategy->title }}</a>
+                                @else
+                                    <span class="text-gray-300">—</span>
+                                @endif
+                            </td>
                             <td class="px-5 py-3 text-xs text-gray-500">
                                 @if ($tp->next_action)
                                     {{ $tp->next_action }}

@@ -11,7 +11,7 @@ class TouchpointController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Touchpoint::with('touchable')->latest('contacted_at');
+        $query = Touchpoint::with('touchable', 'strategy')->latest('contacted_at');
 
         if ($request->filled('channel')) {
             $query->where('channel', $request->channel);
@@ -56,6 +56,7 @@ class TouchpointController extends Controller
             'notes'            => 'nullable|string',
             'next_action'      => 'nullable|string|max:255',
             'next_action_date' => 'nullable|date',
+            'strategy_id'      => 'nullable|exists:strategies,id',
         ]);
     }
 }

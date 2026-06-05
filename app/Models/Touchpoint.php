@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Touchpoint extends Model
 {
     protected $fillable = [
-        'user_id', 'touchable_type', 'touchable_id',
+        'user_id', 'strategy_id', 'touchable_type', 'touchable_id',
         'contacted_at', 'channel', 'topic', 'notes',
         'next_action', 'next_action_date',
     ];
@@ -29,6 +29,11 @@ class Touchpoint extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function strategy()
+    {
+        return $this->belongsTo(Strategy::class);
     }
 
     public function touchable()
