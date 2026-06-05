@@ -92,6 +92,17 @@
         <p class="text-sm text-gray-600 mb-5 leading-relaxed">{{ $strategy->description }}</p>
     @endif
 
+    {{-- Focus Points --}}
+    @if ($focusPoints->isNotEmpty())
+        <div class="flex flex-wrap gap-1.5 mb-5">
+            @foreach ($focusPoints as $fp)
+                <span class="text-xs bg-matcha-50 text-matcha-700 border border-matcha-100 px-2.5 py-1 rounded-full">
+                    {{ $fp->title }}
+                </span>
+            @endforeach
+        </div>
+    @endif
+
     {{-- Script content --}}
     @if ($strategy->type === 'script' && $strategy->content)
         <div class="bg-white rounded-xl border border-gray-200 p-5 mb-5">

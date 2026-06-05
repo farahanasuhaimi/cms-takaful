@@ -86,6 +86,38 @@
                 </div>
             @endif
 
+            {{-- Focus Points --}}
+            <div class="mb-4">
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">Focus Points</label>
+                <div class="space-y-4">
+                    @foreach ($focusPoints as $group => $points)
+                        <div>
+                            <p class="text-xs font-semibold text-gray-600 mb-2">
+                                {{ match($group) {
+                                    'financial'  => 'Financial',
+                                    'protection' => 'Protection',
+                                    'family'     => 'Family',
+                                    'life_stage' => 'Life Stage',
+                                    'emotional'  => 'Emotional',
+                                    'islamic'    => 'Islamic',
+                                    default      => ucwords(str_replace('_', ' ', $group)),
+                                } }}
+                            </p>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                @foreach ($points as $fp)
+                                    <label class="flex items-start gap-2 text-xs text-gray-600 cursor-pointer group">
+                                        <input type="checkbox" name="focus_point_ids[]" value="{{ $fp->id }}"
+                                               {{ in_array($fp->id, $selectedFocusPointIds) ? 'checked' : '' }}
+                                               class="mt-0.5 flex-shrink-0 rounded border-gray-300 text-matcha-600 focus:ring-matcha-400">
+                                        <span class="leading-snug group-hover:text-gray-800 transition">{{ $fp->title }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
             <div class="flex items-center gap-3">
                 <button type="submit"
                         class="text-sm bg-matcha-600 hover:bg-matcha-700 text-white px-5 py-2 rounded-lg transition">

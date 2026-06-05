@@ -107,6 +107,37 @@
         </div>
     </div>
 
+    {{-- Focus Points --}}
+    <div class="bg-white rounded-xl border border-gray-200 p-5 mb-4">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-4">Focus Points</p>
+        <div class="space-y-4">
+            @foreach ($focusPoints as $group => $points)
+                <div>
+                    <p class="text-xs font-semibold text-gray-600 mb-2">
+                        {{ match($group) {
+                            'financial'  => 'Financial',
+                            'protection' => 'Protection',
+                            'family'     => 'Family',
+                            'life_stage' => 'Life Stage',
+                            'emotional'  => 'Emotional',
+                            'islamic'    => 'Islamic',
+                            default      => ucwords(str_replace('_', ' ', $group)),
+                        } }}
+                    </p>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        @foreach ($points as $fp)
+                            <label class="flex items-start gap-2 text-xs text-gray-600 cursor-pointer group">
+                                <input type="checkbox" name="fp_ids[]" value="{{ $fp->id }}"
+                                       class="mt-0.5 flex-shrink-0 rounded border-gray-300 text-matcha-600 focus:ring-matcha-400">
+                                <span class="leading-snug group-hover:text-gray-800 transition">{{ $fp->title }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
     {{-- Self Made panel --}}
     <div id="panel-self">
 
@@ -172,7 +203,7 @@
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('strategies.store-generated') }}" id="ai-form">
+            <form method="POST" action="{{ route('strategies.store-generated') }}" id="ai-form" onsubmit="injectFocusPoints(this)">
                 @csrf
                 <input type="hidden" name="title" id="ai-hf-title">
                 <input type="hidden" name="description" id="ai-hf-description">
@@ -238,7 +269,20 @@ function submitSelf() {
     document.getElementById('hf-difficulty').value  = d.difficulty;
     document.getElementById('hf-type').value        = d.type;
     document.getElementById('hf-content').value     = document.getElementById('f-content').value;
+    injectFocusPoints(document.getElementById('self-form'));
     document.getElementById('self-form').submit();
+}
+
+function injectFocusPoints(form) {
+    form.querySelectorAll('input[data-fp]').forEach(el => el.remove());
+    document.querySelectorAll('input[name="fp_ids[]"]:checked').forEach(cb => {
+        const inp = document.createElement('input');
+        inp.type = 'hidden';
+        inp.name = 'focus_point_ids[]';
+        inp.value = cb.value;
+        inp.dataset.fp = '1';
+        form.appendChild(inp);
+    });
 }
 
 async function runAi() {

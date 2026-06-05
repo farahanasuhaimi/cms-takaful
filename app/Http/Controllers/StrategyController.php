@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FocusPoint;
 use App\Models\Strategy;
 use App\Models\StrategyStep;
 use App\Services\StrategyAiService;
@@ -46,7 +47,11 @@ class StrategyController extends Controller
             ? \App\Models\ReachAngle::find($request->angle_id)
             : null;
 
-        return view('strategies.create', compact('angle'));
+        $focusPoints = FocusPoint::where('status', 'active')
+            ->orderBy('group')->orderBy('title')
+            ->get()->groupBy('group');
+
+        return view('strategies.create', compact('angle', 'focusPoints'));
     }
 
     public function store(Request $request)
@@ -69,6 +74,8 @@ class StrategyController extends Controller
             'status'  => 'active',
         ]);
 
+        $strategy->focusPoints()->sync($request->input('focus_point_ids', []));
+
         return redirect()->route('strategies.show', $strategy)
             ->with('success', 'Strategy created.');
     }
@@ -82,8 +89,9 @@ class StrategyController extends Controller
 
         $steps = $strategy->steps;
         $listing = $strategy->listing;
+        $focusPoints = $strategy->focusPoints;
 
-        return view('strategies.show', compact('strategy', 'steps', 'listing'));
+        return view('strategies.show', compact('strategy', 'steps', 'listing', 'focusPoints'));
     }
 
     public function edit(Strategy $strategy)
@@ -91,8 +99,12 @@ class StrategyController extends Controller
         abort_if($strategy->user_id !== auth()->id(), 403);
 
         $steps = $strategy->steps;
+        $focusPoints = FocusPoint::where('status', 'active')
+            ->orderBy('group')->orderBy('title')
+            ->get()->groupBy('group');
+        $selectedFocusPointIds = $strategy->focusPoints->pluck('id')->toArray();
 
-        return view('strategies.edit', compact('strategy', 'steps'));
+        return view('strategies.edit', compact('strategy', 'steps', 'focusPoints', 'selectedFocusPointIds'));
     }
 
     public function update(Request $request, Strategy $strategy)
@@ -111,6 +123,8 @@ class StrategyController extends Controller
         ]);
 
         $strategy->update($validated);
+
+        $strategy->focusPoints()->sync($request->input('focus_point_ids', []));
 
         return redirect()->route('strategies.show', $strategy)
             ->with('success', 'Strategy updated.');
@@ -193,6 +207,8 @@ class StrategyController extends Controller
                 ]);
             }
         }
+
+        $strategy->focusPoints()->sync($request->input('focus_point_ids', []));
 
         return redirect()->route('strategies.show', $strategy)
             ->with('success', 'AI-guided strategy saved.');
