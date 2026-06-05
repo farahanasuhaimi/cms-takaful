@@ -6,6 +6,16 @@
 
 ---
 
+## Recent Updates
+
+### 2026-06-05 — Sales Loop Closed (Priority 1 complete)
+
+- **Lead → Client conversion** — Inline "Convert" button on Leads page. Creates Client from lead data (name, phone), migrates all touchpoints, marks `converted_at`. "Converted Lead" badge visible on Client profile.
+- **Quotation → Lead/Client link** — `lead_id` / `client_id` nullable FKs on quotations. "Link to Lead or Client" optional dropdown on create/edit form. Linked name shown on quotation show + index. Quotations card visible on Client profile.
+- **Touchpoint strategy tagging** — `strategy_id` nullable FK on touchpoints. "Strategy Used" optional dropdown on all touchpoint log forms (client show + lead inline). Strategy shown in interaction history and follow-up log.
+
+---
+
 ## What This Is
 
 A private CRM for Hana and up to ~10 trusted friends (AIA takaful agents). Each user's data is fully isolated. Manages policyholders, leads, outreach interactions, prospecting strategy, and a two-sided marketplace for sharing AI-generated content and plan product knowledge.
@@ -20,9 +30,10 @@ A private CRM for Hana and up to ~10 trusted friends (AIA takaful agents). Each 
 | **Multi-tenancy** | Per-user data isolation via Eloquent global scopes on all user-owned models. |
 | **PII Encryption** | Client + lead name, phone, IC encrypted at rest (AES-256-CBC via `encrypted` cast). |
 | **Dashboard** | Stats (clients, leads, commission, last outreach), renewal alerts, top plans, hot leads. |
-| **Policyholders** | Full CRUD. Inline policy attach with catalog selector. Touchpoint log. Commission estimate. |
-| **Leads** | Hot/warm split, stage tracking, convert to client. Inline touchpoint log. |
-| **Follow-up Log** | Polymorphic touchpoints across clients and leads. Filter by channel. |
+| **Policyholders** | Full CRUD. Inline policy attach with catalog selector. Touchpoint log. Commission estimate. Linked quotations shown. |
+| **Leads** | Hot/warm split, stage tracking. Inline convert → Client (migrates touchpoints). Inline touchpoint log with strategy tagging. |
+| **Quotations** | Multi-person/multi-plan premium comparison builder. Duplicate. Print/PDF. Optional link to Lead or Client. |
+| **Follow-up Log** | Polymorphic touchpoints across clients and leads. Filter by channel. Strategy used shown per touchpoint. |
 | **Reach Angles** | Prospecting strategy cards. AI content generation per angle. Tag clients. |
 | **Content Library** | Pinned AI-generated content. Copy, unpin, list for sale in marketplace. |
 | **Plan Catalog** | Register plan products with JSON attributes and commission rates. Toggle public sharing. |
@@ -92,10 +103,10 @@ The AI content generation (casual/story/factual) via `AngleContentService` **is 
 
 ### Weaknesses Across the System
 
-1. **Lead → Client conversion is manual and incomplete.** `converted_at` exists on Lead but there's no flow to create a Client from a Lead automatically.
-2. **Quotations are orphaned.** `prospect_name`/`prospect_phone` are plain text fields — no FK to Lead or Client. Can't answer "show all quotations for Ahmad" from the client page.
+1. ~~**Lead → Client conversion is manual and incomplete.**~~ ✅ *Fixed 2026-06-05 — inline Convert button migrates touchpoints and marks `converted_at`.*
+2. ~~**Quotations are orphaned.**~~ ✅ *Fixed 2026-06-05 — `lead_id`/`client_id` FKs on quotations; quotations visible from client profile.*
 3. **No notification layer.** Overdue follow-ups and renewals exist in the dashboard but only if you log in. Nothing emails or pings you.
-4. **Strategies and touchpoints don't talk to each other.** Can't record which strategy was used in a meeting. No way to know what's working vs. sitting unused.
+4. ~~**Strategies and touchpoints don't talk to each other.**~~ ✅ *Fixed 2026-06-05 — `strategy_id` FK on touchpoints; strategy tagged per interaction.*
 5. **No export.** Can't export clients, leads, or policies to Excel/CSV. No PDF for quotations.
 6. **Orphaned angle content code.** `AngleContentService`, `AngleContent` model, `angle_contents` table, and `angles/library.blade.php` exist but are unreachable — dead weight that should be removed or rebuilt.
 
@@ -138,12 +149,22 @@ invitations              — token, email, invited_by, used_at, expires_at
 credit_transactions      — user_id, amount, type, description
 activity_logs            — user_id, action, subject_type, subject_id, description
 
-clients                  — user_id, name*, phone*, ic_no*, email, notes
+clients                  — user_id, lead_id, name*, phone*, ic_no*, email, notes
 policies                 — client_id, plan_product_id, plan_type, coverage, start_date, frequency
 leads                    — user_id, name*, phone*, source, temperature, stage, converted_at
-touchpoints              — polymorphic (client OR lead), channel, topic, notes, next_action_date
+touchpoints              — user_id, strategy_id, polymorphic (client OR lead), channel, topic, notes, next_action_date
+quotations               — user_id, lead_id, client_id, title, prospect_name, prospect_phone, notes
+quotation_people         — quotation_id, name, age, sort_order
+quotation_plans          — quotation_id, category, plan_name, type, coverage, premium attributes...
+quotation_premiums       — quotation_plan_id, quotation_person_id, amount
+strategies               — user_id, title, description, category, channel, audience, difficulty, type, status
+strategy_steps           — strategy_id, content, yes_next, no_next, step_order
+focus_points             — label, group
+strategy_focus_point     — strategy_id, focus_point_id
 reach_angles             — user_id, title, description, target_segment, status
 angle_client             — pivot: reach_angle_id, client_id
+angle_lead               — pivot: reach_angle_id, lead_id
+angle_strategy           — pivot: reach_angle_id, strategy_id
 angle_contents           — user_id, angle_id, batch, style, content, is_pinned, model
 plan_products            — user_id, plan_type, name, commission_first_year, is_shared, shared_note
 marketplace_policy_stars — user_id, plan_product_id
