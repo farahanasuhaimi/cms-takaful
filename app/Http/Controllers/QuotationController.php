@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
+use App\Models\Lead;
 use App\Models\PlanProduct;
 use App\Models\Quotation;
 use App\Models\QuotationPerson;
@@ -14,6 +16,7 @@ class QuotationController extends Controller
     public function index()
     {
         $quotations = Quotation::where('user_id', auth()->id())
+            ->with(['lead', 'client'])
             ->withCount(['people', 'plans'])
             ->latest()
             ->get();
@@ -24,7 +27,9 @@ class QuotationController extends Controller
     public function create()
     {
         $planCatalog = $this->catalogForJs();
-        return view('quotations.create', compact('planCatalog'));
+        $leads   = Lead::orderBy('id')->get();
+        $clients = Client::orderBy('id')->get();
+        return view('quotations.create', compact('planCatalog', 'leads', 'clients'));
     }
 
     public function store(Request $request)
@@ -35,8 +40,12 @@ class QuotationController extends Controller
 
         abort_if(empty(trim($data['title'] ?? '')), 422, 'Title is required.');
 
+        [$leadId, $clientId] = $this->parseLinkedPerson($data['linked_person'] ?? '');
+
         $quotation = Quotation::create([
             'user_id'        => auth()->id(),
+            'lead_id'        => $leadId,
+            'client_id'      => $clientId,
             'title'          => trim($data['title']),
             'notes'          => trim($data['notes'] ?? '') ?: null,
             'prospect_name'  => trim($data['prospect_name'] ?? '') ?: null,
@@ -93,6 +102,7 @@ class QuotationController extends Controller
     {
         abort_if($quotation->user_id !== auth()->id(), 403);
 
+        $quotation->load(['lead', 'client']);
         $people = $quotation->people;
         $plans  = $quotation->plans->load('premiums');
 
@@ -152,8 +162,14 @@ class QuotationController extends Controller
             })->values()->toArray(),
         ];
 
+        $initial['linked_person'] = $quotation->lead_id
+            ? 'lead_' . $quotation->lead_id
+            : ($quotation->client_id ? 'client_' . $quotation->client_id : '');
+
         $planCatalog = $this->catalogForJs();
-        return view('quotations.edit', compact('quotation', 'initial', 'planCatalog'));
+        $leads   = Lead::orderBy('id')->get();
+        $clients = Client::orderBy('id')->get();
+        return view('quotations.edit', compact('quotation', 'initial', 'planCatalog', 'leads', 'clients'));
     }
 
     public function update(Request $request, Quotation $quotation)
@@ -164,7 +180,11 @@ class QuotationController extends Controller
         $data = json_decode($request->data, true);
         abort_if(empty(trim($data['title'] ?? '')), 422, 'Title is required.');
 
+        [$leadId, $clientId] = $this->parseLinkedPerson($data['linked_person'] ?? '');
+
         $quotation->update([
+            'lead_id'        => $leadId,
+            'client_id'      => $clientId,
             'title'          => trim($data['title']),
             'notes'          => trim($data['notes'] ?? '') ?: null,
             'prospect_name'  => trim($data['prospect_name'] ?? '') ?: null,
@@ -226,6 +246,8 @@ class QuotationController extends Controller
 
         $copy = Quotation::create([
             'user_id'        => auth()->id(),
+            'lead_id'        => $quotation->lead_id,
+            'client_id'      => $quotation->client_id,
             'title'          => 'Copy of ' . $quotation->title,
             'notes'          => $quotation->notes,
             'prospect_name'  => $quotation->prospect_name,
@@ -273,6 +295,17 @@ class QuotationController extends Controller
         }
 
         return redirect()->route('quotations.edit', $copy)->with('success', 'Quotation duplicated. Edit and save.');
+    }
+
+    private function parseLinkedPerson(string $value): array
+    {
+        if (str_starts_with($value, 'lead_')) {
+            return [(int) substr($value, 5), null];
+        }
+        if (str_starts_with($value, 'client_')) {
+            return [null, (int) substr($value, 7)];
+        }
+        return [null, null];
     }
 
     private function catalogForJs(): array

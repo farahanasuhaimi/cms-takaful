@@ -22,6 +22,11 @@
                             {{ $q->people_count }} {{ Str::plural('person', $q->people_count) }} ·
                             {{ $q->plans_count }} {{ Str::plural('plan', $q->plans_count) }} ·
                             {{ $q->created_at->format('d M Y') }}
+                            @if ($q->lead)
+                                · <span class="text-matcha-600">Lead: {{ $q->lead->name }}</span>
+                            @elseif ($q->client)
+                                · <span class="text-matcha-600">Client: {{ $q->client->name }}</span>
+                            @endif
                         </p>
                     </div>
                     <div class="flex items-center gap-3 flex-shrink-0">

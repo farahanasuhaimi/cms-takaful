@@ -42,6 +42,11 @@ class Lead extends Model
         return $this->belongsToMany(ReachAngle::class, 'angle_lead')->withPivot('linked_at');
     }
 
+    public function quotations()
+    {
+        return $this->hasMany(Quotation::class);
+    }
+
     public function isConverted(): bool
     {
         return $this->converted_at !== null;

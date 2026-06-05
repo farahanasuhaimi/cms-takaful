@@ -48,6 +48,11 @@ class Client extends Model
         return $this->belongsToMany(ReachAngle::class, 'angle_client')->withPivot('reached_at');
     }
 
+    public function quotations()
+    {
+        return $this->hasMany(Quotation::class);
+    }
+
     public function lastTouchpoint()
     {
         return $this->touchpoints()->latest('contacted_at')->first();

@@ -62,6 +62,7 @@ class ClientController extends Controller
         $client->load([
             'policies.planProduct',
             'reachAngles',
+            'quotations',
         ]);
 
         $touchpoints = $client->touchpoints()->paginate(10);

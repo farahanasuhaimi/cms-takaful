@@ -44,6 +44,31 @@
             </div>
         </div>
 
+        {{-- Link to Lead / Client --}}
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                Link to Lead or Client <span class="text-gray-300 font-normal normal-case">(optional)</span>
+            </p>
+            <select x-model="linked_person"
+                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                <option value="">— No link —</option>
+                @if ($leads->count())
+                    <optgroup label="Leads">
+                        @foreach ($leads as $l)
+                            <option value="lead_{{ $l->id }}">{{ $l->name }}</option>
+                        @endforeach
+                    </optgroup>
+                @endif
+                @if ($clients->count())
+                    <optgroup label="Clients">
+                        @foreach ($clients as $c)
+                            <option value="client_{{ $c->id }}">{{ $c->name }}</option>
+                        @endforeach
+                    </optgroup>
+                @endif
+            </select>
+        </div>
+
         {{-- People --}}
         <div class="bg-white rounded-xl border border-gray-200 p-5">
             <div class="flex items-center justify-between mb-3">
@@ -233,6 +258,7 @@
 
         const defaults = initial || {
             title: '',
+            linked_person: '',
             prospect_name: '', prospect_phone: '', prospect_notes: '',
             people: [{ name: '', age: '' }, { name: '', age: '' }],
             plans: [emptyPlan()]
@@ -308,6 +334,7 @@
 
                 document.getElementById('q-data').value = JSON.stringify({
                     title: this.title,
+                    linked_person: this.linked_person || '',
                     prospect_name: this.prospect_name,
                     prospect_phone: this.prospect_phone,
                     prospect_notes: this.prospect_notes,

@@ -39,6 +39,21 @@
         </div>
     </div>
 
+    {{-- Linked Lead / Client badge (screen only) --}}
+    @if ($quotation->lead)
+        <div class="mb-4 print:hidden">
+            <span class="text-xs text-gray-400">Linked to Lead: </span>
+            <a href="{{ route('leads.edit', $quotation->lead) }}"
+               class="text-xs font-medium text-matcha-700 hover:underline">{{ $quotation->lead->name }}</a>
+        </div>
+    @elseif ($quotation->client)
+        <div class="mb-4 print:hidden">
+            <span class="text-xs text-gray-400">Linked to Client: </span>
+            <a href="{{ route('clients.show', $quotation->client) }}"
+               class="text-xs font-medium text-matcha-700 hover:underline">{{ $quotation->client->name }}</a>
+        </div>
+    @endif
+
     {{-- Internal notes (screen only) --}}
     @if ($quotation->notes)
         <p class="text-sm text-gray-500 mb-5 print:hidden">{{ $quotation->notes }}</p>

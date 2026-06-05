@@ -454,6 +454,22 @@
             </div>
             @endif
 
+            {{-- Quotations --}}
+            @if ($client->quotations->count())
+            <div class="bg-white rounded-xl border border-gray-200 p-5">
+                <h3 class="text-sm font-semibold text-gray-700 mb-3">Quotations</h3>
+                <ul class="space-y-2">
+                    @foreach ($client->quotations as $q)
+                        <li class="flex items-center justify-between">
+                            <a href="{{ route('quotations.show', $q) }}"
+                               class="text-sm text-matcha-700 hover:underline truncate">{{ $q->title }}</a>
+                            <span class="text-xs text-gray-400 ml-2 whitespace-nowrap">{{ $q->created_at->format('d M Y') }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+
             {{-- Reach Angles --}}
             <div class="bg-white rounded-xl border border-gray-200 p-5">
                 <h3 class="text-sm font-semibold text-gray-700 mb-3">Reach Angles</h3>
