@@ -37,7 +37,77 @@ A private CRM for Hana and up to ~10 trusted friends (AIA takaful agents). Each 
 
 ---
 
-## Roadmap
+## System Review — Strengths & Gaps
+
+### Strengths
+
+**1. Privacy done right.**
+Client name, phone, and IC are encrypted at the database level via Laravel's `encrypted` cast. Correct baseline for any agent handling PII.
+
+**2. Dashboard surfaces what matters.**
+Renewal dates in 7 days, overdue follow-ups, hot leads by urgency, top commission clients. Actionable, not decorative.
+
+**3. Strategy system has real depth.**
+Script and Flow types, multi-step branching (YES / NO), AI generation, focus points taxonomy, marketplace monetization. A structured playbook, not a notes folder.
+
+**4. Quotation builder is field-ready.**
+Multi-person, multi-plan premium comparison usable in a face-to-face meeting. Duplicate feature. Plan catalog auto-loads attributes.
+
+**5. Content engine is wired.**
+Reach Angle → AI generates 3 variations (casual/story/factual) → pin → Content Library → copy to WhatsApp/Instagram.
+
+**6. Focus Points taxonomy is solid.**
+22 selling points across 6 groups (financial, protection, family, life stage, emotional, Islamic) grounded in real Takaful selling frameworks.
+
+**7. Marketplace = passive income potential.**
+Best strategies and angle content can be monetized by listing for credits.
+
+---
+
+### Content Angles — Observations & Gaps
+
+The Reach Angles system is the right idea but has friction that limits real-world use.
+
+**What works:**
+- Angle concept (title + target segment + description) is flexible enough for any message framework
+- 3-style split (casual/story/factual) provides variety across different platforms and audiences
+- Pin system keeps best content accessible in the Content Library
+- Angle → Lead/Client/Strategy linking tracks who you're targeting
+
+**What's missing or misaligned:**
+
+1. **No platform context.** An Instagram caption, WhatsApp broadcast, and Facebook post have different optimal lengths and tones. Content is generated without knowing the destination. A platform field on the Angle would let the AI tailor accordingly.
+
+2. **Generated content is capped at 2–4 sentences.** Fine for Instagram, too short for WhatsApp broadcasts or Facebook where agents write more. Length should adapt to platform.
+
+3. **No connection to Focus Points.** When generating content for "New Parents," the focus points `Ibu Bapa Baru`, `Tanggungjawab kepada Keluarga`, `Beri Keluarga Masa untuk Bernafas` are directly relevant — but the AI doesn't know about them. The generation prompt doesn't pull in the focus point framework.
+
+4. **No content cadence or structure.** On-demand generation only. No concept of a posting rhythm or content calendar (e.g. Week 1 = educational, Week 2 = story, Week 3 = CTA).
+
+5. **No hashtag or caption structure.** Content is plain prose. Most platforms benefit from hashtags or a specific caption formula. Nothing in the output is platform-ready out of the box.
+
+6. **Angle → Client/Lead linking is passive.** You can link a client to an angle, but there's no way to record "I sent this content to this client on this date." The link exists but produces no activity trail.
+
+---
+
+### Weaknesses Across the System
+
+1. **Lead → Client conversion is manual and incomplete.** `converted_at` exists on Lead but there's no flow to create a Client from a Lead automatically.
+2. **Quotations are orphaned.** `prospect_name`/`prospect_phone` are plain text fields — no FK to Lead or Client. Can't answer "show all quotations for Ahmad" from the client page.
+3. **No notification layer.** Overdue follow-ups and renewals exist in the dashboard but only if you log in. Nothing emails or pings you.
+4. **Strategies and touchpoints don't talk to each other.** Can't record which strategy was used in a meeting. No way to know what's working vs. sitting unused.
+5. **No export.** Can't export clients, leads, or policies to Excel/CSV. No PDF for quotations.
+6. **Angle content not tied to activity.** Generation history floats without context — no record of what was actually sent to whom.
+
+---
+
+## Improvement Tasks
+
+See [`TASKS.md`](TASKS.md) for the full prioritised task list.
+
+---
+
+## Roadmap (original)
 
 - [ ] Export clients to CSV
 - [ ] Search across leads (clients only currently)
