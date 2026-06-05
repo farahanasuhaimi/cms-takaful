@@ -9,7 +9,7 @@ Derived from system review (2026-06-05). Ordered by impact.
 These close gaps between modules that should be connected but aren't.
 
 - [ ] **Convert Lead → Client flow** — Add a "Convert to Client" button on the Lead page that creates a Client record from Lead data (name, phone), marks `converted_at`, and optionally creates a first policy skeleton
-- [ ] **Link Quotation → Lead/Client** — Add a `lead_id` or `client_id` FK to the Quotations table so the quote is attached to the person, visible from the client/lead page
+- [x] **Link Quotation → Lead/Client** — Add a `lead_id` or `client_id` FK to the Quotations table so the quote is attached to the person, visible from the client/lead page *(done 2026-06-05)*
 - [ ] **Touchpoint strategy tagging** — When logging a touchpoint, allow optionally linking which Strategy or Reach Angle was used (dropdown, optional field — data already exists, just needs wiring)
 
 ---
