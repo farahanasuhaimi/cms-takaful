@@ -66,27 +66,27 @@ Best strategies and angle content can be monetized by listing for credits.
 
 ### Content Angles — Observations & Gaps
 
-The Reach Angles system is the right idea but has friction that limits real-world use.
+#### Current state (as of 2026-06-05)
+
+The AI content generation (casual/story/factual) via `AngleContentService` **is no longer active**. No route, no controller — orphaned code. The sidebar link "Content Library" routes to `strategies.index`, not to angle content.
+
+**Reach Angles are now purely a linking/tagging tool:**
+- Group leads, clients, and strategies under a common message concept
+- No AI generation attached — the angle itself (title, target segment, description) is the only output
 
 **What works:**
-- Angle concept (title + target segment + description) is flexible enough for any message framework
-- 3-style split (casual/story/factual) provides variety across different platforms and audiences
-- Pin system keeps best content accessible in the Content Library
-- Angle → Lead/Client/Strategy linking tracks who you're targeting
+- Angle concept is flexible enough for any message framework
+- Angle → Lead/Client/Strategy linking gives a clean "angle → audience → playbook" trail
 
 **What's missing or misaligned:**
 
-1. **No platform context.** An Instagram caption, WhatsApp broadcast, and Facebook post have different optimal lengths and tones. Content is generated without knowing the destination. A platform field on the Angle would let the AI tailor accordingly.
+1. **"Content Library" label is misleading.** The nav link says Content Library but opens Strategy Library. A visitor expects posts/captions and gets sales scripts.
 
-2. **Generated content is capped at 2–4 sentences.** Fine for Instagram, too short for WhatsApp broadcasts or Facebook where agents write more. Length should adapt to platform.
+2. **No actual content output from an Angle.** Angles describe an approach but produce nothing directly usable. Gap between "this is my angle for New Parents" → deployable content is wide.
 
-3. **No connection to Focus Points.** When generating content for "New Parents," the focus points `Ibu Bapa Baru`, `Tanggungjawab kepada Keluarga`, `Beri Keluarga Masa untuk Bernafas` are directly relevant — but the AI doesn't know about them. The generation prompt doesn't pull in the focus point framework.
+3. **Angle → Client/Lead linking has no activity trail.** Link is static — no record of "I used this angle with this client on this date."
 
-4. **No content cadence or structure.** On-demand generation only. No concept of a posting rhythm or content calendar (e.g. Week 1 = educational, Week 2 = story, Week 3 = CTA).
-
-5. **No hashtag or caption structure.** Content is plain prose. Most platforms benefit from hashtags or a specific caption formula. Nothing in the output is platform-ready out of the box.
-
-6. **Angle → Client/Lead linking is passive.** You can link a client to an angle, but there's no way to record "I sent this content to this client on this date." The link exists but produces no activity trail.
+4. **Orphaned code to clean up.** `AngleContentService`, `AngleContent` model, `angle_contents` DB table, `angles/library.blade.php` — none are reachable from the app. Remove or rebuild.
 
 ---
 
@@ -97,7 +97,7 @@ The Reach Angles system is the right idea but has friction that limits real-worl
 3. **No notification layer.** Overdue follow-ups and renewals exist in the dashboard but only if you log in. Nothing emails or pings you.
 4. **Strategies and touchpoints don't talk to each other.** Can't record which strategy was used in a meeting. No way to know what's working vs. sitting unused.
 5. **No export.** Can't export clients, leads, or policies to Excel/CSV. No PDF for quotations.
-6. **Angle content not tied to activity.** Generation history floats without context — no record of what was actually sent to whom.
+6. **Orphaned angle content code.** `AngleContentService`, `AngleContent` model, `angle_contents` table, and `angles/library.blade.php` exist but are unreachable — dead weight that should be removed or rebuilt.
 
 ---
 

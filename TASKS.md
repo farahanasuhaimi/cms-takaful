@@ -16,13 +16,12 @@ These close gaps between modules that should be connected but aren't.
 
 ## Priority 2 — Content Angles Overhaul
 
-These address the specific gaps identified in the Reach Angles / Content generation flow.
+The AI content generation (casual/story/factual) is no longer active — `AngleContentService` has no route or controller. The angles module needs a decision: remove the dead code or rebuild the feature properly.
 
-- [ ] **Add platform field to Reach Angle** — WhatsApp / Instagram / Facebook / General — stored on the angle, passed to the AI generation prompt
-- [ ] **Adapt content length to platform** — Update `AngleContentService` system prompt to adjust output length per platform (WhatsApp = longer, Instagram = shorter, etc.)
-- [ ] **Inject Focus Points into angle content generation** — When generating, pass the linked focus points (or a subset) into the AI prompt so generated content reflects the relevant selling angles
-- [ ] **Log content usage against a Lead/Client** — When you send angle content to someone, allow marking it as "sent to [Lead/Client]" from the Content Library, creating a lightweight touchpoint record
-- [ ] **Add hashtag / caption structure option** — Option to include platform-appropriate hashtags in generated content (toggle per generation or per angle)
+- [ ] **Decision: remove or rebuild angle content generation** — either strip `AngleContentService`, `AngleContent` model, `angle_contents` table, and `angles/library.blade.php`, OR wire them back up with a proper `AngleContentController` and routes
+- [ ] **Rename "Content Library" nav link to "Strategy Library"** — current label is misleading; it routes to `strategies.index`
+- [ ] **Add content output to Angles** — angles currently produce nothing usable; link an angle to a strategy or add a simple text area for "what to say" so the angle has a deployable output
+- [ ] **Add activity trail to Angle → Client/Lead links** — record when the angle was used with a specific person (date + notes), not just that a link exists
 
 ---
 
@@ -43,15 +42,6 @@ These address the specific gaps identified in the Reach Angles / Content generat
 - [ ] **Content calendar view** — A simple calendar or weekly planner view that maps pinned angle content to planned posting dates
 
 ---
-
-## Content Angles — Specific AI Prompt Improvements
-
-These are smaller, lower-risk changes to the existing generation prompts.
-
-- [ ] **`AngleContentService`**: add platform to system prompt context
-- [ ] **`AngleContentService`**: pass relevant focus point titles into the user prompt when the angle has linked focus points
-- [ ] **`AngleContentService`**: increase `max_tokens` conditionally for WhatsApp/Facebook platforms
-- [ ] **`AngleContentService`**: add optional hashtag block to the JSON response schema (`"hashtags": ["#takaful", ...]`)
 
 ---
 
