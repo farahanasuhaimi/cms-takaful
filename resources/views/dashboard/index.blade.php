@@ -58,8 +58,8 @@
             <ul class="divide-y divide-amber-100">
                 @foreach ($renewingSoon as $policy)
                     @php $daysLeft = (int) now()->startOfDay()->diffInDays($policy->computed_renewal, false); @endphp
-                    <li class="py-2.5 flex items-center justify-between">
-                        <div>
+                    <li class="py-2.5 flex items-start justify-between gap-2" x-data="{ confirm: false }">
+                        <div class="min-w-0">
                             <a href="{{ route('clients.show', $policy->client) }}"
                                class="text-sm font-medium text-gray-800 hover:text-matcha-600">
                                 {{ $policy->client->name }}
@@ -67,14 +67,36 @@
                             <p class="text-xs text-gray-500">
                                 {{ ucfirst(str_replace('_', ' ', $policy->plan_type)) }}
                                 @if ($policy->plan_name) · {{ $policy->plan_name }} @endif
+                                · {{ $policy->computed_renewal->format('d M Y') }}
                             </p>
                         </div>
-                        <div class="flex items-center gap-3 ml-2">
-                            <span class="text-xs text-gray-500">{{ $policy->computed_renewal->format('d M Y') }}</span>
+                        <div class="flex items-center gap-2 flex-shrink-0">
                             <span class="text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap
                                 {{ $daysLeft <= 3 ? 'bg-strawberry-100 text-strawberry-700' : 'bg-amber-100 text-amber-700' }}">
                                 {{ $daysLeft === 0 ? 'Today' : $daysLeft . 'd left' }}
                             </span>
+                            {{-- Create follow-up touchpoint --}}
+                            <form method="POST" action="{{ route('clients.policies.renewal-touchpoint', [$policy->client, $policy]) }}">
+                                @csrf
+                                <button type="submit" title="Create follow-up touchpoint"
+                                        class="text-xs text-indigo-500 hover:text-indigo-700 font-medium transition whitespace-nowrap">
+                                    + Follow-up
+                                </button>
+                            </form>
+                            {{-- Mark as renewed --}}
+                            <div x-show="!confirm">
+                                <button @click="confirm = true"
+                                        class="text-xs text-matcha-600 hover:text-matcha-800 font-medium transition whitespace-nowrap">
+                                    Renewed ✓
+                                </button>
+                            </div>
+                            <div x-show="confirm" class="flex items-center gap-1">
+                                <form method="POST" action="{{ route('clients.policies.renew', [$policy->client, $policy]) }}">
+                                    @csrf @method('PATCH')
+                                    <button type="submit" class="text-xs text-matcha-600 font-semibold hover:underline">Yes</button>
+                                </form>
+                                <button @click="confirm = false" class="text-xs text-gray-400">No</button>
+                            </div>
                         </div>
                     </li>
                 @endforeach

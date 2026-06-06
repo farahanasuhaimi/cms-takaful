@@ -247,11 +247,19 @@
 .watermark { display: none; }
 
 /* ── Print ── */
+@page {
+    size: A4 landscape;
+    margin: 15mm 12mm 15mm 12mm;
+}
+
 @media print {
-    aside, header, .print\:hidden { display: none !important; }
-    body { background: white !important; }
-    main { padding: 0 !important; overflow: visible !important; }
-    table { font-size: 11px; }
+    aside, header, nav, .print\:hidden { display: none !important; }
+    body { background: white !important; font-family: sans-serif; }
+    main { padding: 0 !important; margin: 0 !important; overflow: visible !important; }
+    table { font-size: 10px; border-collapse: collapse; width: 100%; }
+    td, th { padding: 4px 6px !important; }
+    a { color: inherit !important; text-decoration: none !important; }
+    .overflow-x-auto { overflow: visible !important; }
 
     /* Watermark */
     .watermark {

@@ -34,8 +34,20 @@
                     </thead>
                     <tbody class="divide-y divide-gray-50">
                         @foreach ($hotLeads as $lead)
-                            <tr class="hover:bg-strawberry-50/20 transition" x-data="{ tpOpen: false, convertOpen: false }">
-                                <td class="px-5 py-3 font-medium text-gray-800">{{ $lead->name }}</td>
+                            <tr class="hover:bg-strawberry-50/20 transition" x-data="{
+                                tpOpen: false, convertOpen: false, fpOpen: false,
+                                tagged: {{ $lead->focusPoints->pluck('id')->toJson() }}
+                            }">
+                                <td class="px-5 py-3">
+                                    <p class="font-medium text-gray-800">{{ $lead->name }}</p>
+                                    @if ($lead->focusPoints->isNotEmpty())
+                                        <div class="flex flex-wrap gap-1 mt-1">
+                                            @foreach ($lead->focusPoints as $fp)
+                                                <span class="text-xs bg-matcha-50 text-matcha-700 border border-matcha-100 px-2 py-0.5 rounded-full">{{ $fp->title }}</span>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </td>
                                 <td class="px-5 py-3 text-gray-500">
                                     @if ($lead->phone)
                                         <a href="https://wa.me/{{ $lead->phone }}" target="_blank"
@@ -55,15 +67,51 @@
                                 <td class="px-5 py-3 text-xs text-gray-400">{{ ucfirst(str_replace('_', ' ', $lead->source)) }}</td>
                                 <td class="px-5 py-3">
                                     <div class="flex items-center gap-2 justify-end">
-                                        <button @click="tpOpen = !tpOpen; convertOpen = false"
+                                        <button @click="fpOpen = !fpOpen; tpOpen = false; convertOpen = false"
+                                                class="text-xs text-indigo-500 hover:text-indigo-700 transition">Tags</button>
+                                        <button @click="tpOpen = !tpOpen; fpOpen = false; convertOpen = false"
                                                 class="text-xs text-matcha-600 hover:underline">Log</button>
                                         <a href="{{ route('leads.edit', $lead) }}"
                                            class="text-xs text-gray-400 hover:text-gray-600">Edit</a>
-                                        <button @click="convertOpen = !convertOpen; tpOpen = false"
+                                        <button @click="convertOpen = !convertOpen; tpOpen = false; fpOpen = false"
                                                 class="text-xs bg-matcha-600 hover:bg-matcha-800 text-white px-2.5 py-1 rounded-lg transition">
                                             Convert
                                         </button>
                                     </div>
+
+                                    {{-- Focus Points panel --}}
+                                    @if ($focusPoints->isNotEmpty())
+                                    <div x-show="fpOpen" x-transition class="mt-3 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+                                        <p class="text-xs text-gray-500 mb-2">Tap to tag which points resonated:</p>
+                                        <div class="flex flex-wrap gap-1.5">
+                                            @foreach ($focusPoints as $fp)
+                                                <button type="button"
+                                                        @click="
+                                                            const isTagged = tagged.includes({{ $fp->id }});
+                                                            fetch(isTagged
+                                                                ? '{{ route('leads.focus-points.detach', [$lead, $fp]) }}'
+                                                                : '{{ route('leads.focus-points.attach', [$lead, $fp]) }}',
+                                                            {
+                                                                method: isTagged ? 'DELETE' : 'POST',
+                                                                headers: {
+                                                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                                                                    'Accept': 'application/json'
+                                                                }
+                                                            }).then(() => {
+                                                                tagged = isTagged
+                                                                    ? tagged.filter(id => id !== {{ $fp->id }})
+                                                                    : [...tagged, {{ $fp->id }}];
+                                                            })"
+                                                        :class="tagged.includes({{ $fp->id }})
+                                                            ? 'bg-matcha-100 text-matcha-700 border-matcha-300'
+                                                            : 'bg-white text-gray-500 border-gray-200'"
+                                                        class="text-xs px-2.5 py-1 rounded-full border transition">
+                                                    {{ $fp->title }}
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    @endif
 
                                     {{-- Inline convert confirm --}}
                                     <div x-show="convertOpen" x-transition class="mt-3 p-3 bg-matcha-50 rounded-lg border border-matcha-200">
@@ -173,8 +221,20 @@
                     </thead>
                     <tbody class="divide-y divide-gray-50">
                         @foreach ($warmLeads as $lead)
-                            <tr class="hover:bg-amber-50/20 transition" x-data="{ tpOpen: false, convertOpen: false }">
-                                <td class="px-5 py-3 font-medium text-gray-800">{{ $lead->name }}</td>
+                            <tr class="hover:bg-amber-50/20 transition" x-data="{
+                                tpOpen: false, convertOpen: false, fpOpen: false,
+                                tagged: {{ $lead->focusPoints->pluck('id')->toJson() }}
+                            }">
+                                <td class="px-5 py-3">
+                                    <p class="font-medium text-gray-800">{{ $lead->name }}</p>
+                                    @if ($lead->focusPoints->isNotEmpty())
+                                        <div class="flex flex-wrap gap-1 mt-1">
+                                            @foreach ($lead->focusPoints as $fp)
+                                                <span class="text-xs bg-matcha-50 text-matcha-700 border border-matcha-100 px-2 py-0.5 rounded-full">{{ $fp->title }}</span>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </td>
                                 <td class="px-5 py-3 text-gray-500">
                                     @if ($lead->phone)
                                         <a href="https://wa.me/{{ $lead->phone }}" target="_blank"
@@ -194,15 +254,51 @@
                                 <td class="px-5 py-3 text-xs text-gray-400">{{ ucfirst(str_replace('_', ' ', $lead->source)) }}</td>
                                 <td class="px-5 py-3">
                                     <div class="flex items-center gap-2 justify-end">
-                                        <button @click="tpOpen = !tpOpen; convertOpen = false"
+                                        <button @click="fpOpen = !fpOpen; tpOpen = false; convertOpen = false"
+                                                class="text-xs text-indigo-500 hover:text-indigo-700 transition">Tags</button>
+                                        <button @click="tpOpen = !tpOpen; fpOpen = false; convertOpen = false"
                                                 class="text-xs text-matcha-600 hover:underline">Log</button>
                                         <a href="{{ route('leads.edit', $lead) }}"
                                            class="text-xs text-gray-400 hover:text-gray-600">Edit</a>
-                                        <button @click="convertOpen = !convertOpen; tpOpen = false"
+                                        <button @click="convertOpen = !convertOpen; tpOpen = false; fpOpen = false"
                                                 class="text-xs bg-matcha-600 hover:bg-matcha-800 text-white px-2.5 py-1 rounded-lg transition">
                                             Convert
                                         </button>
                                     </div>
+
+                                    {{-- Focus Points panel --}}
+                                    @if ($focusPoints->isNotEmpty())
+                                    <div x-show="fpOpen" x-transition class="mt-3 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+                                        <p class="text-xs text-gray-500 mb-2">Tap to tag which points resonated:</p>
+                                        <div class="flex flex-wrap gap-1.5">
+                                            @foreach ($focusPoints as $fp)
+                                                <button type="button"
+                                                        @click="
+                                                            const isTagged = tagged.includes({{ $fp->id }});
+                                                            fetch(isTagged
+                                                                ? '{{ route('leads.focus-points.detach', [$lead, $fp]) }}'
+                                                                : '{{ route('leads.focus-points.attach', [$lead, $fp]) }}',
+                                                            {
+                                                                method: isTagged ? 'DELETE' : 'POST',
+                                                                headers: {
+                                                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                                                                    'Accept': 'application/json'
+                                                                }
+                                                            }).then(() => {
+                                                                tagged = isTagged
+                                                                    ? tagged.filter(id => id !== {{ $fp->id }})
+                                                                    : [...tagged, {{ $fp->id }}];
+                                                            })"
+                                                        :class="tagged.includes({{ $fp->id }})
+                                                            ? 'bg-matcha-100 text-matcha-700 border-matcha-300'
+                                                            : 'bg-white text-gray-500 border-gray-200'"
+                                                        class="text-xs px-2.5 py-1 rounded-full border transition">
+                                                    {{ $fp->title }}
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    @endif
 
                                     {{-- Inline convert confirm --}}
                                     <div x-show="convertOpen" x-transition class="mt-3 p-3 bg-matcha-50 rounded-lg border border-matcha-200">

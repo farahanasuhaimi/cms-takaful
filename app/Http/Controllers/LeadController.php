@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\FocusPoint;
 use App\Models\Lead;
 use App\Models\Strategy;
 use App\Models\Touchpoint;
@@ -12,19 +13,22 @@ class LeadController extends Controller
 {
     public function index()
     {
-        $hotLeads = Lead::where('temperature', 'hot')
+        $hotLeads = Lead::with('focusPoints')
+            ->where('temperature', 'hot')
             ->whereNull('converted_at')
             ->orderBy('next_contact', 'asc')
             ->get();
 
-        $warmLeads = Lead::where('temperature', 'warm')
+        $warmLeads = Lead::with('focusPoints')
+            ->where('temperature', 'warm')
             ->whereNull('converted_at')
             ->orderBy('next_contact', 'asc')
             ->get();
 
-        $strategies = Strategy::where('user_id', auth()->id())->orderBy('title')->get(['id', 'title']);
+        $strategies  = Strategy::where('user_id', auth()->id())->orderBy('title')->get(['id', 'title']);
+        $focusPoints = FocusPoint::where('status', 'active')->orderBy('group')->orderBy('title')->get();
 
-        return view('leads.index', compact('hotLeads', 'warmLeads', 'strategies'));
+        return view('leads.index', compact('hotLeads', 'warmLeads', 'strategies', 'focusPoints'));
     }
 
     public function create()
@@ -82,6 +86,30 @@ class LeadController extends Controller
 
         return redirect()->route('leads.index')
             ->with('success', 'Lead removed.');
+    }
+
+    public function attachFocusPoint(Lead $lead, FocusPoint $focusPoint)
+    {
+        if (! $lead->focusPoints()->where('focus_point_id', $focusPoint->id)->exists()) {
+            $lead->focusPoints()->attach($focusPoint->id);
+        }
+
+        if (request()->expectsJson()) {
+            return response()->json(['tagged' => true]);
+        }
+
+        return back();
+    }
+
+    public function detachFocusPoint(Lead $lead, FocusPoint $focusPoint)
+    {
+        $lead->focusPoints()->detach($focusPoint->id);
+
+        if (request()->expectsJson()) {
+            return response()->json(['tagged' => false]);
+        }
+
+        return back();
     }
 
     public function convert(Request $request, Lead $lead)

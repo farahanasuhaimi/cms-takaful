@@ -178,4 +178,34 @@ class ClientController extends Controller
         return redirect()->route('clients.show', $client)
             ->with('success', 'Policy removed.');
     }
+
+    public function renewPolicy(Client $client, Policy $policy)
+    {
+        if ($policy->start_date && $policy->frequency) {
+            $newStart = $policy->frequency === 'monthly'
+                ? $policy->start_date->copy()->addMonthNoOverflow()
+                : $policy->start_date->copy()->addYear();
+
+            $policy->update(['start_date' => $newStart]);
+        }
+
+        return back()->with('success', "{$client->name}'s policy marked as renewed.");
+    }
+
+    public function createRenewalTouchpoint(Client $client, Policy $policy)
+    {
+        $label = $policy->plan_name ?? ucfirst(str_replace('_', ' ', $policy->plan_type));
+        $renewal = $policy->nextRenewalDate();
+
+        $client->touchpoints()->create([
+            'user_id'          => auth()->id(),
+            'contacted_at'     => now(),
+            'channel'          => 'phone_call',
+            'topic'            => "Policy renewal – {$label}",
+            'next_action'      => 'Follow up on renewal confirmation',
+            'next_action_date' => $renewal,
+        ]);
+
+        return back()->with('success', "Follow-up touchpoint created for {$client->name}.");
+    }
 }

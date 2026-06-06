@@ -47,6 +47,11 @@ class Lead extends Model
         return $this->hasMany(Quotation::class);
     }
 
+    public function focusPoints()
+    {
+        return $this->belongsToMany(FocusPoint::class, 'lead_focus_point');
+    }
+
     public function isConverted(): bool
     {
         return $this->converted_at !== null;

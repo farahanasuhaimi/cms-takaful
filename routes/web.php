@@ -33,10 +33,14 @@ Route::middleware('auth')->group(function () {
     Route::post('clients/{client}/policies', [ClientController::class, 'storePolicy'])->name('clients.policies.store');
     Route::put('clients/{client}/policies/{policy}', [ClientController::class, 'updatePolicy'])->name('clients.policies.update');
     Route::delete('clients/{client}/policies/{policy}', [ClientController::class, 'destroyPolicy'])->name('clients.policies.destroy');
+    Route::patch('clients/{client}/policies/{policy}/renew', [ClientController::class, 'renewPolicy'])->name('clients.policies.renew');
+    Route::post('clients/{client}/policies/{policy}/renewal-touchpoint', [ClientController::class, 'createRenewalTouchpoint'])->name('clients.policies.renewal-touchpoint');
 
     // Leads
     Route::resource('leads', LeadController::class)->except(['show']);
     Route::post('leads/{lead}/convert', [LeadController::class, 'convert'])->name('leads.convert');
+    Route::post('leads/{lead}/focus-points/{focusPoint}', [LeadController::class, 'attachFocusPoint'])->name('leads.focus-points.attach');
+    Route::delete('leads/{lead}/focus-points/{focusPoint}', [LeadController::class, 'detachFocusPoint'])->name('leads.focus-points.detach');
 
     // Touchpoints
     Route::get('follow-up', [TouchpointController::class, 'index'])->name('touchpoints.index');

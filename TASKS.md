@@ -27,10 +27,10 @@ The AI content generation (casual/story/factual) is no longer active — `AngleC
 
 ## Priority 3 — Remove Daily Friction
 
-- [ ] **Quotation PDF export** — Branded, clean, shareable PDF of the comparison table for the prospect
-- [ ] **Renewal → auto-create touchpoint** — From the dashboard renewal card, one click creates a follow-up touchpoint with the right date pre-filled
-- [ ] **Focus Points → Lead tagging** — On the Lead page, allow tagging which focus points resonated during a conversation (builds a picture of what sells to whom)
-- [ ] **Policy renewal "mark as renewed"** — From the renewal alert, mark a policy as renewed without navigating to the policy edit page
+- [x] **Quotation PDF export** — Print / Save PDF via browser (A4 landscape, branded header, watermark, disclaimer) *(done 2026-06-06)*
+- [x] **Renewal → auto-create touchpoint** — Dashboard renewal card: "+ Follow-up" creates a touchpoint for the client with renewal date pre-filled *(done 2026-06-06)*
+- [x] **Focus Points → Lead tagging** — "Tags" button on each lead row; tap focus points to toggle; chips shown below lead name *(done 2026-06-06)*
+- [x] **Policy renewal "mark as renewed"** — Dashboard renewal card: "Renewed ✓" advances start_date by one period, drops from the renewal alert *(done 2026-06-06)*
 
 ---
 
