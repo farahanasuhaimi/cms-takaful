@@ -39,6 +39,13 @@
                                   placeholder="What's this angle about? What message does it carry?"
                                   class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400">{{ old('description') }}</textarea>
                     </div>
+
+                    <div>
+                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">What to say <span class="text-xs text-gray-400 font-normal">(your script / key points)</span></label>
+                        <textarea id="notes" name="notes" rows="4"
+                                  placeholder="Key talking points, example phrases, or a ready-to-send message…"
+                                  class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400">{{ old('notes') }}</textarea>
+                    </div>
                 </div>
 
                 <div class="flex items-center gap-3 mt-6">

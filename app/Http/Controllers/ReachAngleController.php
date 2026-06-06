@@ -12,7 +12,7 @@ class ReachAngleController extends Controller
 {
     public function index()
     {
-        $angles = ReachAngle::with(['clients', 'leads', 'strategies'])
+        $angles = ReachAngle::with(['clients', 'leads', 'strategies', 'latestContents', 'usages.lead', 'usages.client'])
             ->latest()
             ->get();
 
@@ -34,6 +34,7 @@ class ReachAngleController extends Controller
             'title'          => 'required|string|max:255',
             'description'    => 'nullable|string',
             'target_segment' => 'nullable|string|max:255',
+            'notes'          => 'nullable|string',
             'status'         => 'required|in:active,paused,archived',
         ]);
 
@@ -54,6 +55,7 @@ class ReachAngleController extends Controller
             'title'          => 'required|string|max:255',
             'description'    => 'nullable|string',
             'target_segment' => 'nullable|string|max:255',
+            'notes'          => 'nullable|string',
             'status'         => 'required|in:active,paused,archived',
         ]);
 

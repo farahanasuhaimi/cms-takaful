@@ -11,6 +11,8 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\TouchpointController;
+use App\Http\Controllers\AngleContentController;
+use App\Http\Controllers\AngleUsageController;
 use App\Http\Controllers\ReachAngleController;
 use App\Http\Controllers\PlanProductController;
 use App\Http\Controllers\SettingController;
@@ -45,7 +47,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('quotations', QuotationController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
     Route::post('quotations/{quotation}/duplicate', [QuotationController::class, 'duplicate'])->name('quotations.duplicate');
 
-    // Reach Angles
+    // Reach Angles — library must precede resource to avoid {angle} wildcard match
+    Route::get('angles/library', [AngleContentController::class, 'library'])->name('angles.library');
+    Route::post('angles/{angle}/generate', [AngleContentController::class, 'generate'])->name('angle-contents.generate');
+    Route::patch('angle-contents/{content}/pin', [AngleContentController::class, 'pin'])->name('angle-contents.pin');
     Route::resource('angles', ReachAngleController::class);
     Route::post('angles/{angle}/leads/{lead}', [ReachAngleController::class, 'attachLead'])->name('angles.leads.attach');
     Route::delete('angles/{angle}/leads/{lead}', [ReachAngleController::class, 'detachLead'])->name('angles.leads.detach');
@@ -53,6 +58,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('angles/{angle}/clients/{client}', [ReachAngleController::class, 'detachClient'])->name('angles.clients.detach');
     Route::post('angles/{angle}/strategies/{strategy}', [ReachAngleController::class, 'attachStrategy'])->name('angles.strategies.attach');
     Route::delete('angles/{angle}/strategies/{strategy}', [ReachAngleController::class, 'detachStrategy'])->name('angles.strategies.detach');
+    Route::post('angles/{angle}/usages', [AngleUsageController::class, 'store'])->name('angles.usages.store');
+    Route::delete('angles/{angle}/usages/{usage}', [AngleUsageController::class, 'destroy'])->name('angles.usages.destroy');
 
     // Settings — Plan Product Catalog
     Route::resource('plan-products', PlanProductController::class)->except(['show']);

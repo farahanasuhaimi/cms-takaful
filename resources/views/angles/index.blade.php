@@ -16,6 +16,8 @@
                          showLeads: false,
                          showClients: false,
                          showStrategies: false,
+                         showContent: false,
+                         showUsage: false,
                          delConfirm: false
                      }">
 
@@ -36,8 +38,21 @@
                             @if ($angle->description)
                                 <p class="text-sm text-gray-600 mt-1.5 leading-relaxed">{{ $angle->description }}</p>
                             @endif
+                            @if ($angle->notes)
+                                <p class="text-xs text-gray-400 mt-1 italic leading-relaxed">{{ Str::limit($angle->notes, 120) }}</p>
+                            @endif
                         </div>
                         <div class="flex items-center gap-3 flex-shrink-0">
+                            <button @click="showUsage = !showUsage"
+                                    class="text-xs font-medium transition"
+                                    :class="showUsage ? 'text-indigo-800' : 'text-indigo-500 hover:text-indigo-700'">
+                                <span x-text="showUsage ? '▴ Usage' : '▾ Usage'"></span>
+                            </button>
+                            <button @click="showContent = !showContent"
+                                    class="text-xs font-medium transition"
+                                    :class="showContent ? 'text-matcha-800' : 'text-matcha-600 hover:text-matcha-800'">
+                                <span x-text="showContent ? '▴ Content' : '▾ Content'"></span>
+                            </button>
                             <a href="{{ route('strategies.create', ['angle_id' => $angle->id]) }}"
                                class="text-xs text-amber-600 hover:underline">+ Strategy</a>
                             <a href="{{ route('angles.edit', $angle) }}"
@@ -202,6 +217,142 @@
                         </div>
 
                     </div>
+                    {{-- Usage Trail panel --}}
+                    <div x-show="showUsage" x-transition class="border-t border-gray-100 mt-4 pt-4">
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Usage Trail</p>
+
+                        {{-- Log usage form --}}
+                        <div x-data="{ open: false }">
+                            <button @click="open = !open"
+                                    class="text-xs text-indigo-600 hover:text-indigo-800 font-medium transition mb-3">
+                                <span x-text="open ? '▴ Close' : '+ Log Usage'"></span>
+                            </button>
+                            <div x-show="open" x-transition class="mb-4">
+                                <form method="POST" action="{{ route('angles.usages.store', $angle) }}"
+                                      class="bg-gray-50 rounded-lg p-3 space-y-2">
+                                    @csrf
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="block text-xs text-gray-500 mb-1">Date</label>
+                                            <input type="date" name="used_on" value="{{ date('Y-m-d') }}" required
+                                                   class="w-full text-xs rounded-lg border-gray-200 focus:ring-indigo-400 focus:border-indigo-400 py-1.5">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-500 mb-1">Person (optional)</label>
+                                            <select name="lead_id"
+                                                    class="w-full text-xs rounded-lg border-gray-200 focus:ring-indigo-400 focus:border-indigo-400 py-1.5">
+                                                <option value="">— Lead —</option>
+                                                @foreach ($allLeads as $lead)
+                                                    <option value="{{ $lead->id }}">{{ $lead->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            <select name="client_id" class="w-full text-xs rounded-lg border-gray-200 focus:ring-indigo-400 focus:border-indigo-400 py-1.5 mt-1">
+                                                <option value="">— Client —</option>
+                                                @foreach ($allClients as $client)
+                                                    <option value="{{ $client->id }}">{{ $client->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">Notes</label>
+                                        <textarea name="notes" rows="2" placeholder="How did it go? Any reactions?"
+                                                  class="w-full text-xs rounded-lg border-gray-200 focus:ring-indigo-400 focus:border-indigo-400 resize-none"></textarea>
+                                    </div>
+                                    <button type="submit"
+                                            class="text-xs bg-indigo-600 hover:bg-indigo-800 text-white px-3 py-1.5 rounded-lg transition">
+                                        Save
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        {{-- Usage history --}}
+                        @if ($angle->usages->isEmpty())
+                            <p class="text-xs text-gray-300 italic">No usage recorded yet.</p>
+                        @else
+                            <div class="space-y-2">
+                                @foreach ($angle->usages as $usage)
+                                    <div class="flex items-start justify-between gap-3 text-xs">
+                                        <div>
+                                            <span class="text-gray-500 font-medium">{{ $usage->used_on->format('d M Y') }}</span>
+                                            @if ($usage->lead)
+                                                <span class="text-gray-400"> · {{ $usage->lead->name }} (Lead)</span>
+                                            @elseif ($usage->client)
+                                                <span class="text-gray-400"> · {{ $usage->client->name }} (Client)</span>
+                                            @endif
+                                            @if ($usage->notes)
+                                                <p class="text-gray-400 mt-0.5 leading-relaxed">{{ $usage->notes }}</p>
+                                            @endif
+                                        </div>
+                                        <form method="POST" action="{{ route('angles.usages.destroy', [$angle, $usage]) }}" class="flex-shrink-0">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="text-gray-300 hover:text-strawberry-400 transition leading-none" title="Remove">×</button>
+                                        </form>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- AI Content panel --}}
+                    <div x-show="showContent" x-transition class="border-t border-gray-100 mt-4 pt-4">
+
+                        {{-- Generate button --}}
+                        <div class="flex items-center justify-between mb-3">
+                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">AI Content</p>
+                            <form method="POST" action="{{ route('angle-contents.generate', $angle) }}">
+                                @csrf
+                                <button type="submit"
+                                        class="text-xs bg-matcha-600 hover:bg-matcha-800 text-white px-3 py-1.5 rounded-lg transition">
+                                    Generate
+                                </button>
+                            </form>
+                        </div>
+
+                        @if ($angle->latestContents->isEmpty())
+                            <p class="text-xs text-gray-300 italic">No content yet. Hit Generate to create casual / story / factual variations.</p>
+                        @else
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                @foreach ($angle->latestContents->sortBy('style') as $item)
+                                    <div x-data="{ copied: false, pinned: {{ $item->is_pinned ? 'true' : 'false' }} }"
+                                         class="border rounded-xl p-3 transition"
+                                         :class="pinned ? 'border-matcha-300 bg-matcha-50' : 'border-gray-200 bg-white'">
+
+                                        {{-- Style label + pin --}}
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="text-xs font-semibold uppercase tracking-wide
+                                                {{ $item->style === 'casual' ? 'text-blue-600' : ($item->style === 'story' ? 'text-purple-600' : 'text-amber-600') }}">
+                                                {{ ['casual' => '💬 Casual', 'story' => '📖 Story', 'factual' => '📊 Factual'][$item->style] }}
+                                            </span>
+                                            <button @click="
+                                                    fetch('{{ route('angle-contents.pin', $item) }}', {
+                                                        method: 'PATCH',
+                                                        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }
+                                                    }).then(() => pinned = !pinned)"
+                                                    class="text-base leading-none transition p-1 -mr-1"
+                                                    :class="pinned ? 'text-matcha-500' : 'text-gray-300 hover:text-matcha-400'"
+                                                    title="Pin to Content Library">
+                                                📌
+                                            </button>
+                                        </div>
+
+                                        {{-- Content --}}
+                                        <p class="text-xs text-gray-700 leading-relaxed">{{ $item->content }}</p>
+
+                                        {{-- Copy --}}
+                                        <button @click="navigator.clipboard.writeText({{ json_encode($item->content) }}); copied = true; setTimeout(() => copied = false, 2000)"
+                                                class="mt-2 text-xs font-medium transition min-w-[40px]"
+                                                :class="copied ? 'text-matcha-600' : 'text-gray-400'">
+                                            <span x-text="copied ? '✓ Copied' : 'Copy'"></span>
+                                        </button>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <p class="text-xs text-gray-300 mt-2">Batch {{ $angle->latestContents->first()->batch }} · {{ $angle->latestContents->first()->created_at->format('d M Y') }} · {{ $angle->latestContents->first()->model }}</p>
+                        @endif
+                    </div>
+
                 </div>
             @endforeach
         </div>
