@@ -12,15 +12,23 @@ class ReachAngleController extends Controller
 {
     public function index()
     {
-        $angles = ReachAngle::with(['clients', 'leads', 'strategies', 'latestContents', 'usages.lead', 'usages.client'])
+        $angles = ReachAngle::withCount(['leads', 'clients', 'usages'])
+            ->withCount(['contents as pinned_count' => fn ($q) => $q->where('is_pinned', true)])
             ->latest()
             ->get();
+
+        return view('angles.index', compact('angles'));
+    }
+
+    public function show(ReachAngle $angle)
+    {
+        $angle->load(['clients', 'leads', 'strategies', 'latestContents', 'usages.lead', 'usages.client']);
 
         $allLeads      = Lead::orderBy('id', 'desc')->get(['id', 'name']);
         $allClients    = Client::orderBy('id', 'desc')->get(['id', 'name']);
         $allStrategies = Strategy::orderBy('title')->get(['id', 'title', 'category']);
 
-        return view('angles.index', compact('angles', 'allLeads', 'allClients', 'allStrategies'));
+        return view('angles.show', compact('angle', 'allLeads', 'allClients', 'allStrategies'));
     }
 
     public function create()
