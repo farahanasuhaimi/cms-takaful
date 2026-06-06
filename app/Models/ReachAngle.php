@@ -51,9 +51,9 @@ class ReachAngle extends Model
     {
         return $this->hasMany(AngleContent::class, 'angle_id')
             ->whereIn('batch', function ($q) {
-                $q->selectRaw('MAX(batch)')
-                  ->from('angle_contents')
-                  ->whereColumn('angle_id', 'reach_angles.id');
+                $q->selectRaw('MAX(ac2.batch)')
+                  ->from('angle_contents as ac2')
+                  ->whereColumn('ac2.angle_id', 'angle_contents.angle_id');
             });
     }
 }
