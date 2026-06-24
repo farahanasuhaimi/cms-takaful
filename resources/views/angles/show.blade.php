@@ -238,7 +238,7 @@
 
                         <p class="text-sm text-gray-700 leading-relaxed">{{ $item->content }}</p>
 
-                        <button @click="navigator.clipboard.writeText({{ json_encode($item->content) }}); copied = true; setTimeout(() => copied = false, 2000)"
+                        <button @click="navigator.clipboard.writeText({{ json_encode($item->content, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}); copied = true; setTimeout(() => copied = false, 2000)"
                                 class="mt-3 text-xs font-medium transition"
                                 :class="copied ? 'text-matcha-600' : 'text-gray-400'">
                             <span x-text="copied ? '✓ Copied' : 'Copy'"></span>

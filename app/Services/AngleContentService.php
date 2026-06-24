@@ -63,7 +63,6 @@ class AngleContentService
     {
         $response = Http::withToken($apiKey)
             ->timeout(30)
-            ->withoutVerifying()
             ->post(rtrim($baseUrl, '/') . '/chat/completions', [
                 'model'           => $model,
                 'messages'        => [
@@ -76,7 +75,11 @@ class AngleContentService
             ]);
 
         if (! $response->successful()) {
-            throw new \Exception('API error: ' . $response->status() . ' — ' . $response->body());
+            \Illuminate\Support\Facades\Log::error('AngleContentService API error', [
+                'status' => $response->status(),
+                'body'   => $response->body(),
+            ]);
+            throw new \Exception('AI generation failed. Please check your API settings.');
         }
 
         $parsed = json_decode($response->json('choices.0.message.content'), true);

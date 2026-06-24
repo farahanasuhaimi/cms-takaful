@@ -14,7 +14,7 @@
         <input type="hidden" name="data" id="q-data">
     </form>
 
-    <div x-data="quotationBuilder({{ json_encode($initial) }}, {{ json_encode($planCatalog) }})" class="space-y-6">
+    <div x-data="quotationBuilder({{ json_encode($initial, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}, {{ json_encode($planCatalog, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }})" class="space-y-6">
 
         {{-- Title --}}
         <div class="bg-white rounded-xl border border-gray-200 p-5">

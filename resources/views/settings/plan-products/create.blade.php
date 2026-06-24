@@ -60,7 +60,7 @@
                         }
                     @endphp
 
-                    <div x-data='{ rows: {{ json_encode($initialRows) }} }'>
+                    <div x-data='{ rows: {{ json_encode($initialRows, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }} }'>
                         <div class="flex items-center justify-between mb-2">
                             <label class="block text-sm font-medium text-gray-700">Attributes</label>
                             <button type="button"

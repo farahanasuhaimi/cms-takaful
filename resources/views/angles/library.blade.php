@@ -50,7 +50,7 @@
                                         </span>
                                         <div class="flex items-center gap-3">
                                             {{-- Copy --}}
-                                            <button @click="navigator.clipboard.writeText({{ json_encode($content->content) }}); copied = true; setTimeout(() => copied = false, 2000)"
+                                            <button @click="navigator.clipboard.writeText({{ json_encode($content->content, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}); copied = true; setTimeout(() => copied = false, 2000)"
                                                     class="text-xs font-medium transition min-w-[40px] text-right"
                                                     :class="copied ? 'text-matcha-600' : 'text-gray-400'">
                                                 <span x-text="copied ? '✓ Copied' : 'Copy'"></span>
