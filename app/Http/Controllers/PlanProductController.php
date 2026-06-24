@@ -62,11 +62,15 @@ class PlanProductController extends Controller
 
     public function edit(PlanProduct $planProduct)
     {
+        abort_if($planProduct->user_id !== auth()->id(), 403);
+
         return view('settings.plan-products.edit', compact('planProduct'));
     }
 
     public function update(Request $request, PlanProduct $planProduct)
     {
+        abort_if($planProduct->user_id !== auth()->id(), 403);
+
         $request->validate([
             'plan_type'             => 'required|in:medical,critical_illness,personal_accident,group,hibah,income,other',
             'name'                  => 'required|string|max:255',
@@ -110,6 +114,8 @@ class PlanProductController extends Controller
 
     public function destroy(PlanProduct $planProduct)
     {
+        abort_if($planProduct->user_id !== auth()->id(), 403);
+
         $planProduct->delete();
 
         return redirect()->route('plan-products.index')

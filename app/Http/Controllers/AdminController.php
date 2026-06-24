@@ -44,7 +44,8 @@ class AdminController extends Controller
             return back()->with('error', 'Cannot deactivate an admin account.');
         }
 
-        $user->update(['is_active' => ! $user->is_active]);
+        $user->is_active = ! $user->is_active;
+        $user->save();
 
         $status = $user->is_active ? 'activated' : 'deactivated';
 

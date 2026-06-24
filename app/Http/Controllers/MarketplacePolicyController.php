@@ -25,12 +25,13 @@ class MarketplacePolicyController extends Controller
         return view('marketplace.policies.index', compact('products', 'starredIds'));
     }
 
-    public function star(PlanProduct $product)
+    public function star(int $product)
     {
-        $product->loadCount('stars');
+        $planProduct = PlanProduct::withoutGlobalScopes()->findOrFail($product);
+        abort_if(! $planProduct->is_shared, 403);
 
         $existing = MarketplacePolicyStar::where('user_id', auth()->id())
-            ->where('plan_product_id', $product->id)
+            ->where('plan_product_id', $planProduct->id)
             ->first();
 
         if ($existing) {
@@ -38,32 +39,33 @@ class MarketplacePolicyController extends Controller
             $starred = false;
         } else {
             MarketplacePolicyStar::create([
-                'user_id'        => auth()->id(),
-                'plan_product_id' => $product->id,
+                'user_id'         => auth()->id(),
+                'plan_product_id' => $planProduct->id,
             ]);
             $starred = true;
         }
 
-        $count = MarketplacePolicyStar::where('plan_product_id', $product->id)->count();
+        $count = MarketplacePolicyStar::where('plan_product_id', $planProduct->id)->count();
 
         return response()->json(['starred' => $starred, 'count' => $count]);
     }
 
-    public function import(PlanProduct $product)
+    public function import(int $product)
     {
-        abort_if(! $product->is_shared, 403);
+        $planProduct = PlanProduct::withoutGlobalScopes()->findOrFail($product);
+        abort_if(! $planProduct->is_shared, 403);
 
         PlanProduct::create([
             'user_id'               => auth()->id(),
-            'plan_type'             => $product->plan_type,
-            'name'                  => $product->name,
-            'commission_first_year' => $product->commission_first_year,
-            'attributes'            => $product->attributes,
-            'notes'                 => $product->notes,
+            'plan_type'             => $planProduct->plan_type,
+            'name'                  => $planProduct->name,
+            'commission_first_year' => $planProduct->commission_first_year,
+            'attributes'            => $planProduct->attributes,
+            'notes'                 => $planProduct->notes,
             'is_shared'             => false,
         ]);
 
         return redirect()->route('plan-products.index')
-            ->with('success', "'{$product->name}' imported to your plan catalog.");
+            ->with('success', "'{$planProduct->name}' imported to your plan catalog.");
     }
 }

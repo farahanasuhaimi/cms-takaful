@@ -58,11 +58,15 @@ class LeadController extends Controller
 
     public function edit(Lead $lead)
     {
+        abort_if($lead->user_id !== auth()->id(), 403);
+
         return view('leads.edit', compact('lead'));
     }
 
     public function update(Request $request, Lead $lead)
     {
+        abort_if($lead->user_id !== auth()->id(), 403);
+
         $validated = $request->validate([
             'name'          => 'required|string|max:255',
             'phone'         => 'nullable|string|max:20',
@@ -82,6 +86,8 @@ class LeadController extends Controller
 
     public function destroy(Lead $lead)
     {
+        abort_if($lead->user_id !== auth()->id(), 403);
+
         $lead->delete();
 
         return redirect()->route('leads.index')
@@ -90,6 +96,8 @@ class LeadController extends Controller
 
     public function attachFocusPoint(Lead $lead, FocusPoint $focusPoint)
     {
+        abort_if($lead->user_id !== auth()->id(), 403);
+
         if (! $lead->focusPoints()->where('focus_point_id', $focusPoint->id)->exists()) {
             $lead->focusPoints()->attach($focusPoint->id);
         }
@@ -103,6 +111,8 @@ class LeadController extends Controller
 
     public function detachFocusPoint(Lead $lead, FocusPoint $focusPoint)
     {
+        abort_if($lead->user_id !== auth()->id(), 403);
+
         $lead->focusPoints()->detach($focusPoint->id);
 
         if (request()->expectsJson()) {
@@ -114,6 +124,8 @@ class LeadController extends Controller
 
     public function convert(Request $request, Lead $lead)
     {
+        abort_if($lead->user_id !== auth()->id(), 403);
+
         if ($lead->isConverted()) {
             return redirect()->route('leads.index')
                 ->with('success', 'Lead was already converted.');

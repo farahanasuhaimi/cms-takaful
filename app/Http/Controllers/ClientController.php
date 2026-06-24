@@ -145,6 +145,8 @@ class ClientController extends Controller
 
     public function updatePolicy(Request $request, Client $client, Policy $policy)
     {
+        abort_if($policy->client_id !== $client->id, 403);
+
         $request->validate([
             'policy_number'   => 'nullable|string|max:100',
             'plan_type'       => 'required|in:medical,critical_illness,personal_accident,group,hibah,income,other',
@@ -173,6 +175,8 @@ class ClientController extends Controller
 
     public function destroyPolicy(Client $client, Policy $policy)
     {
+        abort_if($policy->client_id !== $client->id, 403);
+
         $policy->delete();
 
         return redirect()->route('clients.show', $client)
@@ -181,6 +185,8 @@ class ClientController extends Controller
 
     public function renewPolicy(Client $client, Policy $policy)
     {
+        abort_if($policy->client_id !== $client->id, 403);
+
         if ($policy->start_date && $policy->frequency) {
             $newStart = $policy->frequency === 'monthly'
                 ? $policy->start_date->copy()->addMonthNoOverflow()
@@ -194,6 +200,8 @@ class ClientController extends Controller
 
     public function createRenewalTouchpoint(Client $client, Policy $policy)
     {
+        abort_if($policy->client_id !== $client->id, 403);
+
         $label = $policy->plan_name ?? ucfirst(str_replace('_', ' ', $policy->plan_type));
         $renewal = $policy->nextRenewalDate();
 
