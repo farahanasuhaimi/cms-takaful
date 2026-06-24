@@ -46,15 +46,17 @@
                         $initialRows = [];
                         if (old('attr_keys')) {
                             foreach (old('attr_keys', []) as $i => $k) {
+                                $optStr = old('attr_options')[$i] ?? '';
                                 $initialRows[] = [
-                                    'key'     => $k,
-                                    'value'   => old('attr_values')[$i] ?? '',
-                                    'options' => old('attr_options')[$i] ?? '',
+                                    'key'      => $k,
+                                    'value'    => old('attr_values')[$i] ?? '',
+                                    'options'  => $optStr,
+                                    'showOpts' => $optStr !== '',
                                 ];
                             }
                         }
                         if (empty($initialRows)) {
-                            $initialRows = [['key' => '', 'value' => '', 'options' => '']];
+                            $initialRows = [['key' => '', 'value' => '', 'options' => '', 'showOpts' => false]];
                         }
                     @endphp
 
@@ -62,7 +64,7 @@
                         <div class="flex items-center justify-between mb-2">
                             <label class="block text-sm font-medium text-gray-700">Attributes</label>
                             <button type="button"
-                                    @click="rows.push({ key: '', value: '', options: '' })"
+                                    @click="rows.push({ key: '', value: '', options: '', showOpts: false })"
                                     class="text-xs text-matcha-600 hover:text-matcha-800 font-medium">
                                 + Add attribute
                             </button>
@@ -84,8 +86,13 @@
                                     <input type="text"
                                            :name="'attr_options[' + i + ']'"
                                            x-model="row.options"
+                                           x-show="row.showOpts"
                                            placeholder="Dropdown options (comma-separated)"
                                            class="flex-1 text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
+                                    <button type="button"
+                                            @click="row.showOpts = true"
+                                            x-show="!row.showOpts"
+                                            class="text-xs text-gray-400 hover:text-matcha-600 whitespace-nowrap flex-shrink-0">+ opts</button>
                                     <button type="button"
                                             @click="rows.splice(i, 1)"
                                             x-show="rows.length > 1"

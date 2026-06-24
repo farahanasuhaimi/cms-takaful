@@ -97,8 +97,7 @@ class PlanProductSeeder extends Seeder
                     'Evacuasi Perubatan' => 'USD 1 juta/kejadian',
                 ],
                 'attribute_options' => [
-                    'Deductible'   => ['RM500/tahun (standard)', 'RM500 + SMART Option (diskaun min 20%)'],
-                    'Room & Board' => ['RM200/malam', 'RM300/malam (Gold)', 'RM400/malam (Platinum)'],
+                    'Deductible' => ['RM500/tahun (standard)', 'RM500 + SMART Option (diskaun min 20%)'],
                 ],
                 'notes' => 'Medical card rider AIA PUBLIC Takaful. Had tahunan RM1.5M, tiada had seumur hidup. Health Wallet dikreditkan secara automatik — NCB RM1,000/tahun (max 10x) + Panel Bonus RM500/tahun jika rawatan di Hospital SMART. SMART Option: ikut laluan Klinik SMART → Pakar SMART → Hospital SMART untuk jimat min 20% caruman. Pilihan penjimatan kos hanya dengan deduktibel RM500. Bonus Persaraan Sihat tidak terpakai untuk Plan 200.',
             ],
