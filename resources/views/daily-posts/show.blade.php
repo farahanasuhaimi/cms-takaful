@@ -102,18 +102,23 @@
                 <p x-ref="caption" class="text-sm text-gray-800 whitespace-pre-line leading-relaxed">{{ $post->caption }}</p>
             </div>
 
-            {{-- Image Prompt --}}
+            {{-- Image Prompts --}}
             <div class="bg-white rounded-xl border border-gray-200 p-5">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Image Prompt</h3>
-                    <button @click="navigator.clipboard.writeText($refs.imagePrompt.innerText); copied = 'image'"
-                            class="text-xs text-matcha-600 hover:text-matcha-800 font-medium transition">
-                        <span x-show="copied !== 'image'">Copy</span>
-                        <span x-show="copied === 'image'" x-cloak>Copied ✓</span>
-                    </button>
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Image Prompts</h3>
+                <p class="text-xs text-gray-400 mb-4">Pick one and paste into Canva AI, DALL-E, or any image generator.</p>
+                <div class="space-y-3">
+                    @foreach ($post->image_prompt as $i => $prompt)
+                        <div class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
+                            <span class="text-xs font-semibold text-gray-400 mt-0.5 w-4 flex-shrink-0">{{ $i + 1 }}</span>
+                            <p class="flex-1 text-sm text-gray-600 italic leading-relaxed" x-ref="img{{ $i }}">{{ $prompt }}</p>
+                            <button @click="navigator.clipboard.writeText($refs.img{{ $i }}.innerText); copied = 'img{{ $i }}'"
+                                    class="flex-shrink-0 text-xs text-matcha-600 hover:text-matcha-800 font-medium transition whitespace-nowrap">
+                                <span x-show="copied !== 'img{{ $i }}'">Copy</span>
+                                <span x-show="copied === 'img{{ $i }}'" x-cloak>Copied ✓</span>
+                            </button>
+                        </div>
+                    @endforeach
                 </div>
-                <p x-ref="imagePrompt" class="text-sm text-gray-600 italic leading-relaxed">{{ $post->image_prompt }}</p>
-                <p class="text-xs text-gray-400 mt-3">Paste into Canva AI, DALL-E, or any image generator.</p>
             </div>
 
             {{-- Edit caption manually --}}

@@ -9,7 +9,8 @@ class DailyPost extends Model
     protected $fillable = ['user_id', 'post_date', 'platform', 'topic', 'caption', 'image_prompt', 'status'];
 
     protected $casts = [
-        'post_date' => 'date',
+        'post_date'    => 'date',
+        'image_prompt' => 'array',
     ];
 
     protected static function booted(): void

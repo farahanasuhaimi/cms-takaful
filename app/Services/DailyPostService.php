@@ -29,7 +29,7 @@ class DailyPostService
                 ],
                 'response_format' => ['type' => 'json_object'],
                 'temperature'     => 0.8,
-                'max_tokens'      => 600,
+                'max_tokens'      => 900,
             ]);
 
         if (! $response->successful()) {
@@ -42,13 +42,13 @@ class DailyPostService
 
         $parsed = json_decode($response->json('choices.0.message.content'), true);
 
-        if (! is_array($parsed) || ! isset($parsed['caption'], $parsed['image_prompt'])) {
+        if (! is_array($parsed) || ! isset($parsed['caption'], $parsed['image_prompts']) || ! is_array($parsed['image_prompts'])) {
             throw new \Exception('Unexpected response format from API.');
         }
 
         $post->update([
             'caption'      => $parsed['caption'],
-            'image_prompt' => $parsed['image_prompt'],
+            'image_prompt' => array_values(array_slice($parsed['image_prompts'], 0, 5)),
             'status'       => 'ready',
         ]);
 
@@ -60,9 +60,9 @@ class DailyPostService
         return <<<PROMPT
 You are a Takaful content writer for a Malaysian insurance consultant.
 Write engaging social media content for the given platform and topic.
-Always respond in valid JSON with exactly 2 keys: caption, image_prompt.
+Always respond in valid JSON with exactly 2 keys: caption, image_prompts.
 - caption: ready-to-post social media text, in Bahasa Malaysia or English matching the topic's language, 3-5 sentences max.
-- image_prompt: a short visual description for generating or sourcing an image (in English), 1-2 sentences, describe scene, mood, colours.
+- image_prompts: an array of exactly 5 different image prompt options (in English). Each option is 1-2 sentences describing a distinct visual scene, mood, and colour palette that would work well for the post. Vary the style — e.g. lifestyle photo, flat lay, infographic style, emotional portrait, abstract/symbolic.
 PROMPT;
     }
 
@@ -85,7 +85,7 @@ Topic: {$post->topic}
 
 Return JSON with:
 - caption: the actual post caption, ready to copy-paste
-- image_prompt: describe an image to accompany this post (visual, colours, mood, subject)
+- image_prompts: array of 5 different image descriptions, each a distinct visual idea for this post
 PROMPT;
     }
 }
