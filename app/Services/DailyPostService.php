@@ -48,7 +48,7 @@ class DailyPostService
 
         $post->update([
             'caption'      => $parsed['caption'],
-            'image_prompt' => array_values(array_slice($parsed['image_prompts'], 0, 5)),
+            'image_prompt' => array_values(array_slice($parsed['image_prompts'], 0, 2)),
             'status'       => 'ready',
         ]);
 
@@ -62,7 +62,7 @@ You are a Takaful content writer for a Malaysian insurance consultant.
 Write engaging social media content for the given platform and topic.
 Always respond in valid JSON with exactly 2 keys: caption, image_prompts.
 - caption: ready-to-post social media text, in Bahasa Malaysia or English matching the topic's language, 3-5 sentences max.
-- image_prompts: an array of exactly 5 different image prompt options (in English). Each option is 1-2 sentences describing a distinct visual scene, mood, and colour palette that would work well for the post. Vary the style — e.g. lifestyle photo, flat lay, infographic style, emotional portrait, abstract/symbolic.
+- image_prompts: an array of exactly 2 image prompt options (in English). First: a neutral, clean visual — no people, focus on object, setting, or concept, calm colours. Second: an emotional version — a relatable human moment, warm expression, personal scene that creates an emotional connection.
 PROMPT;
     }
 
@@ -85,7 +85,7 @@ Topic: {$post->topic}
 
 Return JSON with:
 - caption: the actual post caption, ready to copy-paste
-- image_prompts: array of 5 different image descriptions, each a distinct visual idea for this post
+- image_prompts: array of exactly 2 image descriptions — first neutral/clean, second emotional/human
 PROMPT;
     }
 }

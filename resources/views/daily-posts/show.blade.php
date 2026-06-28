@@ -106,10 +106,14 @@
             <div class="bg-white rounded-xl border border-gray-200 p-5">
                 <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Image Prompts</h3>
                 <p class="text-xs text-gray-400 mb-4">Pick one and paste into Canva AI, DALL-E, or any image generator.</p>
+                @php $labels = ['Neutral', 'Emotional']; @endphp
                 <div class="space-y-3">
                     @foreach ($post->image_prompt as $i => $prompt)
                         <div class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
-                            <span class="text-xs font-semibold text-gray-400 mt-0.5 w-4 flex-shrink-0">{{ $i + 1 }}</span>
+                            <span class="text-xs font-semibold px-1.5 py-0.5 rounded mt-0.5 flex-shrink-0
+                                {{ $i === 0 ? 'bg-gray-200 text-gray-600' : 'bg-strawberry-50 text-strawberry-600' }}">
+                                {{ $labels[$i] }}
+                            </span>
                             <p class="flex-1 text-sm text-gray-600 italic leading-relaxed" x-ref="img{{ $i }}">{{ $prompt }}</p>
                             <button @click="navigator.clipboard.writeText($refs.img{{ $i }}.innerText); copied = 'img{{ $i }}'"
                                     class="flex-shrink-0 text-xs text-matcha-600 hover:text-matcha-800 font-medium transition whitespace-nowrap">
