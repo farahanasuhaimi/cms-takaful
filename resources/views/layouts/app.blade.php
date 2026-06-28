@@ -96,6 +96,20 @@
                 </a>
             </div>
 
+            {{-- Content --}}
+            <div>
+                <p class="px-2 text-matcha-200 text-xs font-semibold uppercase tracking-wider mb-1">Content</p>
+                <a href="{{ route('daily-posts.index') }}"
+                   class="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition
+                          {{ request()->routeIs('daily-posts.*') ? 'bg-white/10 text-white border-l-2 border-strawberry-400' : 'text-matcha-100 hover:bg-white/5 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Daily Posts
+                </a>
+            </div>
+
             {{-- Strategy --}}
             <div>
                 <p class="px-2 text-matcha-200 text-xs font-semibold uppercase tracking-wider mb-1">Strategy</p>

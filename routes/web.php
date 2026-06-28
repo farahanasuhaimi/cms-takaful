@@ -15,6 +15,7 @@ use App\Http\Controllers\AngleContentController;
 use App\Http\Controllers\AngleUsageController;
 use App\Http\Controllers\ReachAngleController;
 use App\Http\Controllers\PlanProductController;
+use App\Http\Controllers\DailyPostController;
 use App\Http\Controllers\SettingController;
 use App\Http\Middleware\EnsureIsAdmin;
 use Illuminate\Support\Facades\Route;
@@ -64,6 +65,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('angles/{angle}/strategies/{strategy}', [ReachAngleController::class, 'detachStrategy'])->name('angles.strategies.detach');
     Route::post('angles/{angle}/usages', [AngleUsageController::class, 'store'])->name('angles.usages.store');
     Route::delete('angles/{angle}/usages/{usage}', [AngleUsageController::class, 'destroy'])->name('angles.usages.destroy');
+
+    // Daily Content Posts
+    Route::get('daily-posts', [DailyPostController::class, 'index'])->name('daily-posts.index');
+    Route::post('daily-posts', [DailyPostController::class, 'store'])->name('daily-posts.store');
+    Route::get('daily-posts/{dailyPost}', [DailyPostController::class, 'show'])->name('daily-posts.show');
+    Route::post('daily-posts/{dailyPost}/generate', [DailyPostController::class, 'generate'])->name('daily-posts.generate');
+    Route::patch('daily-posts/{dailyPost}', [DailyPostController::class, 'update'])->name('daily-posts.update');
+    Route::delete('daily-posts/{dailyPost}', [DailyPostController::class, 'destroy'])->name('daily-posts.destroy');
 
     // Settings — Plan Product Catalog
     Route::resource('plan-products', PlanProductController::class)->except(['show']);
