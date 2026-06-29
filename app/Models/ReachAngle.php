@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\DailyPost;
 
 class ReachAngle extends Model
 {
@@ -45,6 +46,11 @@ class ReachAngle extends Model
     public function contents()
     {
         return $this->hasMany(AngleContent::class, 'angle_id');
+    }
+
+    public function dailyPosts()
+    {
+        return $this->hasMany(DailyPost::class);
     }
 
     public function latestContents()

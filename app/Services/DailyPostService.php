@@ -11,6 +11,7 @@ class DailyPostService
 {
     public function generate(DailyPost $post): DailyPost
     {
+        $post->loadMissing('reachAngle');
         $apiKey  = Setting::get('deepseek_api_key');
         $model   = Setting::get('deepseek_model', 'deepseek-chat');
         $baseUrl = Setting::get('deepseek_base_url', 'https://api.deepseek.com');
@@ -77,14 +78,23 @@ PROMPT;
 
         $hint = $platformHints[$post->platform] ?? 'social media post';
 
+        $angleBlock = '';
+        if ($post->reachAngle) {
+            $a = $post->reachAngle;
+            $angleBlock = "\nReach Angle: {$a->title}";
+            if ($a->target_segment) $angleBlock .= "\nTarget Segment: {$a->target_segment}";
+            if ($a->description)    $angleBlock .= "\nAngle Description: {$a->description}";
+            if ($a->notes)          $angleBlock .= "\nAdditional Notes: {$a->notes}";
+            $angleBlock .= "\n";
+        }
+
         return <<<PROMPT
 Write content for this daily Takaful post:
 
 Platform: {$hint}
-Topic: {$post->topic}
-
+Topic: {$post->topic}{$angleBlock}
 Return JSON with:
-- caption: the actual post caption, ready to copy-paste
+- caption: the actual post caption, ready to copy-paste, written for the target segment and angle above if provided
 - image_prompts: array of exactly 2 image descriptions — first neutral/clean, second emotional/human
 PROMPT;
     }

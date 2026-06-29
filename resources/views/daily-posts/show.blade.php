@@ -72,6 +72,51 @@
                 </form>
             </div>
 
+            {{-- Reach Angle --}}
+            @if ($post->reachAngle || $angles->count())
+            <div class="mt-3 pt-3 border-t border-gray-100"
+                 x-data="{ editAngle: false }">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-400">Angle:</span>
+                        @if ($post->reachAngle)
+                            <span class="text-xs font-medium text-matcha-700 bg-matcha-50 px-2 py-0.5 rounded-full">
+                                {{ $post->reachAngle->title }}
+                            </span>
+                            @if ($post->reachAngle->target_segment)
+                                <span class="text-xs text-gray-400">· {{ $post->reachAngle->target_segment }}</span>
+                            @endif
+                        @else
+                            <span class="text-xs text-gray-400 italic">None</span>
+                        @endif
+                    </div>
+                    <button @click="editAngle = !editAngle"
+                            class="text-xs text-gray-400 hover:text-matcha-600 transition">
+                        <span x-show="!editAngle">Change</span>
+                        <span x-show="editAngle" x-cloak>Cancel</span>
+                    </button>
+                </div>
+                <div x-show="editAngle" x-cloak class="mt-2">
+                    <form method="POST" action="{{ route('daily-posts.update', $post) }}" class="flex items-center gap-2">
+                        @csrf @method('PATCH')
+                        <select name="reach_angle_id"
+                                class="flex-1 text-sm border-gray-200 rounded-lg px-3 py-1.5 focus:ring-matcha-400 focus:border-matcha-400">
+                            <option value="">No angle</option>
+                            @foreach ($angles as $angle)
+                                <option value="{{ $angle->id }}" {{ $post->reach_angle_id == $angle->id ? 'selected' : '' }}>
+                                    {{ $angle->title }}{{ $angle->target_segment ? ' · ' . $angle->target_segment : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <button type="submit"
+                                class="text-xs bg-matcha-600 hover:bg-matcha-800 text-white font-medium px-3 py-1.5 rounded-lg transition whitespace-nowrap">
+                            Save
+                        </button>
+                    </form>
+                </div>
+            </div>
+            @endif
+
             {{-- Generate button --}}
             <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
                 <p class="text-xs text-gray-400">

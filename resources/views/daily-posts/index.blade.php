@@ -139,6 +139,22 @@
                         <p class="text-xs text-gray-400 mt-1">Describe what this post is about — the AI will write the caption.</p>
                     </div>
 
+                    @if ($angles->count())
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Reach Angle <span class="text-gray-400 font-normal">(optional)</span></label>
+                        <select name="reach_angle_id"
+                                class="w-full text-sm border-gray-200 rounded-lg px-3 py-2 focus:ring-matcha-400 focus:border-matcha-400">
+                            <option value="">No angle — generate freely</option>
+                            @foreach ($angles as $angle)
+                                <option value="{{ $angle->id }}" {{ old('reach_angle_id') == $angle->id ? 'selected' : '' }}>
+                                    {{ $angle->title }}{{ $angle->target_segment ? ' · ' . $angle->target_segment : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs text-gray-400 mt-1">Linking an angle focuses the caption toward a specific audience and message.</p>
+                    </div>
+                    @endif
+
                     <div class="flex justify-end gap-3 pt-2">
                         <button type="button" @click="modalOpen = false"
                                 class="text-sm text-gray-500 hover:text-gray-700 transition px-4 py-2">
