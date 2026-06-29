@@ -117,6 +117,49 @@
             </div>
             @endif
 
+            {{-- Product --}}
+            @if ($post->planProduct || $products->count())
+            <div class="mt-3 pt-3 border-t border-gray-100"
+                 x-data="{ editProduct: false }">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-400">Product:</span>
+                        @if ($post->planProduct)
+                            <span class="text-xs font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">
+                                {{ $post->planProduct->name }}
+                            </span>
+                            <span class="text-xs text-gray-400">· {{ ucfirst(str_replace('_', ' ', $post->planProduct->plan_type)) }}</span>
+                        @else
+                            <span class="text-xs text-gray-400 italic">None</span>
+                        @endif
+                    </div>
+                    <button @click="editProduct = !editProduct"
+                            class="text-xs text-gray-400 hover:text-blue-600 transition">
+                        <span x-show="!editProduct">Change</span>
+                        <span x-show="editProduct" x-cloak>Cancel</span>
+                    </button>
+                </div>
+                <div x-show="editProduct" x-cloak class="mt-2">
+                    <form method="POST" action="{{ route('daily-posts.update', $post) }}" class="flex items-center gap-2">
+                        @csrf @method('PATCH')
+                        <select name="plan_product_id"
+                                class="flex-1 text-sm border-gray-200 rounded-lg px-3 py-1.5 focus:ring-blue-400 focus:border-blue-400">
+                            <option value="">No product</option>
+                            @foreach ($products as $product)
+                                <option value="{{ $product->id }}" {{ $post->plan_product_id == $product->id ? 'selected' : '' }}>
+                                    {{ $product->name }} · {{ ucfirst(str_replace('_', ' ', $product->plan_type)) }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <button type="submit"
+                                class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 rounded-lg transition whitespace-nowrap">
+                            Save
+                        </button>
+                    </form>
+                </div>
+            </div>
+            @endif
+
             {{-- Generate button --}}
             <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
                 <p class="text-xs text-gray-400">

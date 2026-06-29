@@ -155,6 +155,22 @@
                     </div>
                     @endif
 
+                    @if ($products->count())
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Product <span class="text-gray-400 font-normal">(optional)</span></label>
+                        <select name="plan_product_id"
+                                class="w-full text-sm border-gray-200 rounded-lg px-3 py-2 focus:ring-blue-400 focus:border-blue-400">
+                            <option value="">No product</option>
+                            @foreach ($products as $product)
+                                <option value="{{ $product->id }}" {{ old('plan_product_id') == $product->id ? 'selected' : '' }}>
+                                    {{ $product->name }} · {{ ucfirst(str_replace('_', ' ', $product->plan_type)) }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs text-gray-400 mt-1">Linking a product gives the LLM the plan details to write more specific content.</p>
+                    </div>
+                    @endif
+
                     <div class="flex justify-end gap-3 pt-2">
                         <button type="button" @click="modalOpen = false"
                                 class="text-sm text-gray-500 hover:text-gray-700 transition px-4 py-2">

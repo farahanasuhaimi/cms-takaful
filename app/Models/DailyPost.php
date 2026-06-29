@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DailyPost extends Model
 {
-    protected $fillable = ['user_id', 'reach_angle_id', 'post_date', 'platform', 'topic', 'caption', 'image_prompt', 'status'];
+    protected $fillable = ['user_id', 'reach_angle_id', 'plan_product_id', 'post_date', 'platform', 'topic', 'caption', 'image_prompt', 'status'];
 
     protected $casts = [
         'post_date'    => 'date',
@@ -30,6 +30,11 @@ class DailyPost extends Model
     public function reachAngle()
     {
         return $this->belongsTo(ReachAngle::class);
+    }
+
+    public function planProduct()
+    {
+        return $this->belongsTo(PlanProduct::class);
     }
 
     public function isPosted(): bool

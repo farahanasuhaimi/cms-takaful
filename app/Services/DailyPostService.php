@@ -11,7 +11,7 @@ class DailyPostService
 {
     public function generate(DailyPost $post): DailyPost
     {
-        $post->loadMissing('reachAngle');
+        $post->loadMissing('reachAngle', 'planProduct');
         $apiKey  = Setting::get('deepseek_api_key');
         $model   = Setting::get('deepseek_model', 'deepseek-chat');
         $baseUrl = Setting::get('deepseek_base_url', 'https://api.deepseek.com');
@@ -88,11 +88,27 @@ PROMPT;
             $angleBlock .= "\n";
         }
 
+        $productBlock = '';
+        if ($post->planProduct) {
+            $p = $post->planProduct;
+            $typeLabel = ucfirst(str_replace('_', ' ', $p->plan_type));
+            $productBlock = "\nProduct: {$p->name} ({$typeLabel})";
+            if (! empty($p->attributes)) {
+                foreach ($p->attributes as $attr) {
+                    if (! empty($attr['key']) && isset($attr['value'])) {
+                        $productBlock .= "\n- {$attr['key']}: {$attr['value']}";
+                    }
+                }
+            }
+            if ($p->notes) $productBlock .= "\nProduct Notes: {$p->notes}";
+            $productBlock .= "\n";
+        }
+
         return <<<PROMPT
 Write content for this daily Takaful post:
 
 Platform: {$hint}
-Topic: {$post->topic}{$angleBlock}
+Topic: {$post->topic}{$angleBlock}{$productBlock}
 Return JSON with:
 - caption: the actual post caption, ready to copy-paste, written for the target segment and angle above if provided
 - image_prompts: array of exactly 2 image descriptions — first neutral/clean, second emotional/human
