@@ -16,12 +16,10 @@ These close gaps between modules that should be connected but aren't.
 
 ## Priority 2 — Content Angles Overhaul
 
-The AI content generation (casual/story/factual) is no longer active — `AngleContentService` has no route or controller. The angles module needs a decision: remove the dead code or rebuild the feature properly.
-
-- [ ] **Decision: remove or rebuild angle content generation** — either strip `AngleContentService`, `AngleContent` model, `angle_contents` table, and `angles/library.blade.php`, OR wire them back up with a proper `AngleContentController` and routes
-- [ ] **Rename "Content Library" nav link to "Strategy Library"** — current label is misleading; it routes to `strategies.index`
+- [x] **Decision: rebuild angle content generation** — wired back up properly via `AngleContentController` + `angle-contents.generate`/`angle-contents.pin` routes *(done 2026-06-06)*
+- [x] **Rename "Content Library" nav link to "Strategy Library"** — nav now correctly labeled, routes to `strategies.index` *(done 2026-06-06)*
 - [ ] **Add content output to Angles** — angles currently produce nothing usable; link an angle to a strategy or add a simple text area for "what to say" so the angle has a deployable output
-- [ ] **Add activity trail to Angle → Client/Lead links** — record when the angle was used with a specific person (date + notes), not just that a link exists
+- [ ] **Add activity trail to Angle → Client/Lead links** — `angle_client` pivot has `reached_at` but no notes field; not verified whether this is surfaced anywhere in the UI
 
 ---
 
@@ -42,6 +40,30 @@ The AI content generation (casual/story/factual) is no longer active — `AngleC
 - [ ] **Content calendar view** — A simple calendar or weekly planner view that maps pinned angle content to planned posting dates
 
 ---
+
+## Priority 5 — Daily Posts (AI Content Pipeline)
+
+- [x] **Daily content posts module** — new post-generation feature with DeepSeek integration *(done 2026-06-28)*
+- [x] **5, then 2, image prompt options per post** — neutral + emotional framing *(done 2026-06-28)*
+- [x] **Link Reach Angles → Daily Posts** — angle-aware generation *(done 2026-06-29)*
+- [x] **Link Product Catalog → Daily Posts** — one-way LLM context feed; a plan product can feed its data into post generation *(done 2026-06-29)*
+- [ ] **Test product-linked generation end-to-end** on `list.drtakaful.com` — link a product to a draft post, hit Generate, confirm output quality
+- [ ] **Fill in Idaman Health Flex-i plan attributes** in the catalog — currently sparse
+
+---
+
+## Priority 6 — Quotation Improvements
+
+- [x] **Quotation → Social Card generator** — 1080×1080 matcha/strawberry-themed downloadable PNG (contact bar, premium table, highlights, price tag, CTA banner), client-side html2canvas export, contact details saved per-user *(done 2026-07-05)*
+- [x] **Dynamic per-plan attributes linked to Plan Catalog** — loading a catalog plan still auto-fills known fixed fields (coverage, room & board, waiver, etc.), but any other catalog attribute (Deduktibel, Health Wallet, Panel Bonus, AIA Vitality, etc.) now flows into an editable "Additional Details" list instead of being dropped; shows in the comparison table and feeds Social Card highlights *(done 2026-07-05)*
+- [ ] **Type-specific known-field mapping** — current fixed fields (umur_matang, pampasan_matang, room_board) read like a Hibah/Medical blend; revisit once real Hibah/PA catalog entries are tested through the new Additional Details flow, in case those types want their own first-class fields instead of falling into "extra"
+
+---
+
+## Security
+
+- [x] **Fix 4 HIGH vulnerabilities** — XSS, SSRF, TLS bypass, deactivated-session reuse *(done 2026-06-24)*
+- [x] **Fix MEDIUM vulnerabilities** — IDOR, mass assignment, marketplace scope leaks *(done 2026-06-24)*
 
 ---
 
