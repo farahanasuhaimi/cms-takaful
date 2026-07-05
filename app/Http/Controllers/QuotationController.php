@@ -9,6 +9,7 @@ use App\Models\Quotation;
 use App\Models\QuotationPerson;
 use App\Models\QuotationPlan;
 use App\Models\QuotationPremium;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 
 class QuotationController extends Controller
@@ -118,6 +119,70 @@ class QuotationController extends Controller
         $grouped = $plans->groupBy(fn($p) => $p->category ?: '');
 
         return view('quotations.show', compact('quotation', 'people', 'plans', 'grouped', 'premiumMap'));
+    }
+
+    public function socialCard(Quotation $quotation, Request $request)
+    {
+        abort_if($quotation->user_id !== auth()->id(), 403);
+
+        $people = $quotation->people;
+        $plans  = $quotation->plans->load('premiums');
+
+        $selectedPlanId = (int) $request->query('plan', $plans->first()->id ?? 0);
+        $plan = $plans->firstWhere('id', $selectedPlanId) ?? $plans->first();
+
+        $premiumByPerson = [];
+        if ($plan) {
+            foreach ($plan->premiums as $premium) {
+                $premiumByPerson[$premium->quotation_person_id] = $premium->amount;
+            }
+        }
+
+        $highlights = [];
+        if ($plan) {
+            if ($plan->coverage)  $highlights[] = 'Perlindungan sehingga ' . $plan->coverage;
+            if ($plan->privilege) $highlights[] = $plan->privilege;
+            if ($plan->waiver === 'yes') $highlights[] = 'Waiver perlindungan disertakan';
+            if ($plan->kenaikan === 'yes') $highlights[] = 'Caruman meningkat mengikut umur';
+        }
+        if (empty($highlights)) {
+            $highlights = [
+                'Lindungi diri dan keluarga sebelum terlambat',
+                'Rujukan caruman terkini',
+                'Ketenangan hati untuk masa depan',
+            ];
+        }
+
+        $card = [
+            'name'    => Setting::get('card_name', auth()->user()->name),
+            'phone'   => Setting::get('card_phone', ''),
+            'website' => Setting::get('card_website', ''),
+            'cta'     => Setting::get('card_cta', 'Jangan tunggu sampai menyesal. Buat keputusan terbaik untuk masa depan yang lebih baik.'),
+        ];
+
+        return view('quotations.social-card', compact(
+            'quotation', 'people', 'plans', 'plan', 'premiumByPerson', 'highlights', 'card'
+        ));
+    }
+
+    public function updateSocialCardSettings(Request $request, Quotation $quotation)
+    {
+        abort_if($quotation->user_id !== auth()->id(), 403);
+
+        $validated = $request->validate([
+            'card_name'    => 'nullable|string|max:100',
+            'card_phone'   => 'nullable|string|max:30',
+            'card_website' => 'nullable|string|max:100',
+            'card_cta'     => 'nullable|string|max:200',
+            'plan'         => 'nullable|integer',
+        ]);
+
+        foreach (['card_name', 'card_phone', 'card_website', 'card_cta'] as $key) {
+            Setting::set($key, $validated[$key] ?? null);
+        }
+
+        return redirect()->route('quotations.social-card', array_filter([$quotation->id, 'plan' => $validated['plan'] ?? null]))
+            ->with('success', 'Contact card updated.');
     }
 
     public function edit(Quotation $quotation)

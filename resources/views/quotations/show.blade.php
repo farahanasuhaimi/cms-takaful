@@ -22,6 +22,10 @@
                     class="text-xs bg-matcha-600 hover:bg-matcha-800 text-white font-medium px-3 py-1.5 rounded-lg transition print:hidden">
                 Print / Save PDF
             </button>
+            <a href="{{ route('quotations.social-card', $quotation) }}"
+               class="text-xs bg-strawberry-600 hover:bg-strawberry-800 text-white font-medium px-3 py-1.5 rounded-lg transition print:hidden">
+                Social Card
+            </a>
         </div>
     </x-slot>
 

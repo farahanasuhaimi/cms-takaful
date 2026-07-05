@@ -51,6 +51,8 @@ Route::middleware('auth')->group(function () {
     // Quotations
     Route::resource('quotations', QuotationController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
     Route::post('quotations/{quotation}/duplicate', [QuotationController::class, 'duplicate'])->name('quotations.duplicate');
+    Route::get('quotations/{quotation}/social-card', [QuotationController::class, 'socialCard'])->name('quotations.social-card');
+    Route::post('quotations/{quotation}/social-card', [QuotationController::class, 'updateSocialCardSettings'])->name('quotations.social-card.settings');
 
     // Reach Angles — library must precede resource to avoid {angle} wildcard match
     Route::get('angles/library', [AngleContentController::class, 'library'])->name('angles.library');
