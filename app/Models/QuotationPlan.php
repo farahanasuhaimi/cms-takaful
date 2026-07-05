@@ -11,7 +11,11 @@ class QuotationPlan extends Model
     protected $fillable = [
         'quotation_id', 'category', 'plan_name', 'type', 'coverage', 'room_board',
         'umur_matang', 'pampasan_matang', 'kenaikan', 'plan_type',
-        'privilege', 'waiver', 'notes', 'sort_order',
+        'privilege', 'waiver', 'notes', 'attributes', 'sort_order',
+    ];
+
+    protected $casts = [
+        'attributes' => 'array',
     ];
 
     public function premiums()

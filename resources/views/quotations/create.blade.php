@@ -225,6 +225,27 @@
                         </div>
                     </div>
 
+                    {{-- Additional Details — dynamic, auto-seeded from any Plan Catalog attribute not covered above (e.g. Deduktibel, Health Wallet, Hibah) --}}
+                    <div class="border-t border-gray-100 pt-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs text-gray-400">Additional Details <span class="text-gray-300">(e.g. Deduktibel, Health Wallet, Hibah)</span></label>
+                            <button type="button" @click="plan.attributes.push({ key: '', value: '' })"
+                                    class="text-xs text-matcha-600 hover:text-matcha-800 font-medium transition">+ Add detail</button>
+                        </div>
+                        <div class="space-y-2">
+                            <template x-for="(row, k) in plan.attributes" :key="k">
+                                <div class="flex items-center gap-2">
+                                    <input x-model="row.key" type="text" placeholder="Label (e.g. Deduktibel)"
+                                           class="w-40 flex-shrink-0 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                                    <input x-model="row.value" type="text" placeholder="Value"
+                                           class="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                                    <button type="button" @click="plan.attributes.splice(k, 1)"
+                                            class="text-gray-300 hover:text-strawberry-400 transition text-lg leading-none px-1 flex-shrink-0">×</button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
                     {{-- Notes --}}
                     <div>
                         <label class="text-xs text-gray-400 mb-1 block">Notes <span class="text-gray-300">(optional)</span></label>
@@ -249,11 +270,17 @@
 
     <script>
     function quotationBuilder(initial, planCatalog) {
+        const KNOWN_ATTRIBUTE_KEYS = new Set([
+            'type', 'room & board', 'room_board', 'coverage',
+            'umur matang', 'umur_matang', 'pampasan matang', 'pampasan_matang',
+            'kenaikan', 'privilege', 'waiver', 'plan', 'plan_type',
+        ]);
+
         const emptyPlan = () => ({
             category: '', plan_name: '', type: '', coverage: '', room_board: '',
             umur_matang: '', pampasan_matang: '', kenaikan: '',
             plan_type: '', privilege: '', waiver: 'yes',
-            notes: '', premiums: ['', ''], opts: {}
+            notes: '', premiums: ['', ''], opts: {}, attributes: []
         });
 
         const defaults = initial || {
@@ -298,6 +325,12 @@
                     pampasan_matang: o['Pampasan Matang'] || [],
                     privilege:       o['Privilege'] || [],
                 };
+
+                // Anything in the catalog's attributes not mapped to a field above
+                // (e.g. Deduktibel, Health Wallet, Hibah) becomes an editable extra row.
+                plan.attributes = Object.entries(a)
+                    .filter(([key]) => !KNOWN_ATTRIBUTE_KEYS.has(key.toLowerCase()))
+                    .map(([key, value]) => ({ key, value: t1(value) }));
             },
 
             addPerson() {
@@ -316,7 +349,7 @@
                     category: '', plan_name: '', type: '', coverage: '', room_board: '',
                     umur_matang: '', pampasan_matang: '', kenaikan: '',
                     plan_type: '', privilege: '', waiver: 'yes',
-                    notes: '', premiums: this.people.map(() => ''), opts: {}
+                    notes: '', premiums: this.people.map(() => ''), opts: {}, attributes: []
                 });
             },
 

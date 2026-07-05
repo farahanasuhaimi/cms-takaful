@@ -170,6 +170,28 @@
                     @endif
                 @endforeach
 
+                {{-- Additional Details rows — dynamic per-plan attributes (e.g. Deduktibel, Health Wallet, Hibah) --}}
+                @php
+                    $dynamicKeys = collect();
+                    foreach ($plans as $p) {
+                        foreach (array_keys($p->attributes ?? []) as $k) {
+                            if (! $dynamicKeys->contains($k)) $dynamicKeys->push($k);
+                        }
+                    }
+                @endphp
+
+                @foreach ($dynamicKeys as $key)
+                    <tr class="bg-white">
+                        <td class="border border-gray-300 px-3 py-2 text-gray-500 text-xs"></td>
+                        <td class="border border-gray-300 px-3 py-2 text-gray-600 font-medium text-xs">{{ $key }}</td>
+                        @foreach ($plans as $plan)
+                            <td class="border border-gray-300 px-3 py-2 text-center text-gray-700 text-xs">
+                                {{ filled($plan->attributes[$key] ?? null) ? $plan->attributes[$key] : '—' }}
+                            </td>
+                        @endforeach
+                    </tr>
+                @endforeach
+
                 {{-- Notes row — only if any plan has notes --}}
                 @if ($plans->filter(fn($p) => $p->notes)->isNotEmpty())
                     <tr class="bg-gray-50">

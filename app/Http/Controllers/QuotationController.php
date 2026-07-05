@@ -82,6 +82,7 @@ class QuotationController extends Controller
                 'privilege'       => trim($row['privilege'] ?? '') ?: null,
                 'waiver'          => $row['waiver'] ?? null,
                 'notes'           => trim($row['notes'] ?? '') ?: null,
+                'attributes'      => $this->parseAttributeRows($row['attributes'] ?? []),
                 'sort_order'      => $j,
             ]);
 
@@ -144,6 +145,10 @@ class QuotationController extends Controller
             if ($plan->privilege) $highlights[] = $plan->privilege;
             if ($plan->waiver === 'yes') $highlights[] = 'Waiver perlindungan disertakan';
             if ($plan->kenaikan === 'yes') $highlights[] = 'Caruman meningkat mengikut umur';
+            foreach (($plan->attributes ?? []) as $key => $value) {
+                if ($value === '' || $value === null) continue;
+                $highlights[] = $key . ': ' . $value;
+            }
         }
         if (empty($highlights)) {
             $highlights = [
@@ -222,6 +227,9 @@ class QuotationController extends Controller
                     'privilege'       => $plan->privilege ?? '',
                     'waiver'          => $plan->waiver ?? 'yes',
                     'notes'           => $plan->notes ?? '',
+                    'attributes'      => collect($plan->attributes ?? [])
+                        ->map(fn($value, $key) => ['key' => $key, 'value' => $value])
+                        ->values()->toArray(),
                     'premiums'        => array_values($premiums),
                 ];
             })->values()->toArray(),
@@ -289,6 +297,7 @@ class QuotationController extends Controller
                 'privilege'       => trim($row['privilege'] ?? '') ?: null,
                 'waiver'          => $row['waiver'] ?? null,
                 'notes'           => trim($row['notes'] ?? '') ?: null,
+                'attributes'      => $this->parseAttributeRows($row['attributes'] ?? []),
                 'sort_order'      => $j,
             ]);
 
@@ -346,6 +355,7 @@ class QuotationController extends Controller
                 'privilege'       => $plan->privilege,
                 'waiver'          => $plan->waiver,
                 'notes'           => $plan->notes,
+                'attributes'      => $plan->attributes,
                 'sort_order'      => $plan->sort_order,
             ]);
 
@@ -371,6 +381,17 @@ class QuotationController extends Controller
             return [null, (int) substr($value, 7)];
         }
         return [null, null];
+    }
+
+    private function parseAttributeRows($rows): ?array
+    {
+        $attributes = [];
+        foreach ((array) $rows as $row) {
+            $key = trim($row['key'] ?? '');
+            if ($key === '') continue;
+            $attributes[$key] = trim($row['value'] ?? '');
+        }
+        return $attributes ?: null;
     }
 
     private function catalogForJs(): array
