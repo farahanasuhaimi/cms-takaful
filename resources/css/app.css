@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@media print {
+    /* App shell (layouts/app.blade.php) uses h-screen/overflow-hidden for independent
+       on-screen scrolling — that clips everything past one viewport height when printing. */
+    .flex.h-screen.overflow-hidden { height: auto !important; overflow: visible !important; }
+    .flex-1.flex-col.overflow-hidden { height: auto !important; overflow: visible !important; }
+}
