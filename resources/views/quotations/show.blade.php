@@ -143,27 +143,53 @@
                         'waiver'          => 'Waiver',
                     ];
                     $hasValue = fn($field) => $plans->contains(fn($p) => filled($p->$field));
+
+                    // Groups consecutive plan cells with identical rendered HTML into one spanning cell.
+                    $mergeCells = function (array $htmlValues) {
+                        $cells = [];
+                        $i = 0;
+                        $n = count($htmlValues);
+                        while ($i < $n) {
+                            $j = $i;
+                            while ($j + 1 < $n && $htmlValues[$j + 1] === $htmlValues[$i]) {
+                                $j++;
+                            }
+                            $cells[] = ['html' => $htmlValues[$i], 'colspan' => $j - $i + 1];
+                            $i = $j + 1;
+                        }
+                        return $cells;
+                    };
+
+                    $renderAttrCell = function ($field, $plan) {
+                        if ($field === 'waiver') {
+                            return $plan->waiver === 'yes'
+                                ? '<span class="text-green-600 text-base">&#9989;</span>'
+                                : '<span class="text-red-500 text-base">&#10060;</span>';
+                        }
+                        if ($field === 'kenaikan') {
+                            if (! $plan->kenaikan) {
+                                return '<span class="text-red-500 text-base">&#10060;</span>';
+                            }
+                            if ($plan->kenaikan === 'yes') {
+                                return '<span class="text-green-600 text-base">&#9989;</span>';
+                            }
+                            return e($plan->kenaikan);
+                        }
+                        return e($plan->$field ?: '—');
+                    };
                 @endphp
 
                 @foreach ($attrs as $field => $label)
                     @if ($field === 'waiver' || $hasValue($field))
+                        @php
+                            $cells = $mergeCells($plans->map(fn($plan) => $renderAttrCell($field, $plan))->all());
+                        @endphp
                         <tr class="bg-white">
                             <td class="border border-gray-300 px-3 py-2 text-gray-500 text-xs"></td>
                             <td class="border border-gray-300 px-3 py-2 text-gray-600 font-medium text-xs">{{ $label }}</td>
-                            @foreach ($plans as $plan)
-                                <td class="border border-gray-300 px-3 py-2 text-center text-gray-700 text-xs">
-                                    @if ($field === 'waiver')
-                                        @if ($plan->waiver === 'yes') <span class="text-green-600 text-base">✅</span>
-                                        @else <span class="text-red-500 text-base">❌</span>
-                                        @endif
-                                    @elseif ($field === 'kenaikan')
-                                        @if (!$plan->kenaikan) <span class="text-red-500 text-base">❌</span>
-                                        @elseif ($plan->kenaikan === 'yes') <span class="text-green-600 text-base">✅</span>
-                                        @else {{ $plan->kenaikan }}
-                                        @endif
-                                    @else
-                                        {{ $plan->$field ?: '—' }}
-                                    @endif
+                            @foreach ($cells as $cell)
+                                <td class="border border-gray-300 px-3 py-2 text-center text-gray-700 text-xs" colspan="{{ $cell['colspan'] }}">
+                                    {!! $cell['html'] !!}
                                 </td>
                             @endforeach
                         </tr>
@@ -181,12 +207,17 @@
                 @endphp
 
                 @foreach ($dynamicKeys as $key)
+                    @php
+                        $cells = $mergeCells($plans->map(
+                            fn($plan) => filled($plan->attributes[$key] ?? null) ? e($plan->attributes[$key]) : '—'
+                        )->all());
+                    @endphp
                     <tr class="bg-white">
                         <td class="border border-gray-300 px-3 py-2 text-gray-500 text-xs"></td>
                         <td class="border border-gray-300 px-3 py-2 text-gray-600 font-medium text-xs">{{ $key }}</td>
-                        @foreach ($plans as $plan)
-                            <td class="border border-gray-300 px-3 py-2 text-center text-gray-700 text-xs">
-                                {{ filled($plan->attributes[$key] ?? null) ? $plan->attributes[$key] : '—' }}
+                        @foreach ($cells as $cell)
+                            <td class="border border-gray-300 px-3 py-2 text-center text-gray-700 text-xs" colspan="{{ $cell['colspan'] }}">
+                                {!! $cell['html'] !!}
                             </td>
                         @endforeach
                     </tr>
@@ -194,11 +225,16 @@
 
                 {{-- Notes row — only if any plan has notes --}}
                 @if ($plans->filter(fn($p) => $p->notes)->isNotEmpty())
+                    @php
+                        $cells = $mergeCells($plans->map(fn($plan) => e($plan->notes ?: ''))->all());
+                    @endphp
                     <tr class="bg-gray-50">
                         <td class="border border-gray-300 px-3 py-2 text-gray-500 text-xs"></td>
                         <td class="border border-gray-300 px-3 py-2 text-gray-600 font-medium text-xs">Notes</td>
-                        @foreach ($plans as $plan)
-                            <td class="border border-gray-300 px-3 py-2 text-center text-gray-500 text-xs">{{ $plan->notes ?: '' }}</td>
+                        @foreach ($cells as $cell)
+                            <td class="border border-gray-300 px-3 py-2 text-center text-gray-500 text-xs" colspan="{{ $cell['colspan'] }}">
+                                {!! $cell['html'] !!}
+                            </td>
                         @endforeach
                     </tr>
                 @endif
