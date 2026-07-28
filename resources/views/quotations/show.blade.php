@@ -38,7 +38,6 @@
             </div>
             <div class="text-right text-xs text-gray-500">
                 <p>{{ now()->format('d M Y') }}</p>
-                <p class="mt-0.5">AIA PUBLIC Takaful Bhd.</p>
             </div>
         </div>
     </div>
