@@ -10,13 +10,6 @@
 
     <div x-data="{ modalOpen: false }" @open-modal.window="modalOpen = true">
 
-        {{-- Error flash --}}
-        @if (session('error'))
-            <div class="mb-4 px-4 py-3 bg-strawberry-50 text-strawberry-800 border border-strawberry-200 rounded-lg text-sm">
-                {{ session('error') }}
-            </div>
-        @endif
-
         {{-- Posts list --}}
         @if ($posts->count())
             <div class="space-y-2">

@@ -8,12 +8,6 @@
         </a>
     </x-slot>
 
-    @if (session('error'))
-        <div class="mb-4 px-4 py-3 bg-red-50 text-red-700 border border-red-200 rounded-lg text-sm">
-            {{ session('error') }}
-        </div>
-    @endif
-
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 class="text-sm font-semibold text-gray-700">All Users</h2>

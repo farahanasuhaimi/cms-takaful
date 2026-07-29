@@ -10,13 +10,6 @@
 
     <div class="max-w-2xl mx-auto space-y-4" x-data="{ copied: null }">
 
-        {{-- Error flash --}}
-        @if (session('error'))
-            <div class="px-4 py-3 bg-strawberry-50 text-strawberry-800 border border-strawberry-200 rounded-lg text-sm">
-                {{ session('error') }}
-            </div>
-        @endif
-
         {{-- Post header card --}}
         <div class="bg-white rounded-xl border border-gray-200 p-5">
             <div class="flex items-start justify-between gap-4">

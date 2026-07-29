@@ -7,7 +7,6 @@
     <title>{{ $title ?? 'Dr Takaful CMS' }}</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-matcha-50 font-sans text-gray-800">
 
@@ -290,6 +289,18 @@
                  x-transition:leave-end="opacity-0"
                  class="mx-6 mt-4 px-4 py-3 bg-matcha-100 text-matcha-800 border border-matcha-200 rounded-lg text-sm flex-shrink-0">
                 {{ session('success') }}
+            </div>
+        @endif
+
+        {{-- Error flash toast --}}
+        @if (session('error'))
+            <div x-data="{ show: true }" x-show="show"
+                 x-init="setTimeout(() => show = false, 5000)"
+                 x-transition:leave="transition ease-in duration-300"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="mx-6 mt-4 px-4 py-3 bg-strawberry-100 text-strawberry-800 border border-strawberry-200 rounded-lg text-sm flex-shrink-0">
+                {{ session('error') }}
             </div>
         @endif
 
