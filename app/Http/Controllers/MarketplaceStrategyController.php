@@ -10,6 +10,8 @@ use App\Models\Strategy;
 use App\Models\StrategyStep;
 use App\Services\CreditService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 class MarketplaceStrategyController extends Controller
 {
@@ -124,73 +126,85 @@ class MarketplaceStrategyController extends Controller
         $buyer  = auth()->user();
         $seller = $listing->seller;
 
-        $spent = CreditService::spend($buyer, $listing->price_credits, "Bought strategy: {$listing->title}");
+        try {
+            $purchaseData = DB::transaction(function () use ($listing, $buyer, $seller) {
+                $spent = CreditService::spend($buyer, $listing->price_credits, "Bought strategy: {$listing->title}");
 
-        if (! $spent) {
-            return back()->with('error', "Insufficient credits. You need {$listing->price_credits} credits.");
-        }
+                if (! $spent) {
+                    throw new RuntimeException('insufficient_credits');
+                }
 
-        CreditService::award($seller, $listing->price_credits, 'sale', "Sold strategy: {$listing->title}");
+                CreditService::award($seller, $listing->price_credits, 'sale', "Sold strategy: {$listing->title}");
 
-        $purchaseData = [
-            'buyer_user_id' => auth()->id(),
-            'listing_id'    => $listing->id,
-            'credits_paid'  => $listing->price_credits,
-        ];
+                $purchaseData = [
+                    'buyer_user_id' => $buyer->id,
+                    'listing_id'    => $listing->id,
+                    'credits_paid'  => $listing->price_credits,
+                ];
 
-        if ($listing->strategy_id) {
-            $original = $listing->strategy;
-            $copy = Strategy::create([
-                'user_id'     => auth()->id(),
-                'title'       => $original->title,
-                'description' => $original->description,
-                'category'    => $original->category,
-                'channel'     => $original->channel,
-                'audience'    => $original->audience,
-                'difficulty'  => $original->difficulty,
-                'type'        => $original->type,
-                'source'      => 'provided',
-                'content'     => $original->content,
-                'status'      => 'active',
-            ]);
+                if ($listing->strategy_id) {
+                    $original = $listing->strategy;
+                    $copy = Strategy::create([
+                        'user_id'     => $buyer->id,
+                        'title'       => $original->title,
+                        'description' => $original->description,
+                        'category'    => $original->category,
+                        'channel'     => $original->channel,
+                        'audience'    => $original->audience,
+                        'difficulty'  => $original->difficulty,
+                        'type'        => $original->type,
+                        'source'      => 'provided',
+                        'content'     => $original->content,
+                        'status'      => 'active',
+                    ]);
 
-            foreach ($original->steps as $step) {
-                StrategyStep::create([
-                    'strategy_id' => $copy->id,
-                    'step_order'  => $step->step_order,
-                    'title'       => $step->title,
-                    'script'      => $step->script,
-                    'timing_note' => $step->timing_note,
-                    'branch_yes'  => $step->branch_yes,
-                    'branch_no'   => $step->branch_no,
-                ]);
+                    foreach ($original->steps as $step) {
+                        StrategyStep::create([
+                            'strategy_id' => $copy->id,
+                            'step_order'  => $step->step_order,
+                            'title'       => $step->title,
+                            'script'      => $step->script,
+                            'timing_note' => $step->timing_note,
+                            'branch_yes'  => $step->branch_yes,
+                            'branch_no'   => $step->branch_no,
+                        ]);
+                    }
+
+                    $purchaseData['imported_strategy_id'] = $copy->id;
+                } else {
+                    $importAngle = ReachAngle::firstOrCreate(
+                        ['user_id' => $buyer->id, 'title' => 'Marketplace Imports'],
+                        ['description' => 'Strategies purchased from the marketplace', 'status' => 'active', 'user_id' => $buyer->id]
+                    );
+
+                    $original = $listing->angleContent;
+                    $imported = AngleContent::create([
+                        'user_id'   => $buyer->id,
+                        'angle_id'  => $importAngle->id,
+                        'batch'     => 1,
+                        'style'     => $original->style,
+                        'content'   => $original->content,
+                        'is_pinned' => true,
+                        'model'     => $original->model,
+                    ]);
+
+                    $purchaseData['imported_content_id'] = $imported->id;
+                }
+
+                MarketplacePurchase::create($purchaseData);
+
+                return $purchaseData;
+            });
+        } catch (RuntimeException $e) {
+            if ($e->getMessage() === 'insufficient_credits') {
+                return back()->with('error', "Insufficient credits. You need {$listing->price_credits} credits.");
             }
 
-            $purchaseData['imported_strategy_id'] = $copy->id;
-        } else {
-            $importAngle = ReachAngle::firstOrCreate(
-                ['user_id' => auth()->id(), 'title' => 'Marketplace Imports'],
-                ['description' => 'Strategies purchased from the marketplace', 'status' => 'active', 'user_id' => auth()->id()]
-            );
-
-            $original = $listing->angleContent;
-            $imported = AngleContent::create([
-                'user_id'   => auth()->id(),
-                'angle_id'  => $importAngle->id,
-                'batch'     => 1,
-                'style'     => $original->style,
-                'content'   => $original->content,
-                'is_pinned' => true,
-                'model'     => $original->model,
-            ]);
-
-            $purchaseData['imported_content_id'] = $imported->id;
+            throw $e;
         }
 
-        MarketplacePurchase::create($purchaseData);
-
-        $destination = $listing->strategy_id
-            ? route('strategies.show', $listing->strategy_id)
+        $destination = isset($purchaseData['imported_strategy_id'])
+            ? route('strategies.show', $purchaseData['imported_strategy_id'])
             : route('marketplace.strategies');
 
         return redirect($destination)

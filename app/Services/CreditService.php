@@ -23,20 +23,24 @@ class CreditService
 
     public static function spend(User $user, int $amount, string $description): bool
     {
-        if ($user->credits < $amount) {
-            return false;
-        }
+        return DB::transaction(function () use ($user, $amount, $description) {
+            $locked = User::whereKey($user->id)->lockForUpdate()->first();
 
-        DB::transaction(function () use ($user, $amount, $description) {
-            $user->decrement('credits', $amount);
+            if ($locked->credits < $amount) {
+                return false;
+            }
+
+            $locked->decrement('credits', $amount);
+            $user->credits = $locked->credits;
+
             CreditTransaction::create([
-                'user_id'     => $user->id,
+                'user_id'     => $locked->id,
                 'amount'      => -$amount,
                 'type'        => 'purchase',
                 'description' => $description,
             ]);
-        });
 
-        return true;
+            return true;
+        });
     }
 }
