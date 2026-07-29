@@ -10,12 +10,12 @@ class Quotation extends Model
 
     public function lead()
     {
-        return $this->belongsTo(Lead::class)->withoutGlobalScopes();
+        return $this->belongsTo(Lead::class);
     }
 
     public function client()
     {
-        return $this->belongsTo(Client::class)->withoutGlobalScopes();
+        return $this->belongsTo(Client::class);
     }
 
     public function people()

@@ -7,6 +7,7 @@ use App\Models\PlanProduct;
 use App\Models\ReachAngle;
 use App\Services\DailyPostService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class DailyPostController extends Controller
 {
@@ -25,8 +26,8 @@ class DailyPostController extends Controller
             'post_date'       => ['required', 'date'],
             'platform'        => ['required', 'in:instagram,facebook,whatsapp,tiktok'],
             'topic'           => ['required', 'string', 'max:255'],
-            'reach_angle_id'  => ['nullable', 'exists:reach_angles,id'],
-            'plan_product_id' => ['nullable', 'exists:plan_products,id'],
+            'reach_angle_id'  => ['nullable', Rule::exists('reach_angles', 'id')->where('user_id', auth()->id())],
+            'plan_product_id' => ['nullable', Rule::exists('plan_products', 'id')->where('user_id', auth()->id())],
         ]);
 
         $post = DailyPost::create([
@@ -72,8 +73,8 @@ class DailyPostController extends Controller
             'post_date'       => ['sometimes', 'date'],
             'platform'        => ['sometimes', 'in:instagram,facebook,whatsapp,tiktok'],
             'topic'           => ['sometimes', 'string', 'max:255'],
-            'reach_angle_id'  => ['sometimes', 'nullable', 'exists:reach_angles,id'],
-            'plan_product_id' => ['sometimes', 'nullable', 'exists:plan_products,id'],
+            'reach_angle_id'  => ['sometimes', 'nullable', Rule::exists('reach_angles', 'id')->where('user_id', auth()->id())],
+            'plan_product_id' => ['sometimes', 'nullable', Rule::exists('plan_products', 'id')->where('user_id', auth()->id())],
         ]);
 
         $dailyPost->update($validated);
