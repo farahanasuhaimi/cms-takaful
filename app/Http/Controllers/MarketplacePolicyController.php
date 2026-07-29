@@ -61,6 +61,7 @@ class MarketplacePolicyController extends Controller
             'name'                  => $planProduct->name,
             'commission_first_year' => $planProduct->commission_first_year,
             'attributes'            => $planProduct->attributes,
+            'attribute_options'     => $planProduct->attribute_options,
             'notes'                 => $planProduct->notes,
             'is_shared'             => false,
         ]);
