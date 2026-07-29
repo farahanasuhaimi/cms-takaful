@@ -94,9 +94,9 @@ PROMPT;
             $typeLabel = ucfirst(str_replace('_', ' ', $p->plan_type));
             $productBlock = "\nProduct: {$p->name} ({$typeLabel})";
             if (! empty($p->attributes)) {
-                foreach ($p->attributes as $attr) {
-                    if (! empty($attr['key']) && isset($attr['value'])) {
-                        $productBlock .= "\n- {$attr['key']}: {$attr['value']}";
+                foreach ($p->attributes as $key => $value) {
+                    if ($value !== '' && $value !== null) {
+                        $productBlock .= "\n- {$key}: {$value}";
                     }
                 }
             }
