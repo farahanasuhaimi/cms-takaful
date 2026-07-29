@@ -10,6 +10,10 @@ class QuotationPerson extends Model
 
     protected $fillable = ['quotation_id', 'name', 'age', 'sort_order'];
 
+    protected $casts = [
+        'name' => 'encrypted',
+    ];
+
     public function premiums()
     {
         return $this->hasMany(QuotationPremium::class);

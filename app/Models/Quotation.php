@@ -8,6 +8,11 @@ class Quotation extends Model
 {
     protected $fillable = ['user_id', 'lead_id', 'client_id', 'title', 'notes', 'prospect_name', 'prospect_phone', 'prospect_notes'];
 
+    protected $casts = [
+        'prospect_name'  => 'encrypted',
+        'prospect_phone' => 'encrypted',
+    ];
+
     public function lead()
     {
         return $this->belongsTo(Lead::class);
