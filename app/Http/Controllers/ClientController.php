@@ -8,6 +8,7 @@ use App\Models\Policy;
 use App\Models\Strategy;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Validation\Rule;
 
 class ClientController extends Controller
 {
@@ -106,7 +107,7 @@ class ClientController extends Controller
     {
         $request->validate([
             'policy_number'   => 'nullable|string|max:100',
-            'plan_product_id' => 'nullable|exists:plan_products,id',
+            'plan_product_id' => ['nullable', Rule::exists('plan_products', 'id')->where('user_id', auth()->id())],
             'plan_type'       => 'required|in:medical,critical_illness,personal_accident,group,hibah,income,other',
             'plan_name'       => 'nullable|string|max:255',
             'coverage_amount' => 'nullable|numeric|min:0',
@@ -187,13 +188,7 @@ class ClientController extends Controller
     {
         abort_if($policy->client_id !== $client->id, 403);
 
-        if ($policy->start_date && $policy->frequency) {
-            $newStart = $policy->frequency === 'monthly'
-                ? $policy->start_date->copy()->addMonthNoOverflow()
-                : $policy->start_date->copy()->addYear();
-
-            $policy->update(['start_date' => $newStart]);
-        }
+        $policy->update(['last_renewed_at' => now()]);
 
         return back()->with('success', "{$client->name}'s policy marked as renewed.");
     }
