@@ -122,8 +122,20 @@ class QuotationController extends Controller
             }
         }
 
-        // Group plans by category for the column header
-        $grouped = $plans->groupBy(fn($p) => $p->category ?: '');
+        // Group plans into consecutive same-category runs for the column
+        // header. A plain groupBy() would misalign the header colspans
+        // whenever plans of the same category aren't contiguous in
+        // sort_order, since the header would group them together while
+        // the plan-name row below still renders them in raw column order.
+        $grouped = collect();
+        foreach ($plans as $plan) {
+            $category = $plan->category ?: '';
+            if ($grouped->isNotEmpty() && $grouped->last()['category'] === $category) {
+                $grouped->last()['plans']->push($plan);
+            } else {
+                $grouped->push(['category' => $category, 'plans' => collect([$plan])]);
+            }
+        }
 
         return view('quotations.show', compact('quotation', 'people', 'plans', 'grouped', 'premiumMap'));
     }

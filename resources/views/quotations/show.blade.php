@@ -70,10 +70,10 @@
             <thead>
                 <tr>
                     <th class="border border-gray-300 bg-gray-50 px-3 py-2" colspan="2"></th>
-                    @foreach ($grouped as $category => $catPlans)
+                    @foreach ($grouped as $group)
                         <th class="border border-gray-300 bg-matcha-700 text-white px-3 py-2 text-center font-semibold"
-                            colspan="{{ $catPlans->count() }}">
-                            {{ $category ?: 'Plans' }}
+                            colspan="{{ $group['plans']->count() }}">
+                            {{ $group['category'] ?: 'Plans' }}
                         </th>
                     @endforeach
                 </tr>
