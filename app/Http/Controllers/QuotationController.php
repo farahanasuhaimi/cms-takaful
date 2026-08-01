@@ -208,6 +208,27 @@ class QuotationController extends Controller
             ->with('success', 'Contact card updated.');
     }
 
+    public function comparison(Quotation $quotation)
+    {
+        abort_if($quotation->user_id !== auth()->id(), 403);
+
+        $people = $quotation->people;
+
+        // Predefined for Hibah first — other categories (Medical, PA, ...) get
+        // their own predefined field mapping when this view is extended to them.
+        $plans = $quotation->plans->load('premiums')
+            ->filter(fn ($plan) => $plan->category && str_contains(strtolower($plan->category), 'hibah'))
+            ->values();
+
+        $card = [
+            'name'    => Setting::get('card_name', auth()->user()->name),
+            'phone'   => Setting::get('card_phone', ''),
+            'website' => Setting::get('card_website', ''),
+        ];
+
+        return view('quotations.comparison', compact('quotation', 'people', 'plans', 'card'));
+    }
+
     public function edit(Quotation $quotation)
     {
         abort_if($quotation->user_id !== auth()->id(), 403);

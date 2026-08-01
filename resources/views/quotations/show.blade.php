@@ -26,6 +26,10 @@
                class="text-xs bg-strawberry-600 hover:bg-strawberry-800 text-white font-medium px-3 py-1.5 rounded-lg transition print:hidden">
                 Social Card
             </a>
+            <a href="{{ route('quotations.comparison', $quotation) }}"
+               class="text-xs bg-matcha-800 hover:bg-matcha-900 text-white font-medium px-3 py-1.5 rounded-lg transition print:hidden">
+                Comparison
+            </a>
         </div>
     </x-slot>
 
