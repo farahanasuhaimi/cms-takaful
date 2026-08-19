@@ -35,7 +35,9 @@
         <div class="bg-white rounded-xl border border-gray-200 px-5 py-4">
             <p class="text-xs text-gray-500 uppercase tracking-wide font-medium">Est. Commission (Yr 1)</p>
             @if ($totalEstimatedCommission > 0)
-                <p class="text-3xl font-bold text-amber-600 mt-1">RM {{ number_format($totalEstimatedCommission, 0) }}</p>
+                <p class="text-3xl font-bold text-amber-600 mt-1">
+                    <x-pdpa-mask>RM {{ number_format($totalEstimatedCommission, 0) }}</x-pdpa-mask>
+                </p>
             @else
                 <p class="text-sm text-gray-400 mt-2">No data yet</p>
             @endif
@@ -62,7 +64,7 @@
                         <div class="min-w-0">
                             <a href="{{ route('clients.show', $policy->client) }}"
                                class="text-sm font-medium text-gray-800 hover:text-matcha-600">
-                                {{ $policy->client->name }}
+                                <x-pdpa-mask>{{ $policy->client->name }}</x-pdpa-mask>
                             </a>
                             <p class="text-xs text-gray-500">
                                 {{ ucfirst(str_replace('_', ' ', $policy->plan_type)) }}
@@ -118,7 +120,7 @@
                     @php $daysOverdue = (int) now()->startOfDay()->diffInDays($tp->next_action_date); @endphp
                     <li class="py-2.5 flex items-start justify-between">
                         <div>
-                            <p class="text-sm font-medium text-gray-800">{{ $tp->touchable?->name ?? '—' }}</p>
+                            <p class="text-sm font-medium text-gray-800"><x-pdpa-mask>{{ $tp->touchable?->name ?? '—' }}</x-pdpa-mask></p>
                             <p class="text-xs text-gray-500 truncate max-w-[180px]">{{ $tp->next_action }}</p>
                         </div>
                         <span class="text-xs font-semibold bg-strawberry-100 text-strawberry-700 px-2 py-0.5 rounded-full whitespace-nowrap ml-2">
@@ -132,6 +134,20 @@
 
     </div>
     @endif
+
+    {{-- Explore more toggle --}}
+    <div class="mb-4" x-data="{ exploreOpen: localStorage.getItem('dashboard_explore_open') === 'true' }"
+         x-init="$watch('exploreOpen', v => localStorage.setItem('dashboard_explore_open', v))">
+        <button type="button" @click="exploreOpen = !exploreOpen"
+                class="w-full flex items-center justify-center gap-2 text-sm font-medium text-matcha-700 bg-matcha-50 hover:bg-matcha-100 border border-matcha-200 rounded-xl py-2.5 transition">
+            <span x-text="exploreOpen ? 'Hide details' : 'Explore more — leads, commission, plans & follow-ups'"></span>
+            <svg class="w-4 h-4 transition-transform" :class="exploreOpen ? 'rotate-180' : ''"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+        </button>
+
+    <div x-show="exploreOpen" x-transition x-cloak>
 
     {{-- Two-column: Hot Leads + Recent Clients --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
@@ -147,7 +163,7 @@
                     @foreach ($urgentLeads as $lead)
                         <li class="py-2.5 flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-gray-800">{{ $lead->name }}</p>
+                                <p class="text-sm font-medium text-gray-800"><x-pdpa-mask>{{ $lead->name }}</x-pdpa-mask></p>
                                 @if ($lead->interest_area)
                                     <p class="text-xs text-gray-400">{{ $lead->interest_area }}</p>
                                 @endif
@@ -182,7 +198,7 @@
                             <div>
                                 <a href="{{ route('clients.show', $client) }}"
                                    class="text-sm font-medium text-gray-800 hover:text-matcha-600">
-                                    {{ $client->name }}
+                                    <x-pdpa-mask>{{ $client->name }}</x-pdpa-mask>
                                 </a>
                                 @if ($client->policies->count())
                                     <div class="flex flex-wrap gap-1 mt-0.5">
@@ -223,10 +239,10 @@
                         <li class="py-2.5 flex items-center justify-between">
                             <a href="{{ route('clients.show', $c) }}"
                                class="text-sm font-medium text-gray-800 hover:text-matcha-600">
-                                {{ $c->name }}
+                                <x-pdpa-mask>{{ $c->name }}</x-pdpa-mask>
                             </a>
                             <span class="text-sm font-semibold text-amber-600 ml-2 whitespace-nowrap">
-                                RM {{ number_format($c->total_commission, 2) }}
+                                <x-pdpa-mask>RM {{ number_format($c->total_commission, 2) }}</x-pdpa-mask>
                             </span>
                         </li>
                     @endforeach
@@ -281,7 +297,7 @@
                             </span>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-gray-800 truncate">
-                                    {{ $tp->touchable?->name ?? '—' }}
+                                    <x-pdpa-mask>{{ $tp->touchable?->name ?? '—' }}</x-pdpa-mask>
                                 </p>
                                 <p class="text-xs text-gray-500 truncate">{{ $tp->topic }}</p>
                             </div>
@@ -326,5 +342,8 @@
         </div>
 
     </div>
+
+    </div>{{-- end exploreOpen --}}
+    </div>{{-- end explore-more wrapper --}}
 
 </x-app-layout>

@@ -49,13 +49,13 @@
                             <td class="px-5 py-3">
                                 <a href="{{ route('clients.show', $client) }}"
                                    class="font-medium text-gray-800 hover:text-matcha-600">
-                                    {{ $client->name }}
+                                    <x-pdpa-mask>{{ $client->name }}</x-pdpa-mask>
                                 </a>
                             </td>
                             <td class="px-5 py-3 text-gray-500">
                                 @if ($client->phone)
                                     <a href="https://wa.me/{{ $client->phone }}" target="_blank"
-                                       class="hover:text-green-600 transition">{{ $client->phone }}</a>
+                                       class="hover:text-green-600 transition"><x-pdpa-mask>{{ $client->phone }}</x-pdpa-mask></a>
                                 @else
                                     <span class="text-gray-300">—</span>
                                 @endif

@@ -265,6 +265,23 @@
 
             {{-- Actions slot (context-sensitive "+ New" button) --}}
             <div class="ml-auto flex items-center gap-3">
+
+                {{-- Privacy Mode toggle — blurs client names/commission/payment for screenshots --}}
+                <button type="button" x-data @click="$store.privacy.toggle()"
+                        :class="$store.privacy.enabled
+                            ? 'bg-strawberry-100 text-strawberry-700 border-strawberry-200'
+                            : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'"
+                        class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition"
+                        title="Blur client names, commission & payment amounts before screenshotting for social media (PDPA)">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span x-text="$store.privacy.enabled ? 'Privacy On' : 'Privacy Mode'"></span>
+                </button>
+
                 {{ $actions ?? '' }}
 
                 {{-- Avatar --}}

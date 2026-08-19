@@ -18,7 +18,7 @@
                 <div class="flex items-start justify-between">
                     <div>
                         <div class="flex items-center gap-2 flex-wrap">
-                            <h2 class="text-xl font-semibold text-gray-800">{{ $client->name }}</h2>
+                            <h2 class="text-xl font-semibold text-gray-800"><x-pdpa-mask>{{ $client->name }}</x-pdpa-mask></h2>
                             @if ($client->lead_id)
                                 <span class="text-xs bg-matcha-50 text-matcha-600 border border-matcha-100 px-2 py-0.5 rounded-full">
                                     Converted Lead
@@ -28,13 +28,13 @@
                         @if ($client->phone)
                             <a href="https://wa.me/{{ $client->phone }}" target="_blank"
                                class="text-sm text-green-600 hover:underline mt-0.5 block">
-                                {{ $client->phone }}
+                                <x-pdpa-mask>{{ $client->phone }}</x-pdpa-mask>
                             </a>
                         @endif
                     </div>
                     <div class="text-xs text-gray-400 text-right">
-                        @if ($client->ic_no) <p>IC: {{ $client->ic_no }}</p> @endif
-                        @if ($client->email) <p>{{ $client->email }}</p> @endif
+                        @if ($client->ic_no) <p>IC: <x-pdpa-mask>{{ $client->ic_no }}</x-pdpa-mask></p> @endif
+                        @if ($client->email) <p><x-pdpa-mask>{{ $client->email }}</x-pdpa-mask></p> @endif
                     </div>
                 </div>
                 @if ($client->notes)
@@ -208,10 +208,10 @@
                                 @endif
                                 <div class="mt-1 text-xs text-gray-400 space-x-3">
                                     @if ($policy->coverage_amount)
-                                        <span>Coverage: RM {{ number_format($policy->coverage_amount, 2) }}</span>
+                                        <span>Coverage: <x-pdpa-mask>RM {{ number_format($policy->coverage_amount, 2) }}</x-pdpa-mask></span>
                                     @endif
                                     @if ($policy->premium_monthly)
-                                        <span>Premium: RM {{ number_format($policy->premium_monthly, 2) }}/{{ $policy->frequency ?? 'mo' }}</span>
+                                        <span>Premium: <x-pdpa-mask>RM {{ number_format($policy->premium_monthly, 2) }}/{{ $policy->frequency ?? 'mo' }}</x-pdpa-mask></span>
                                     @endif
                                     @php $nextRenewal = $policy->nextRenewalDate(); @endphp
                                     @if ($nextRenewal)
@@ -448,7 +448,7 @@
             <div class="bg-amber-50 rounded-xl border border-amber-200 p-5">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-sm font-semibold text-amber-800">Est. Commission (Yr 1)</h3>
-                    <span class="text-sm font-bold text-amber-700">RM {{ number_format($totalCommission, 2) }}</span>
+                    <span class="text-sm font-bold text-amber-700"><x-pdpa-mask>RM {{ number_format($totalCommission, 2) }}</x-pdpa-mask></span>
                 </div>
                 <ul class="divide-y divide-amber-100">
                     @foreach ($commissionBreakdown as $row)
@@ -456,12 +456,12 @@
                             <div>
                                 <p class="text-xs font-medium text-gray-700">{{ $row['policy']->planProduct->name }}</p>
                                 <p class="text-xs text-gray-400">
-                                    {{ $row['policy']->planProduct->commission_first_year }}% ×
-                                    RM {{ number_format($row['policy']->premium_monthly, 2) }}/{{ $row['policy']->frequency ?? 'mo' }}
+                                    <x-pdpa-mask>{{ $row['policy']->planProduct->commission_first_year }}% ×
+                                    RM {{ number_format($row['policy']->premium_monthly, 2) }}/{{ $row['policy']->frequency ?? 'mo' }}</x-pdpa-mask>
                                 </p>
                             </div>
                             <span class="text-xs font-semibold text-amber-600 ml-2 whitespace-nowrap">
-                                RM {{ number_format($row['amount'], 2) }}
+                                <x-pdpa-mask>RM {{ number_format($row['amount'], 2) }}</x-pdpa-mask>
                             </span>
                         </li>
                     @endforeach
