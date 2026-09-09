@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Client;
 use App\Models\Lead;
-use App\Models\Policy;
 use App\Models\Task;
 use App\Models\Touchpoint;
 
@@ -34,20 +34,6 @@ class TaskAutoBacklogService
                 $tp->id => 'Follow up: ' . ($tp->touchable?->name ?? '—') . ' — ' . $tp->next_action,
             ]);
 
-        $cutoff = now()->startOfDay()->addDays(7);
-        $renewalsDue = Policy::with('client')
-            ->whereNotNull('start_date')
-            ->whereNotNull('frequency')
-            ->get()
-            ->mapWithKeys(function ($policy) use ($cutoff) {
-                $renewal = $policy->nextRenewalDate();
-                if (! $renewal || $renewal->gt($cutoff) || ! $policy->client) {
-                    return [];
-                }
-
-                return [$policy->id => 'Renewal due: ' . $policy->client->name . ' — ' . $renewal->format('d M Y')];
-            });
-
         $hotLeadsDue = Lead::where('temperature', 'hot')
             ->whereNull('converted_at')
             ->whereNotNull('next_contact')
@@ -55,10 +41,34 @@ class TaskAutoBacklogService
             ->get()
             ->mapWithKeys(fn ($lead) => [$lead->id => 'Contact hot lead: ' . $lead->name]);
 
+        $untouchedClients = Client::with(['touchpoints' => fn ($q) => $q->latest('contacted_at')->limit(1)])
+            ->get()
+            ->mapWithKeys(function ($client) {
+                $last = $client->touchpoints->first();
+
+                if (! $last) {
+                    return [$client->id => 'Check in: ' . $client->name . ' — never contacted'];
+                }
+
+                if ($last->next_action_date) {
+                    // Has an active plan running — leave it to the
+                    // overdue_followup signal if that plan gets missed.
+                    if ($last->next_action_date->gte(now()->startOfDay())) {
+                        return [];
+                    }
+                } elseif ($last->contacted_at->diffInDays(now()) < 14) {
+                    return [];
+                }
+
+                $days = (int) $last->contacted_at->diffInDays(now());
+
+                return [$client->id => 'Check in: ' . $client->name . " — no contact in {$days}d"];
+            });
+
         return [
             'overdue_followup' => $overdueFollowUps,
-            'renewal_due'      => $renewalsDue,
             'hot_lead'         => $hotLeadsDue,
+            'untouched_client' => $untouchedClients,
         ];
     }
 

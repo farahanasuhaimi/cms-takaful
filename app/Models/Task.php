@@ -14,8 +14,8 @@ class Task extends Model
     // Auto-generated backlog sources — see TaskAutoBacklogService.
     public const SOURCE_LABELS = [
         'overdue_followup' => 'Follow-up',
-        'renewal_due'      => 'Renewal',
         'hot_lead'         => 'Hot Lead',
+        'untouched_client' => 'Check In',
     ];
 
     protected $fillable = ['user_id', 'title', 'status', 'position', 'status_changed_at', 'source_type', 'source_id'];
