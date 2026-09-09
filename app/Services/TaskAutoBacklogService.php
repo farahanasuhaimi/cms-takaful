@@ -86,12 +86,13 @@ class TaskAutoBacklogService
             $nextPosition = Task::where('status', 'backlog')->max('position') + 1;
 
             Task::create([
-                'user_id'     => $userId,
-                'title'       => $title,
-                'status'      => 'backlog',
-                'position'    => $nextPosition,
-                'source_type' => $sourceType,
-                'source_id'   => $sourceId,
+                'user_id'           => $userId,
+                'title'             => $title,
+                'status'            => 'backlog',
+                'position'          => $nextPosition,
+                'status_changed_at' => now(),
+                'source_type'       => $sourceType,
+                'source_id'         => $sourceId,
             ]);
         }
     }

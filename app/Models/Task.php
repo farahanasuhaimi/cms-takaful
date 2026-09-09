@@ -18,7 +18,11 @@ class Task extends Model
         'hot_lead'         => 'Hot Lead',
     ];
 
-    protected $fillable = ['user_id', 'title', 'status', 'position', 'source_type', 'source_id'];
+    protected $fillable = ['user_id', 'title', 'status', 'position', 'status_changed_at', 'source_type', 'source_id'];
+
+    protected $casts = [
+        'status_changed_at' => 'datetime',
+    ];
 
     protected static function booted(): void
     {

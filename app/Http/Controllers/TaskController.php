@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Services\TaskAutoBacklogService;
+use App\Services\TaskAutoResetService;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
     public function index()
     {
+        TaskAutoResetService::resetStaleTodayDoing();
         TaskAutoBacklogService::sync(auth()->id());
 
         $tasks = Task::orderBy('position')->get()->groupBy('status');
@@ -33,10 +35,11 @@ class TaskController extends Controller
         $nextPosition = Task::where('status', $status)->max('position') + 1;
 
         Task::create([
-            'user_id'  => auth()->id(),
-            'title'    => $validated['title'],
-            'status'   => $status,
-            'position' => $nextPosition,
+            'user_id'           => auth()->id(),
+            'title'             => $validated['title'],
+            'status'            => $status,
+            'position'          => $nextPosition,
+            'status_changed_at' => now(),
         ]);
 
         return back()->with('success', 'Task added.');
@@ -61,16 +64,21 @@ class TaskController extends Controller
             'columns.*.*' => ['integer'],
         ]);
 
+        $currentStatuses = Task::pluck('status', 'id');
+
         foreach ($validated['columns'] as $status => $ids) {
             if (! in_array($status, Task::STATUSES, true)) {
                 continue;
             }
 
             foreach (array_values($ids) as $position => $id) {
-                Task::where('id', $id)->update([
-                    'status'   => $status,
-                    'position' => $position,
-                ]);
+                $update = ['status' => $status, 'position' => $position];
+
+                if (($currentStatuses[$id] ?? null) !== $status) {
+                    $update['status_changed_at'] = now();
+                }
+
+                Task::where('id', $id)->update($update);
             }
         }
 
