@@ -2,9 +2,11 @@ import './bootstrap';
 
 import Alpine from 'alpinejs';
 import { quotationBuilder } from './quotation-builder';
+import { kanbanBoard } from './kanban-board';
 
 window.Alpine = Alpine;
 window.quotationBuilder = quotationBuilder;
+window.kanbanBoard = kanbanBoard;
 
 document.addEventListener('alpine:init', () => {
     // PDPA privacy mode — blurs client names, commission & payment figures

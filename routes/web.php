@@ -17,12 +17,20 @@ use App\Http\Controllers\ReachAngleController;
 use App\Http\Controllers\PlanProductController;
 use App\Http\Controllers\DailyPostController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\TaskController;
 use App\Http\Middleware\EnsureIsAdmin;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Task Board
+    Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');
+    Route::post('tasks', [TaskController::class, 'store'])->name('tasks.store');
+    Route::patch('tasks/reorder', [TaskController::class, 'reorder'])->name('tasks.reorder');
+    Route::put('tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
+    Route::delete('tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 
     // Account
     Route::get('account/credits', [AccountController::class, 'credits'])->name('account.credits');
