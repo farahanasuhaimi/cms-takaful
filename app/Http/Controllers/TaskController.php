@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Services\TaskAutoBacklogService;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
     public function index()
     {
+        TaskAutoBacklogService::sync(auth()->id());
+
         $tasks = Task::orderBy('position')->get()->groupBy('status');
 
         $columns = collect(Task::STATUSES)->mapWithKeys(fn ($status) => [

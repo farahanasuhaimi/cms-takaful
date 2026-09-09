@@ -3,12 +3,22 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Task extends Model
 {
+    use SoftDeletes;
+
     public const STATUSES = ['backlog', 'today', 'doing', 'done'];
 
-    protected $fillable = ['user_id', 'title', 'status', 'position'];
+    // Auto-generated backlog sources — see TaskAutoBacklogService.
+    public const SOURCE_LABELS = [
+        'overdue_followup' => 'Follow-up',
+        'renewal_due'      => 'Renewal',
+        'hot_lead'         => 'Hot Lead',
+    ];
+
+    protected $fillable = ['user_id', 'title', 'status', 'position', 'source_type', 'source_id'];
 
     protected static function booted(): void
     {

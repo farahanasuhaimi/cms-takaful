@@ -11,7 +11,12 @@
         ];
 
         $initialColumns = collect($columnMeta)->keys()->mapWithKeys(fn ($status) => [
-            $status => $columns[$status]->map(fn ($t) => ['id' => $t->id, 'title' => $t->title])->values(),
+            $status => $columns[$status]->map(fn ($t) => [
+                'id'           => $t->id,
+                'title'        => $t->title,
+                'source_type'  => $t->source_type,
+                'source_label' => \App\Models\Task::SOURCE_LABELS[$t->source_type] ?? null,
+            ])->values(),
         ]);
     @endphp
 
@@ -42,7 +47,13 @@
                              @dragover.prevent.stop
                              @drop.stop="onDrop('{{ $status }}', index)"
                              class="group bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 cursor-move flex items-start justify-between gap-2 transition">
-                            <span x-text="task.title" class="min-w-0 break-words"></span>
+                            <div class="min-w-0">
+                                <span x-show="task.source_label"
+                                      x-text="task.source_label"
+                                      class="inline-block mb-1 text-[10px] font-semibold uppercase tracking-wide text-matcha-700 bg-matcha-50 rounded px-1.5 py-0.5"></span>
+                                <p x-text="task.title" class="break-words"
+                                   :class="task.source_type && $store.privacy.enabled ? 'blur-sm select-none' : ''"></p>
+                            </div>
                             <form :action="'/tasks/' + task.id" method="POST"
                                   onsubmit="return confirm('Delete this task?')"
                                   class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition">
