@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Lead;
 use App\Models\Task;
 use App\Models\Touchpoint;
+use Illuminate\Database\Eloquent\Model;
 
 class TaskAutoBacklogService
 {
@@ -23,6 +24,11 @@ class TaskAutoBacklogService
         }
     }
 
+    /**
+     * Each signal is keyed by source_id => ['title' => ..., 'url' => ...|null].
+     * url is null when there's no page to send the user to (e.g. no per-lead
+     * show route) — the card just won't be a link in that case.
+     */
     private static function collectSignals(int $userId): array
     {
         $overdueFollowUps = Touchpoint::with('touchable')
@@ -31,7 +37,10 @@ class TaskAutoBacklogService
             ->where('next_action_date', '<', now()->startOfDay())
             ->get()
             ->mapWithKeys(fn ($tp) => [
-                $tp->id => 'Follow up: ' . ($tp->touchable?->name ?? '—') . ' — ' . $tp->next_action,
+                $tp->id => [
+                    'title' => 'Follow up: ' . ($tp->touchable?->name ?? '—') . ' — ' . $tp->next_action,
+                    'url'   => self::touchableUrl($tp->touchable),
+                ],
             ]);
 
         $hotLeadsDue = Lead::where('temperature', 'hot')
@@ -39,7 +48,12 @@ class TaskAutoBacklogService
             ->whereNotNull('next_contact')
             ->where('next_contact', '<=', now()->startOfDay())
             ->get()
-            ->mapWithKeys(fn ($lead) => [$lead->id => 'Contact hot lead: ' . $lead->name]);
+            ->mapWithKeys(fn ($lead) => [
+                $lead->id => [
+                    'title' => 'Contact hot lead: ' . $lead->name,
+                    'url'   => route('leads.edit', $lead->id),
+                ],
+            ]);
 
         $untouchedClients = Client::with(['touchpoints' => fn ($q) => $q->latest('contacted_at')->limit(1)])
             ->get()
@@ -47,7 +61,7 @@ class TaskAutoBacklogService
                 $last = $client->touchpoints->first();
 
                 if (! $last) {
-                    return [$client->id => 'Check in: ' . $client->name . ' — never contacted'];
+                    return [$client->id => ['title' => 'Check in: ' . $client->name . ' — never contacted', 'url' => route('clients.show', $client->id)]];
                 }
 
                 if ($last->next_action_date) {
@@ -62,7 +76,10 @@ class TaskAutoBacklogService
 
                 $days = (int) $last->contacted_at->diffInDays(now());
 
-                return [$client->id => 'Check in: ' . $client->name . " — no contact in {$days}d"];
+                return [$client->id => [
+                    'title' => 'Check in: ' . $client->name . " — no contact in {$days}d",
+                    'url'   => route('clients.show', $client->id),
+                ]];
             });
 
         return [
@@ -70,6 +87,15 @@ class TaskAutoBacklogService
             'hot_lead'         => $hotLeadsDue,
             'untouched_client' => $untouchedClients,
         ];
+    }
+
+    private static function touchableUrl(?Model $touchable): ?string
+    {
+        return match (true) {
+            $touchable instanceof Client => route('clients.show', $touchable->id),
+            $touchable instanceof Lead   => route('leads.edit', $touchable->id),
+            default                      => null,
+        };
     }
 
     private static function reconcile(int $userId, string $sourceType, \Illuminate\Support\Collection $signals): void
@@ -88,7 +114,7 @@ class TaskAutoBacklogService
             ->where('source_type', $sourceType)
             ->pluck('source_id');
 
-        foreach ($signals as $sourceId => $title) {
+        foreach ($signals as $sourceId => $signal) {
             if ($existing->has($sourceId) || $dismissedIds->contains($sourceId)) {
                 continue;
             }
@@ -97,12 +123,13 @@ class TaskAutoBacklogService
 
             Task::create([
                 'user_id'           => $userId,
-                'title'             => $title,
+                'title'             => $signal['title'],
                 'status'            => 'backlog',
                 'position'          => $nextPosition,
                 'status_changed_at' => now(),
                 'source_type'       => $sourceType,
                 'source_id'         => $sourceId,
+                'source_url'        => $signal['url'],
             ]);
         }
     }

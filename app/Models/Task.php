@@ -18,7 +18,7 @@ class Task extends Model
         'untouched_client' => 'Check In',
     ];
 
-    protected $fillable = ['user_id', 'title', 'status', 'position', 'status_changed_at', 'source_type', 'source_id'];
+    protected $fillable = ['user_id', 'title', 'status', 'position', 'status_changed_at', 'source_type', 'source_id', 'source_url'];
 
     protected $casts = [
         'status_changed_at' => 'datetime',

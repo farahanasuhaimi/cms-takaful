@@ -16,6 +16,7 @@
                 'title'        => $t->title,
                 'source_type'  => $t->source_type,
                 'source_label' => \App\Models\Task::SOURCE_LABELS[$t->source_type] ?? null,
+                'source_url'   => $t->source_url,
             ])->values(),
         ]);
     @endphp
@@ -51,7 +52,11 @@
                                 <span x-show="task.source_label"
                                       x-text="task.source_label"
                                       class="inline-block mb-1 text-[10px] font-semibold uppercase tracking-wide text-matcha-700 bg-matcha-50 rounded px-1.5 py-0.5"></span>
-                                <p x-text="task.title" class="break-words"
+                                <a x-show="task.source_url" x-cloak
+                                   :href="task.source_url" target="_blank" rel="noopener" @click.stop
+                                   x-text="task.title" class="break-words text-matcha-700 hover:underline"
+                                   :class="task.source_type && $store.privacy.enabled ? 'blur-sm select-none pointer-events-none' : ''"></a>
+                                <p x-show="!task.source_url" x-text="task.title" class="break-words"
                                    :class="task.source_type && $store.privacy.enabled ? 'blur-sm select-none' : ''"></p>
                             </div>
                             <form :action="'/tasks/' + task.id" method="POST"
