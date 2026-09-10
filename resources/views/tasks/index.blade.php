@@ -17,6 +17,7 @@
                 'source_type'  => $t->source_type,
                 'source_label' => \App\Models\Task::SOURCE_LABELS[$t->source_type] ?? null,
                 'source_url'   => $t->source_url,
+                'status_changed_at' => $t->status_changed_at?->toIso8601String(),
             ])->values(),
         ]);
     @endphp
@@ -59,13 +60,17 @@
                                 <p x-show="!task.source_url" x-text="task.title" class="break-words"
                                    :class="task.source_type && $store.privacy.enabled ? 'blur-sm select-none' : ''"></p>
                             </div>
-                            <form :action="'/tasks/' + task.id" method="POST"
-                                  onsubmit="return confirm('Delete this task?')"
-                                  class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-gray-300 hover:text-strawberry-500 text-xs leading-none">✕</button>
-                            </form>
+                            <div class="flex-shrink-0 flex flex-col items-end gap-1">
+                                <span x-text="ageLabel(task)" :class="ageClass(task)"
+                                      class="text-[10px] font-medium tabular-nums"></span>
+                                <form :action="'/tasks/' + task.id" method="POST"
+                                      onsubmit="return confirm('Delete this task?')"
+                                      class="opacity-0 group-hover:opacity-100 transition">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-gray-300 hover:text-strawberry-500 text-xs leading-none">✕</button>
+                                </form>
+                            </div>
                         </div>
                     </template>
                     <p x-show="columns.{{ $status }}.length === 0" class="text-xs text-gray-300 text-center py-4">
