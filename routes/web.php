@@ -17,6 +17,7 @@ use App\Http\Controllers\ReachAngleController;
 use App\Http\Controllers\PlanProductController;
 use App\Http\Controllers\DailyPostController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ShortLinkController;
 use App\Http\Controllers\TaskController;
 use App\Http\Middleware\EnsureIsAdmin;
 use Illuminate\Support\Facades\Route;
@@ -84,6 +85,9 @@ Route::middleware('auth')->group(function () {
     Route::post('daily-posts/{dailyPost}/generate', [DailyPostController::class, 'generate'])->name('daily-posts.generate');
     Route::patch('daily-posts/{dailyPost}', [DailyPostController::class, 'update'])->name('daily-posts.update');
     Route::delete('daily-posts/{dailyPost}', [DailyPostController::class, 'destroy'])->name('daily-posts.destroy');
+
+    // Short Links — copy-ready directory of drtakaful.com/go/ links
+    Route::resource('short-links', ShortLinkController::class)->except(['show']);
 
     // Settings — Plan Product Catalog
     Route::resource('plan-products', PlanProductController::class)->except(['show']);

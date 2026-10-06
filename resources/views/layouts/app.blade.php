@@ -116,6 +116,15 @@
                     </svg>
                     Daily Posts
                 </a>
+                <a href="{{ route('short-links.index') }}"
+                   class="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition
+                          {{ request()->routeIs('short-links.*') ? 'bg-white/10 text-white border-l-2 border-strawberry-400' : 'text-matcha-100 hover:bg-white/5 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                    Short Links
+                </a>
             </div>
 
             {{-- Strategy --}}
