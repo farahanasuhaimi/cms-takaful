@@ -8,11 +8,14 @@ use App\Models\PlanProduct;
 use App\Models\Policy;
 use App\Models\ReachAngle;
 use App\Models\Touchpoint;
+use App\Services\DashboardInsightService;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(DashboardInsightService $insightService)
     {
+        ['insights' => $insights, 'lines' => $productLines] = $insightService->build();
+
         $totalClients = Client::count();
 
         $hotLeads = Lead::where('temperature', 'hot')
@@ -100,6 +103,8 @@ class DashboardController extends Controller
             'topCommissionClients',
             'totalEstimatedCommission',
             'topPlanProducts',
+            'insights',
+            'productLines',
         ));
     }
 }

@@ -44,6 +44,65 @@
         </div>
     </div>
 
+    {{-- Analysis — what the numbers mean, see DashboardInsightService --}}
+    @php
+        $toneStyles = [
+            'warning'     => ['dot' => 'bg-strawberry-400', 'label' => 'Needs attention', 'text' => 'text-strawberry-600'],
+            'opportunity' => ['dot' => 'bg-amber-400',      'label' => 'Opportunity',     'text' => 'text-amber-600'],
+            'good'        => ['dot' => 'bg-matcha-400',     'label' => 'Going well',      'text' => 'text-matcha-600'],
+        ];
+    @endphp
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-5">
+            <h2 class="text-sm font-semibold text-gray-800 mb-1">What your numbers are saying</h2>
+            <p class="text-xs text-gray-400 mb-4">Based on your policies, quotations, posts and leads from the last 90 days.</p>
+
+            @forelse ($insights as $insight)
+                @php $tone = $toneStyles[$insight['tone']]; @endphp
+                <div class="flex gap-3 py-3 border-t border-gray-100 first-of-type:border-t-0">
+                    <span class="mt-1.5 w-2 h-2 rounded-full flex-shrink-0 {{ $tone['dot'] }}"></span>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[11px] font-semibold uppercase tracking-wide {{ $tone['text'] }}">{{ $tone['label'] }}</p>
+                        <p class="text-sm font-semibold text-gray-800">{{ $insight['title'] }}</p>
+                        <p class="text-sm text-gray-600 mt-0.5">{{ $insight['body'] }}</p>
+                        @if ($insight['action'])
+                            <a href="{{ $insight['action'][1] }}" class="inline-block mt-1.5 text-xs font-medium text-matcha-600 hover:underline">{{ $insight['action'][0] }} →</a>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <p class="text-sm text-gray-400 py-4">Nothing stands out right now. Add policies, quotations and leads, and observations will appear here.</p>
+            @endforelse
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+            <h2 class="text-sm font-semibold text-gray-800 mb-1">Sold vs promoted</h2>
+            <p class="text-xs text-gray-400 mb-3">Policies held, against quotations and posts in the last 90 days.</p>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-[11px] text-gray-400 uppercase tracking-wide">
+                            <th class="text-left font-medium pb-2">Product</th>
+                            <th class="text-right font-medium pb-2">Policies</th>
+                            <th class="text-right font-medium pb-2">Quotes</th>
+                            <th class="text-right font-medium pb-2">Posts</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @foreach ($productLines as $line)
+                            <tr>
+                                <td class="py-2 text-gray-700">{{ $line['label'] }}</td>
+                                <td class="py-2 text-right font-semibold text-matcha-800">{{ $line['policies'] }}</td>
+                                <td class="py-2 text-right {{ $line['quotes'] ? 'text-gray-700' : 'text-gray-300' }}">{{ $line['quotes'] }}</td>
+                                <td class="py-2 text-right {{ $line['posts'] ? 'text-gray-700' : 'text-gray-300' }}">{{ $line['posts'] }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     {{-- Action Required — Renewals + Overdue Follow-ups --}}
     @if ($renewingSoon->count() || $overdueFollowUps->count())
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
