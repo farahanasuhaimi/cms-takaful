@@ -26,9 +26,9 @@ class DashboardInsightService
     ];
 
     // Free-text matching for quotation categories, lead interests and post topics.
-    private const KEYWORDS = [
+    public const KEYWORDS = [
         'medical'           => '/medical|\bmc\b|kad perubatan|mediflex|health ?360|idaman|hospital/i',
-        'critical_illness'  => '/critical|\bci\b|kritikal|penyakit|gaji/i',
+        'critical_illness'  => '/critical|\bci\b|kritikal|penyakit|gaji|cancer|kanser|c-word/i',
         'hibah'             => '/hibah|legasi|sejuta makna|\blife\b|faraid|wasiat/i',
         'personal_accident' => '/personal accident|\bpa\b|kemalangan|accident/i',
     ];
@@ -102,9 +102,9 @@ class DashboardInsightService
             return;
         }
 
-        $thin = $lines->where('key', '!=', $top['key'])
-            ->filter(fn ($l) => $l['policies'] === 0)
-            ->pluck('label');
+        $thinLines = $lines->where('key', '!=', $top['key'])
+            ->filter(fn ($l) => $l['policies'] === 0);
+        $thin = $thinLines->pluck('label');
 
         $out->push($this->insight(
             priority: 20,
@@ -113,6 +113,7 @@ class DashboardInsightService
             body: "{$top['policies']} of your {$total} policies (" . round($share * 100) . "%) are {$top['label']}."
                 . ($thin->isNotEmpty() ? ' You have no ' . $this->join($thin, 'or') . ' policies yet. Those are the easiest gaps to open, starting with people who already trust you.' : ''),
             action: ['Start a quotation', route('quotations.create')],
+            play: ['lines' => $thinLines->keys()->all(), 'categories' => ['prospecting', 'content', 'referral']],
         ));
     }
 
@@ -120,9 +121,10 @@ class DashboardInsightService
     {
         $byClient = $policies->groupBy('client_id')->map(fn ($p) => $p->pluck('plan_type')->unique());
 
-        $medicalOnly = $byClient->filter(fn ($types) => $types->contains('medical')
+        $medicalOnlyIds = $byClient->filter(fn ($types) => $types->contains('medical')
             && ! $types->contains('critical_illness')
-            && ! $types->contains('hibah'))->count();
+            && ! $types->contains('hibah'))->keys();
+        $medicalOnly = $medicalOnlyIds->count();
 
         if ($medicalOnly === 0) {
             return;
@@ -135,6 +137,7 @@ class DashboardInsightService
             body: "{$medicalOnly} " . str('client')->plural($medicalOnly) . " " . ($medicalOnly === 1 ? 'has' : 'have')
                 . ' Medical Card but no CI or Hibah. Medical Card pays the hospital, not the bills at home. An income-replacement (CI) or Hibah conversation is the natural next step.',
             action: ['View policyholders', route('clients.index')],
+            play: ['lines' => ['critical_illness', 'hibah'], 'categories' => ['objection_handling', 'referral'], 'clientIds' => $medicalOnlyIds->all()],
         ));
     }
 
@@ -162,6 +165,7 @@ class DashboardInsightService
             body: 'No quotations or content about ' . $this->join($idle->pluck('label')) . ' in the last ' . self::WINDOW_DAYS . ' days.'
                 . $busyNote . ' A product nobody hears about doesn\'t get bought.',
             action: ['Plan a post', route('daily-posts.index')],
+            play: ['lines' => $idle->keys()->all(), 'categories' => ['content', 'prospecting']],
         ));
     }
 
@@ -187,6 +191,7 @@ class DashboardInsightService
             body: ($n === 1 ? 'A lead you marked hot has' : "{$n} leads you marked hot have")
                 . ' never received a quotation. Hot leads cool fast, so a concrete number is usually what moves them.',
             action: ['Open leads', route('leads.index')],
+            play: ['categories' => ['follow_up', 'closing'], 'leadIds' => $unquoted->pluck('id')->all()],
         ));
     }
 
@@ -200,9 +205,10 @@ class DashboardInsightService
             ->where('contacted_at', '>=', now()->subDays(14))
             ->pluck('touchable_id')->unique();
 
-        $stale = $openLeads->whereNotIn('id', $recent)
+        $staleIds = $openLeads->whereNotIn('id', $recent)
             ->filter(fn ($l) => $l->created_at < now()->subDays(14))
-            ->count();
+            ->pluck('id');
+        $stale = $staleIds->count();
 
         if ($stale === 0) {
             return;
@@ -215,6 +221,7 @@ class DashboardInsightService
             body: "{$stale} of your {$openLeads->count()} open " . str('lead')->plural($openLeads->count())
                 . ' had no contact in the last 14 days. A short check-in keeps them from going cold.',
             action: ['Open leads', route('leads.index')],
+            play: ['categories' => ['follow_up'], 'leadIds' => $staleIds->all()],
         ));
     }
 
@@ -236,6 +243,7 @@ class DashboardInsightService
             body: "You planned {$n} " . str('follow-up')->plural($n) . ' that ' . ($n === 1 ? 'is' : 'are')
                 . ' now past due. Each one is someone expecting to hear from you.',
             action: ['See follow-ups', route('touchpoints.index')],
+            play: ['categories' => ['follow_up']],
         ));
     }
 
@@ -270,7 +278,7 @@ class DashboardInsightService
 
     // ── Helpers ────────────────────────────────────────────────────────────
 
-    private function matches(string $line, ?string $text): bool
+    public static function matches(string $line, ?string $text): bool
     {
         return $text !== null && $text !== '' && preg_match(self::KEYWORDS[$line], $text) === 1;
     }
@@ -284,8 +292,12 @@ class DashboardInsightService
             : $labels->slice(0, -1)->implode(', ') . " {$last} " . $labels->last();
     }
 
-    private function insight(int $priority, string $tone, string $title, string $body, ?array $action = null): array
+    /**
+     * $play is a hint for Today's Play: strategy 'categories' and product 'lines'
+     * that would address this insight, plus the 'leadIds'/'clientIds' it is about.
+     */
+    private function insight(int $priority, string $tone, string $title, string $body, ?array $action = null, ?array $play = null): array
     {
-        return compact('priority', 'tone', 'title', 'body', 'action');
+        return compact('priority', 'tone', 'title', 'body', 'action', 'play');
     }
 }

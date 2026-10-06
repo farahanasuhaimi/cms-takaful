@@ -69,7 +69,7 @@ class ClientController extends Controller
 
         $touchpoints = $client->touchpoints()->with('strategy')->paginate(10);
         $planProducts = PlanProduct::orderBy('plan_type')->orderBy('name')->get();
-        $strategies = Strategy::where('user_id', auth()->id())->orderBy('title')->get(['id', 'title']);
+        $strategies = app(\App\Services\StrategyPlayService::class)->optionsFor('client');
 
         return view('clients.show', compact('client', 'touchpoints', 'planProducts', 'strategies'));
     }

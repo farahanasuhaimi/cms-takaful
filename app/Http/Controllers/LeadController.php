@@ -25,7 +25,7 @@ class LeadController extends Controller
             ->orderBy('next_contact', 'asc')
             ->get();
 
-        $strategies  = Strategy::where('user_id', auth()->id())->orderBy('title')->get(['id', 'title']);
+        $strategies  = app(\App\Services\StrategyPlayService::class)->optionsFor('lead');
         $focusPoints = FocusPoint::where('status', 'active')->orderBy('group')->orderBy('title')->get();
 
         return view('leads.index', compact('hotLeads', 'warmLeads', 'strategies', 'focusPoints'));

@@ -16,9 +16,9 @@ class DashboardController extends Controller
 {
     public function index(Request $request, DashboardInsightService $insightService, StrategyPlayService $playService)
     {
-        $play = $playService->forToday(max(0, (int) $request->query('play', 0)));
-
         ['insights' => $insights, 'lines' => $productLines] = $insightService->build();
+
+        $play = $playService->forToday(max(0, (int) $request->query('play', 0)), $insights);
 
         $totalClients = Client::count();
 

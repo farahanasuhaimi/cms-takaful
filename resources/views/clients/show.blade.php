@@ -363,15 +363,13 @@
                                        class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400" />
                                 <p class="text-[10px] text-gray-400 mt-1">Defaults to 14 days (a fortnight).</p>
                             </div>
-                            @if ($strategies->count())
+                            @if ($strategies['suggested']->count() || $strategies['other']->count())
                             <div>
                                 <label class="block text-xs font-medium text-gray-600 mb-1">Strategy Used <span class="text-gray-400">(optional)</span></label>
                                 <select name="strategy_id"
                                         class="w-full text-sm rounded-lg border-gray-300 focus:ring-matcha-400 focus:border-matcha-400">
                                     <option value="">— None —</option>
-                                    @foreach ($strategies as $s)
-                                        <option value="{{ $s->id }}">{{ $s->title }}</option>
-                                    @endforeach
+                                    @include('strategies._options', ['options' => $strategies, 'personLabel' => 'client'])
                                 </select>
                             </div>
                             @endif

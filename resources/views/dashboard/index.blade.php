@@ -56,6 +56,12 @@
                 </div>
             </div>
 
+            @if ($play['because'])
+                <p class="inline-block mb-2 text-xs font-medium bg-strawberry-600 text-white px-2.5 py-1 rounded-full">
+                    Why today: {{ $play['because'] }}
+                </p>
+            @endif
+
             <h2 class="text-lg font-semibold leading-snug">{{ $s->title }}</h2>
             <p class="text-xs text-matcha-100 mt-1">
                 {{ \App\Models\Strategy::categoryLabel($s->category) }} · {{ \App\Models\Strategy::channelLabel($s->channel) }}
@@ -104,6 +110,27 @@
                 @endif
 
                 <a href="{{ route('strategies.show', $s) }}" class="text-sm text-matcha-100 hover:text-white underline ml-1">Full strategy</a>
+            </div>
+
+            {{-- Last 7 days of logged plays --}}
+            @php $week = $play['week']; @endphp
+            <div class="mt-4 pt-3 border-t border-white/15 flex flex-wrap items-center gap-x-4 gap-y-2">
+                <div class="flex items-end gap-1.5" aria-label="Plays in the last 7 days">
+                    @foreach ($week['days'] as $d)
+                        <div class="flex flex-col items-center gap-1" title="{{ $d['date']->format('D d M') }}: {{ $d['count'] }} {{ \Illuminate\Support\Str::plural('play', $d['count']) }}">
+                            <span class="w-5 h-5 rounded-md {{ $d['count'] ? 'bg-strawberry-400' : 'bg-white/15' }} {{ $d['date']->isToday() ? 'ring-2 ring-white/70' : '' }}"></span>
+                            <span class="text-[10px] text-matcha-100">{{ substr($d['date']->format('D'), 0, 1) }}</span>
+                        </div>
+                    @endforeach
+                </div>
+                <p class="text-xs text-matcha-100">
+                    <span class="font-semibold text-white">{{ $week['total'] }}</span> {{ \Illuminate\Support\Str::plural('play', $week['total']) }} in the last 7 days
+                    @if ($week['streak'] > 1)
+                        · <span class="font-semibold text-white">{{ $week['streak'] }}-day streak</span>
+                    @elseif ($week['total'] === 0)
+                        · log today's to start a streak
+                    @endif
+                </p>
             </div>
         </div>
     @endif
