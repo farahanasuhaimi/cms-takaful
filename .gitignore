@@ -21,3 +21,8 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Production database copies — never commit (real client data)
+/database/prod-dumps/
+*.sql
+*.sql.gz
