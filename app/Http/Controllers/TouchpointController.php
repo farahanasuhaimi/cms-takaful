@@ -33,6 +33,10 @@ class TouchpointController extends Controller
         $validated['user_id'] = auth()->id();
         $client->touchpoints()->create($validated);
 
+        if ($request->input('return') === 'dashboard') {
+            return redirect()->route('dashboard')->with('success', 'Play logged. Nice work.');
+        }
+
         return redirect()->route('clients.show', $client)
             ->with('success', 'Touchpoint logged.');
     }
@@ -42,6 +46,10 @@ class TouchpointController extends Controller
         $validated = $this->validateTouchpoint($request);
         $validated['user_id'] = auth()->id();
         $lead->touchpoints()->create($validated);
+
+        if ($request->input('return') === 'dashboard') {
+            return redirect()->route('dashboard')->with('success', 'Play logged. Nice work.');
+        }
 
         return redirect()->route('leads.index')
             ->with('success', 'Touchpoint logged.');

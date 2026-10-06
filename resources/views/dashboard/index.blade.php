@@ -44,6 +44,70 @@
         </div>
     </div>
 
+    {{-- Today's Play — one strategy a day, matched to a person, see StrategyPlayService --}}
+    @if ($play)
+        @php $s = $play['strategy']; @endphp
+        <div class="bg-gradient-to-br from-matcha-800 to-matcha-600 text-white rounded-xl p-5 mb-6" x-data="{ copied: false }">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <p class="text-xs font-semibold uppercase tracking-wider text-matcha-100">Today's Play</p>
+                <div class="flex items-center gap-3 text-xs text-matcha-100">
+                    <span>{{ $play['position'] }} of {{ $play['total'] }}</span>
+                    <a href="{{ route('dashboard', ['play' => request('play', 0) + 1]) }}" class="underline hover:text-white">Show another</a>
+                </div>
+            </div>
+
+            <h2 class="text-lg font-semibold leading-snug">{{ $s->title }}</h2>
+            <p class="text-xs text-matcha-100 mt-1">
+                {{ \App\Models\Strategy::categoryLabel($s->category) }} · {{ \App\Models\Strategy::channelLabel($s->channel) }}
+                · {{ $play['uses'] ? 'used ' . $play['uses'] . '× (last ' . $play['lastUsed']->format('d M') . ')' : 'never used yet' }}
+            </p>
+
+            <div class="mt-3 bg-white/10 rounded-lg px-4 py-3">
+                @if ($play['person'])
+                    <p class="text-sm">
+                        Use it on
+                        <a href="{{ $play['personType'] === 'lead' ? route('leads.edit', $play['person']) : route('clients.show', $play['person']) }}"
+                           class="font-semibold underline decoration-strawberry-400 underline-offset-2"><x-pdpa-mask>{{ $play['person']->name }}</x-pdpa-mask></a>
+                    </p>
+                @endif
+                <p class="text-xs text-matcha-100 {{ $play['person'] ? 'mt-0.5' : '' }}">{{ $play['reason'] }}</p>
+            </div>
+
+            @if ($play['script'])
+                <p class="mt-3 text-sm text-white/90 whitespace-pre-line line-clamp-4">{{ $play['script'] }}</p>
+            @endif
+
+            <div class="mt-4 flex flex-wrap items-center gap-2">
+                @if ($play['script'])
+                    <button type="button"
+                            @click="navigator.clipboard.writeText({{ json_encode($play['script'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}); copied = true; setTimeout(() => copied = false, 2000)"
+                            class="bg-white text-matcha-800 text-sm font-medium px-4 py-2 rounded-lg hover:bg-matcha-50 transition">
+                        <span x-text="copied ? 'Copied!' : 'Copy script'">Copy script</span>
+                    </button>
+                @endif
+
+                @if ($play['person'])
+                    <form method="POST"
+                          action="{{ $play['personType'] === 'lead' ? route('leads.touchpoints.store', $play['person']) : route('clients.touchpoints.store', $play['person']) }}">
+                        @csrf
+                        <input type="hidden" name="contacted_at" value="{{ now()->toDateString() }}">
+                        <input type="hidden" name="channel" value="{{ $play['channel'] }}">
+                        <input type="hidden" name="topic" value="{{ \Illuminate\Support\Str::limit($s->title, 250) }}">
+                        <input type="hidden" name="strategy_id" value="{{ $s->id }}">
+                        <input type="hidden" name="return" value="dashboard">
+                        <button type="submit" class="bg-strawberry-600 hover:bg-strawberry-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+                            Done, log it
+                        </button>
+                    </form>
+                @elseif ($s->category === 'content')
+                    <a href="{{ route('daily-posts.index') }}" class="bg-strawberry-600 hover:bg-strawberry-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition">Make it a post</a>
+                @endif
+
+                <a href="{{ route('strategies.show', $s) }}" class="text-sm text-matcha-100 hover:text-white underline ml-1">Full strategy</a>
+            </div>
+        </div>
+    @endif
+
     {{-- Analysis — what the numbers mean, see DashboardInsightService --}}
     @php
         $toneStyles = [

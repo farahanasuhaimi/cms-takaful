@@ -9,11 +9,15 @@ use App\Models\Policy;
 use App\Models\ReachAngle;
 use App\Models\Touchpoint;
 use App\Services\DashboardInsightService;
+use App\Services\StrategyPlayService;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index(DashboardInsightService $insightService)
+    public function index(Request $request, DashboardInsightService $insightService, StrategyPlayService $playService)
     {
+        $play = $playService->forToday(max(0, (int) $request->query('play', 0)));
+
         ['insights' => $insights, 'lines' => $productLines] = $insightService->build();
 
         $totalClients = Client::count();
@@ -105,6 +109,7 @@ class DashboardController extends Controller
             'topPlanProducts',
             'insights',
             'productLines',
+            'play',
         ));
     }
 }
