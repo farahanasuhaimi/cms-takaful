@@ -52,7 +52,12 @@ export function quotationBuilder(initial, planCatalog) {
             plan.privilege       = t1(a['Privilege'] || a['privilege'] || '');
             const w = (a['Waiver'] || a['waiver'] || '').toLowerCase();
             plan.waiver    = (w === 'yes' || w === 'true') ? 'yes' : 'no';
-            plan.plan_type = a['Plan'] || a['plan_type'] || '';
+            // t1() like every other catalog field: the 'Plan' attribute is a
+            // pipe-separated summary, while the real choices live in
+            // attribute_options['Plan'] and drive the dropdown below. Without
+            // this, plans such as A-Life Pelindung (77 chars) were pasted in
+            // whole and rejected on save by the plans.*.plan_type length rule.
+            plan.plan_type = t1(a['Plan'] || a['plan_type'] || '');
             plan.opts = {
                 type:            o['Type'] || [],
                 room_board:      o['Room & Board'] || [],

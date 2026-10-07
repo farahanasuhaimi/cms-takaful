@@ -455,7 +455,9 @@ class QuotationController extends Controller
             'plans.*.umur_matang'        => 'nullable|string|max:255',
             'plans.*.pampasan_matang'    => 'nullable|string|max:255',
             'plans.*.kenaikan'           => 'nullable|string|max:255',
-            'plans.*.plan_type'          => 'nullable|string|max:50',
+            // 255 to match the column (string = varchar(255)); the old 50 was
+            // tighter than storage for no reason and 422'd on long values.
+            'plans.*.plan_type'          => 'nullable|string|max:255',
             'plans.*.privilege'          => 'nullable|string|max:255',
             'plans.*.waiver'             => 'nullable|string|max:20',
             'plans.*.notes'              => 'nullable|string',
