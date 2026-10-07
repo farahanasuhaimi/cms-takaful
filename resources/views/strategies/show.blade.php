@@ -103,6 +103,59 @@
         </div>
     @endif
 
+    {{-- Approach by prospect type --}}
+    @php
+        $angles = $strategy->prospectAngles();
+        $picked = request('prospect');
+        $tempStyle = [
+            'cold' => 'border-sky-200 bg-sky-50/40',
+            'warm' => 'border-amber-200 bg-amber-50/40',
+            'hot'  => 'border-red-200 bg-red-50/40',
+        ];
+        $tempText = ['cold' => 'text-sky-700', 'warm' => 'text-amber-700', 'hot' => 'text-red-700'];
+    @endphp
+    @if ($angles || $strategy->product_line)
+        <div class="mb-5">
+            <div class="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Approach by prospect</p>
+                @if ($strategy->product_line)
+                    <span class="text-xs font-medium bg-matcha-50 text-matcha-700 border border-matcha-100 px-2.5 py-1 rounded-full">
+                        {{ \App\Models\Strategy::productLabel($strategy->product_line) }}
+                    </span>
+                @endif
+            </div>
+
+            @if ($angles)
+                <div class="grid grid-cols-1 gap-3 {{ [1 => '', 2 => 'lg:grid-cols-2', 3 => 'lg:grid-cols-3'][count($angles)] }}">
+                    @foreach ($angles as $t => $angle)
+                        <div x-data="{ copied: false }"
+                             class="rounded-xl border p-4 flex flex-col gap-2 {{ $tempStyle[$t] }} {{ $picked === $t ? 'ring-2 ring-offset-1 ring-matcha-400' : '' }}">
+                            <div class="flex items-center justify-between gap-2">
+                                <p class="text-sm font-semibold {{ $tempText[$t] }}">{{ \App\Models\Strategy::TEMPERATURES[$t] }}</p>
+                                <button type="button"
+                                        @click="navigator.clipboard.writeText({{ json_encode($strategy->openerFor($t), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}); copied = true; setTimeout(() => copied = false, 2000)"
+                                        class="text-xs bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 px-2.5 py-1 rounded-lg transition">
+                                    <span x-show="!copied">Copy message</span>
+                                    <span x-show="copied" x-cloak class="text-matcha-600">Copied</span>
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-400">{{ \App\Models\Strategy::TEMPERATURE_HINTS[$t] }}</p>
+                            <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ $angle }}</p>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    @endif
+
+    {{-- Facts to use, sourced from drtakaful.com content --}}
+    @if (trim((string) $strategy->key_facts) !== '')
+        <div class="bg-white rounded-xl border border-gray-200 p-5 mb-5">
+            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">Facts to use</p>
+            <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ $strategy->key_facts }}</p>
+        </div>
+    @endif
+
     {{-- Script content --}}
     @if ($strategy->type === 'script' && $strategy->content)
         <div class="bg-white rounded-xl border border-gray-200 p-5 mb-5">

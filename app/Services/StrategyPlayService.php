@@ -67,9 +67,15 @@ class StrategyPlayService
 
         [$person, $personType, $reason] = $this->pickPerson($strategy, $insight['play'] ?? []);
 
+        // Talking to a warm or hot lead? Use the angle written for that temperature.
+        $angle = $person instanceof Lead && $strategy->suits((string) $person->temperature)
+            ? $person->temperature
+            : null;
+
         return [
             'strategy'   => $strategy,
-            'script'     => $this->script($strategy),
+            'script'     => $angle ? $strategy->openerFor($angle) : $this->script($strategy),
+            'angle'      => $angle,
             'person'     => $person,
             'personType' => $personType,
             'reason'     => $reason,
@@ -168,6 +174,11 @@ class StrategyPlayService
             return $categoryOk;
         }
 
+        // A tagged strategy is about exactly that product ('general' = none).
+        if ($strategy->product_line) {
+            return $categoryOk && in_array($strategy->product_line, $hint['lines']);
+        }
+
         $text = "{$strategy->title} {$strategy->description} {$strategy->content} "
             . $strategy->steps->pluck('script')->implode(' ');
 
@@ -191,15 +202,20 @@ class StrategyPlayService
             return [null, null, 'A content play. Post it, then let the replies become leads.'];
         }
 
+        // Prospect types the strategy has an angle for; leads only come warm or hot.
+        $temps = array_keys($strategy->prospectAngles());
+        $coldOnly = $temps === ['cold'];
+
         $wantsLead = in_array($strategy->category, ['follow_up', 'closing'])
-            || in_array($strategy->audience, ['warm_leads', 'family_friends']);
+            || in_array($strategy->audience, ['warm_leads', 'family_friends'])
+            || in_array('hot', $temps);
 
         $wantsClient = in_array($strategy->category, ['referral', 'objection_handling']) && ! $wantsLead;
 
         // The insight's own people come first (e.g. the hot lead with no quote,
         // the Medical-Card-only client) — that is the point of linking them.
         if ($wantsLead || ! empty($hint['leadIds'])) {
-            $lead = $this->leadToWork($hint['leadIds'] ?? []);
+            $lead = $this->leadToWork($hint['leadIds'] ?? [], $temps);
             if ($lead && ($wantsLead || in_array($lead->id, $hint['leadIds'] ?? []))) {
                 return [$lead, 'lead', $this->leadReason($lead)];
             }
@@ -214,7 +230,7 @@ class StrategyPlayService
             }
         }
 
-        return [null, null, $strategy->audience === 'strangers'
+        return [null, null, $strategy->audience === 'strangers' || $coldOnly
             ? 'For reaching new people. Pick one person from your contacts or comments today.'
             : 'No matching person right now. Use it on whoever comes to mind first.'];
     }
@@ -228,7 +244,8 @@ class StrategyPlayService
         return ucfirst($lead->temperature ?: 'open') . " lead who {$why}.";
     }
 
-    private function leadToWork(array $preferIds = []): ?Lead
+    /** @param string[] $temperatures lead temperatures the strategy has an angle for (empty = any) */
+    private function leadToWork(array $preferIds = [], array $temperatures = []): ?Lead
     {
         $lastTouch = $this->lastTouchByPerson(Lead::class);
 
@@ -236,6 +253,8 @@ class StrategyPlayService
             ->sortBy([
                 // people the top insight is about first
                 fn ($a, $b) => (int) ! in_array($a->id, $preferIds) <=> (int) ! in_array($b->id, $preferIds),
+                // leads at a temperature the strategy is written for
+                fn ($a, $b) => $this->fits($a, $temperatures) <=> $this->fits($b, $temperatures),
                 // due (or overdue) first
                 fn ($a, $b) => (int) ! ($a->next_contact?->lte(today())) <=> (int) ! ($b->next_contact?->lte(today())),
                 // hot before warm before anything else
@@ -265,6 +284,11 @@ class StrategyPlayService
             ->groupBy('touchable_id')
             ->pluck('last', 'touchable_id')
             ->all();
+    }
+
+    private function fits(Lead $lead, array $temperatures): int
+    {
+        return ! $temperatures || in_array($lead->temperature, $temperatures) ? 0 : 1;
     }
 
     private function heat(Lead $lead): int

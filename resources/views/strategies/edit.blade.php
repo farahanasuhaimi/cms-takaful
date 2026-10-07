@@ -78,6 +78,46 @@
                 </div>
             </div>
 
+            {{-- Product + approach by prospect type --}}
+            <div class="mb-4 border-t border-gray-100 pt-4">
+                <div class="flex flex-wrap items-end justify-between gap-3 mb-3">
+                    <div>
+                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Approach by prospect</p>
+                        <p class="text-xs text-gray-400 mt-1">Leave a box empty if this strategy isn't for that type. It drives the Cold / Warm / Hot filter.
+                            End a box with a line starting <code class="text-gray-500">Mesej:</code> and the Copy button copies just that message.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">Product</label>
+                        <select name="product_line"
+                                class="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                            <option value="">Not set</option>
+                            @foreach (\App\Models\Strategy::PRODUCT_LINES as $val => $label)
+                                <option value="{{ $val }}" @selected(old('product_line', $strategy->product_line) === $val)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    @foreach (\App\Models\Strategy::TEMPERATURES as $t => $label)
+                        <div>
+                            <label class="block text-xs font-medium mb-1 {{ ['cold' => 'text-sky-700', 'warm' => 'text-amber-700', 'hot' => 'text-red-700'][$t] }}">
+                                {{ $label }} <span class="font-normal text-gray-400">· {{ \App\Models\Strategy::TEMPERATURE_HINTS[$t] }}</span>
+                            </label>
+                            <textarea name="angle_{{ $t }}" rows="4"
+                                      class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">{{ old("angle_{$t}", $strategy->{"angle_{$t}"}) }}</textarea>
+                            <x-input-error :messages="$errors->get('angle_' . $t)" class="mt-1"/>
+                        </div>
+                    @endforeach
+
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">Facts to use <span class="text-gray-400">· numbers and proof points, with the drtakaful page they came from</span></label>
+                        <textarea name="key_facts" rows="5"
+                                  class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-matcha-400">{{ old('key_facts', $strategy->key_facts) }}</textarea>
+                    </div>
+                </div>
+            </div>
+
             @if ($strategy->type === 'script')
                 <div class="mb-4">
                     <label class="block text-xs text-gray-600 mb-1">Script Content</label>

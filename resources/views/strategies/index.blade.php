@@ -9,9 +9,52 @@
         </a>
     </x-slot>
 
+    @php
+        $tempStyle = [
+            'cold' => ['chip' => 'bg-sky-50 text-sky-700 border-sky-200',       'on' => 'bg-sky-600 text-white border-sky-600'],
+            'warm' => ['chip' => 'bg-amber-50 text-amber-700 border-amber-200', 'on' => 'bg-amber-500 text-white border-amber-500'],
+            'hot'  => ['chip' => 'bg-red-50 text-red-700 border-red-200',       'on' => 'bg-red-600 text-white border-red-600'],
+        ];
+        $prospect = request('prospect');
+    @endphp
+
+    {{-- Prospect type: the first question when picking a strategy --}}
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+        <span class="text-xs text-gray-500 mr-1">Who are you talking to?</span>
+        <a href="{{ request()->fullUrlWithQuery(['prospect' => null]) }}"
+           class="text-xs font-medium px-3 py-1.5 rounded-full border transition
+                  {{ $prospect ? 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50' : 'bg-gray-800 text-white border-gray-800' }}">
+            Everyone
+        </a>
+        @foreach (\App\Models\Strategy::TEMPERATURES as $t => $label)
+            <a href="{{ request()->fullUrlWithQuery(['prospect' => $t]) }}"
+               title="{{ \App\Models\Strategy::TEMPERATURE_HINTS[$t] }}"
+               class="text-xs font-medium px-3 py-1.5 rounded-full border transition
+                      {{ $prospect === $t ? $tempStyle[$t]['on'] : $tempStyle[$t]['chip'] . ' hover:opacity-80' }}">
+                {{ $label }}
+            </a>
+        @endforeach
+    </div>
+    @if (isset(\App\Models\Strategy::TEMPERATURES[(string) $prospect]))
+        <p class="text-xs text-gray-500 mb-4">{{ \App\Models\Strategy::TEMPERATURE_HINTS[$prospect] }}</p>
+    @endif
+
     {{-- Filters --}}
     <form method="GET" action="{{ route('strategies.index') }}"
           class="bg-white rounded-xl border border-gray-200 p-4 mb-5 flex flex-wrap gap-3 items-end">
+        @if ($prospect)
+            <input type="hidden" name="prospect" value="{{ $prospect }}">
+        @endif
+
+        <div class="flex flex-col gap-1">
+            <label class="text-xs text-gray-500">Product</label>
+            <select name="product" class="text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-matcha-400">
+                <option value="">All Products</option>
+                @foreach (\App\Models\Strategy::PRODUCT_LINES as $val => $label)
+                    <option value="{{ $val }}" @selected(request('product') === $val)>{{ $label }}</option>
+                @endforeach
+            </select>
+        </div>
 
         <div class="flex flex-col gap-1">
             <label class="text-xs text-gray-500">Category</label>
@@ -77,7 +120,7 @@
             Filter
         </button>
 
-        @if(request()->hasAny(['category','channel','audience','difficulty','type','source']))
+        @if(request()->hasAny(['category','channel','audience','difficulty','type','source','product','prospect']))
             <a href="{{ route('strategies.index') }}"
                class="text-xs text-gray-400 hover:text-gray-600 py-1.5">Clear</a>
         @endif
@@ -94,7 +137,7 @@
     @else
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach ($strategies as $strategy)
-                <a href="{{ route('strategies.show', $strategy) }}"
+                <a href="{{ route('strategies.show', $prospect ? [$strategy, 'prospect' => $prospect] : $strategy) }}"
                    class="bg-white rounded-xl border border-gray-200 p-5 flex flex-col gap-3 hover:border-matcha-300 transition group">
 
                     {{-- Header --}}
@@ -111,6 +154,28 @@
                     {{-- Description --}}
                     @if ($strategy->description)
                         <p class="text-xs text-gray-500 leading-relaxed line-clamp-2">{{ $strategy->description }}</p>
+                    @endif
+
+                    {{-- Prospect types this strategy has an angle for --}}
+                    @if ($strategy->prospectAngles())
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            @foreach (\App\Models\Strategy::TEMPERATURES as $t => $label)
+                                @if ($strategy->suits($t))
+                                    <span class="text-xs font-medium border px-2 py-0.5 rounded-full {{ $tempStyle[$t]['chip'] }}">{{ $label }}</span>
+                                @endif
+                            @endforeach
+                            @if ($strategy->product_line)
+                                <span class="text-xs font-medium bg-matcha-50 text-matcha-700 border border-matcha-100 px-2 py-0.5 rounded-full">
+                                    {{ \App\Models\Strategy::productLabel($strategy->product_line) }}
+                                </span>
+                            @endif
+                        </div>
+                    @elseif ($strategy->product_line)
+                        <div>
+                            <span class="text-xs font-medium bg-matcha-50 text-matcha-700 border border-matcha-100 px-2 py-0.5 rounded-full">
+                                {{ \App\Models\Strategy::productLabel($strategy->product_line) }}
+                            </span>
+                        </div>
                     @endif
 
                     {{-- Tags --}}

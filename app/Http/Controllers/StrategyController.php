@@ -35,6 +35,12 @@ class StrategyController extends Controller
         if ($request->filled('source')) {
             $query->where('source', $request->source);
         }
+        if (isset(Strategy::TEMPERATURES[(string) $request->prospect])) {
+            $query->forTemperature($request->prospect);
+        }
+        if ($request->filled('product')) {
+            $query->where('product_line', $request->product);
+        }
 
         $strategies = $query->withCount('steps')->latest()->get();
 
@@ -65,6 +71,7 @@ class StrategyController extends Controller
             'difficulty'  => 'required|in:beginner,intermediate,advanced',
             'type'        => 'required|in:script,flow',
             'content'     => 'nullable|string',
+            ...self::angleRules(),
         ]);
 
         $strategy = Strategy::create([
@@ -120,6 +127,7 @@ class StrategyController extends Controller
             'difficulty'  => 'required|in:beginner,intermediate,advanced',
             'type'        => 'required|in:script,flow',
             'content'     => 'nullable|string',
+            ...self::angleRules(),
         ]);
 
         $strategy->update($validated);
@@ -172,6 +180,7 @@ class StrategyController extends Controller
             'difficulty'  => 'required|in:beginner,intermediate,advanced',
             'type'        => 'required|in:script,flow',
             'content'     => 'nullable|string',
+            ...self::angleRules(),
             'steps'       => 'nullable|array',
             'steps.*.title'       => 'required_with:steps|string|max:255',
             'steps.*.script'      => 'required_with:steps|string',
@@ -191,6 +200,7 @@ class StrategyController extends Controller
             'type'        => $validated['type'],
             'source'      => 'ai_guided',
             'content'     => $validated['content'] ?? null,
+            ...collect($validated)->only(array_keys(self::angleRules()))->all(),
             'status'      => 'active',
         ]);
 
@@ -212,6 +222,17 @@ class StrategyController extends Controller
 
         return redirect()->route('strategies.show', $strategy)
             ->with('success', 'AI-guided strategy saved.');
+    }
+
+    private static function angleRules(): array
+    {
+        return [
+            'product_line' => 'nullable|in:' . implode(',', array_keys(Strategy::PRODUCT_LINES)),
+            'angle_cold'   => 'nullable|string|max:3000',
+            'angle_warm'   => 'nullable|string|max:3000',
+            'angle_hot'    => 'nullable|string|max:3000',
+            'key_facts'    => 'nullable|string|max:5000',
+        ];
     }
 
     public function storeStep(Request $request, Strategy $strategy)

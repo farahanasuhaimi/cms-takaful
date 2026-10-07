@@ -80,7 +80,10 @@
             </div>
 
             @if ($play['script'])
-                <p class="mt-3 text-sm text-white/90 whitespace-pre-line line-clamp-4">{{ $play['script'] }}</p>
+                @if ($play['angle'] ?? null)
+                    <p class="mt-3 text-xs text-matcha-100">{{ \App\Models\Strategy::TEMPERATURES[$play['angle']] }} angle, written for this lead</p>
+                @endif
+                <p class="{{ ($play['angle'] ?? null) ? 'mt-1' : 'mt-3' }} text-sm text-white/90 whitespace-pre-line line-clamp-4">{{ $play['script'] }}</p>
             @endif
 
             <div class="mt-4 flex flex-wrap items-center gap-2">
