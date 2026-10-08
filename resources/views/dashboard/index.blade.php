@@ -171,7 +171,7 @@
 
         <div class="bg-white rounded-xl border border-gray-200 p-5">
             <h2 class="text-sm font-semibold text-gray-800 mb-1">Sold vs promoted</h2>
-            <p class="text-xs text-gray-400 mb-3">Policies held, against proposals (one per person quoted) and posts in the last 90 days.</p>
+            <p class="text-xs text-gray-400 mb-3">Policies held, against proposals (one per person quoted) and posts marked Posted, in the last 90 days.</p>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>

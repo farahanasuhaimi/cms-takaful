@@ -50,8 +50,10 @@ class DashboardInsightService
             ->with('plans:id,quotation_id,category,plan_name', 'plans.premiums')
             ->get();
 
+        // Only posts actually published count (ticked Posted on Daily Posts), by their post date.
         $posts = DailyPost::with('planProduct:id,plan_type')
-            ->where('created_at', '>=', $since)
+            ->where('status', 'posted')
+            ->where('post_date', '>=', $since->toDateString())
             ->get();
 
         $openLeads = Lead::whereNull('converted_at')->get();

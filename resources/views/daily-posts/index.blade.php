@@ -28,37 +28,58 @@
                             default   => 'bg-gray-100 text-gray-500',
                         };
                     @endphp
-                    <a href="{{ route('daily-posts.show', $post) }}"
-                       class="flex items-center gap-4 bg-white border border-gray-200 rounded-xl px-5 py-4 hover:border-matcha-300 hover:shadow-sm transition group">
+                    <div class="flex items-center gap-2 sm:gap-3 bg-white border border-gray-200 rounded-xl pl-3 pr-2 sm:pl-5 sm:pr-3 py-3 sm:py-4 hover:border-matcha-300 hover:shadow-sm transition group">
+                        <a href="{{ route('daily-posts.show', $post) }}" class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
 
-                        {{-- Date --}}
-                        <div class="w-14 text-center flex-shrink-0">
-                            <p class="text-xs text-gray-400 uppercase">{{ $post->post_date->format('M') }}</p>
-                            <p class="text-2xl font-bold text-gray-800 leading-tight">{{ $post->post_date->format('d') }}</p>
-                            <p class="text-xs text-gray-400">{{ $post->post_date->format('D') }}</p>
-                        </div>
+                            {{-- Date --}}
+                            <div class="w-12 sm:w-14 text-center flex-shrink-0">
+                                <p class="text-xs text-gray-400 uppercase">{{ $post->post_date->format('M') }}</p>
+                                <p class="text-2xl font-bold text-gray-800 leading-tight">{{ $post->post_date->format('d') }}</p>
+                                <p class="text-xs text-gray-400">{{ $post->post_date->format('D') }}</p>
+                            </div>
 
-                        {{-- Topic --}}
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-800 truncate group-hover:text-matcha-700">{{ $post->topic }}</p>
-                            @if ($post->caption)
-                                <p class="text-xs text-gray-400 truncate mt-0.5">{{ Str::limit($post->caption, 80) }}</p>
-                            @else
-                                <p class="text-xs text-gray-300 mt-0.5 italic">No content yet — click to generate</p>
-                            @endif
-                        </div>
+                            {{-- Topic --}}
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-800 truncate group-hover:text-matcha-700">{{ $post->topic }}</p>
+                                @if ($post->caption)
+                                    <p class="text-xs text-gray-400 truncate mt-0.5">{{ Str::limit($post->caption, 80) }}</p>
+                                @else
+                                    <p class="text-xs text-gray-300 mt-0.5 italic">No content yet — click to generate</p>
+                                @endif
+                                {{-- Badges sit under the topic on phones --}}
+                                <div class="flex sm:hidden items-center gap-1.5 mt-1">
+                                    <span class="text-[11px] font-medium px-2 py-0.5 rounded-full {{ $platformColour }}">{{ ucfirst($post->platform) }}</span>
+                                    <span class="text-[11px] font-medium px-2 py-0.5 rounded-full {{ $statusColour }}">{{ ucfirst($post->status) }}</span>
+                                </div>
+                            </div>
 
-                        {{-- Badges --}}
-                        <div class="flex items-center gap-2 flex-shrink-0">
-                            <span class="text-xs font-medium px-2 py-0.5 rounded-full {{ $platformColour }}">
-                                {{ ucfirst($post->platform) }}
-                            </span>
-                            <span class="text-xs font-medium px-2 py-0.5 rounded-full {{ $statusColour }}">
-                                {{ ucfirst($post->status) }}
-                            </span>
-                        </div>
+                            {{-- Badges --}}
+                            <div class="hidden sm:flex items-center gap-2 flex-shrink-0">
+                                <span class="text-xs font-medium px-2 py-0.5 rounded-full {{ $platformColour }}">
+                                    {{ ucfirst($post->platform) }}
+                                </span>
+                                <span class="text-xs font-medium px-2 py-0.5 rounded-full {{ $statusColour }}">
+                                    {{ ucfirst($post->status) }}
+                                </span>
+                            </div>
+                        </a>
 
-                    </a>
+                        {{-- Posted tick — only Posted posts count on the dashboard's Sold vs promoted --}}
+                        <form method="POST" action="{{ route('daily-posts.update', $post) }}" class="flex-shrink-0">
+                            @csrf @method('PATCH')
+                            <input type="hidden" name="status" value="{{ $post->isPosted() ? 'ready' : 'posted' }}" />
+                            <button type="submit"
+                                    title="{{ $post->isPosted() ? 'Posted — tap to undo' : 'Mark as posted' }}"
+                                    aria-label="{{ $post->isPosted() ? 'Posted, tap to undo' : 'Mark as posted' }}"
+                                    aria-pressed="{{ $post->isPosted() ? 'true' : 'false' }}"
+                                    class="w-10 h-10 rounded-full border-2 flex items-center justify-center transition
+                                           {{ $post->isPosted() ? 'bg-matcha-600 border-matcha-600 text-white hover:bg-matcha-800' : 'border-gray-200 text-gray-300 hover:border-matcha-400 hover:text-matcha-600' }}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
                 @endforeach
             </div>
 
