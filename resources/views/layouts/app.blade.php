@@ -352,13 +352,12 @@
             $tabs = [
                 ['route' => 'dashboard',      'match' => 'dashboard',  'label' => 'Home',    'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'],
                 ['route' => 'tasks.index',    'match' => 'tasks.*',    'label' => 'Tasks',   'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 12h6m-6 4h4'],
-                ['route' => 'clients.index',  'match' => 'clients.*',  'label' => 'Clients', 'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
-                ['route' => 'leads.index',    'match' => 'leads.*',    'label' => 'Leads',   'icon' => 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'],
+                ['route' => 'quotations.index', 'match' => 'quotations.*', 'label' => 'Quotes', 'icon' => 'M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z'],
             ];
         @endphp
         <nav class="lg:hidden print:hidden fixed bottom-0 inset-x-0 z-10 bg-white border-t border-gray-200 pb-[env(safe-area-inset-bottom)]"
              aria-label="Quick navigation">
-            <div class="grid grid-cols-5">
+            <div class="grid grid-cols-4">
                 @foreach ($tabs as $tab)
                     @php $active = request()->routeIs($tab['match']); @endphp
                     <a href="{{ route($tab['route']) }}"
