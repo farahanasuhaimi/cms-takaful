@@ -144,48 +144,59 @@ class QuotationController extends Controller
     {
         abort_if($quotation->user_id !== auth()->id(), 403);
 
-        $people = $quotation->people;
-        $plans  = $quotation->plans->load('premiums');
+        // Names go to the controls only (your screen) — the post itself is
+        // labelled by age or by a role you type, never by the person's name.
+        $people = $quotation->people->map(fn ($p) => [
+            'id'   => $p->id,
+            'name' => $p->name,
+            'age'  => $p->age,
+        ])->values();
 
-        $selectedPlanId = (int) $request->query('plan', $plans->first()->id ?? 0);
-        $plan = $plans->firstWhere('id', $selectedPlanId) ?? $plans->first();
+        $plans = $quotation->plans->load('premiums')->map(fn ($plan) => [
+            'id'         => $plan->id,
+            'name'       => $plan->plan_name,
+            'category'   => $plan->category,
+            'premiums'   => $plan->premiums->mapWithKeys(fn ($pr) => [
+                $pr->quotation_person_id => $pr->amount !== null ? (float) $pr->amount : null,
+            ]),
+            'highlights' => $this->socialHighlights($plan),
+        ])->values();
 
-        $premiumByPerson = [];
-        if ($plan) {
-            foreach ($plan->premiums as $premium) {
-                $premiumByPerson[$premium->quotation_person_id] = $premium->amount;
-            }
-        }
-
-        $highlights = [];
-        if ($plan) {
-            if ($plan->coverage)  $highlights[] = 'Perlindungan sehingga ' . $plan->coverage;
-            if ($plan->privilege) $highlights[] = $plan->privilege;
-            if ($plan->waiver === 'yes') $highlights[] = 'Waiver perlindungan disertakan';
-            if ($plan->kenaikan === 'yes') $highlights[] = 'Caruman meningkat mengikut umur';
-            foreach (($plan->attributes ?? []) as $key => $value) {
-                if ($value === '' || $value === null) continue;
-                $highlights[] = $key . ': ' . $value;
-            }
-        }
-        if (empty($highlights)) {
-            $highlights = [
-                'Lindungi diri dan keluarga sebelum terlambat',
-                'Rujukan caruman terkini',
-                'Ketenangan hati untuk masa depan',
-            ];
-        }
+        $selectedPlanId = (int) $request->query('plan', $plans->first()['id'] ?? 0);
 
         $card = [
-            'name'    => Setting::get('card_name', auth()->user()->name),
-            'phone'   => Setting::get('card_phone', ''),
-            'website' => Setting::get('card_website', ''),
-            'cta'     => Setting::get('card_cta', 'Jangan tunggu sampai menyesal. Buat keputusan terbaik untuk masa depan yang lebih baik.'),
+            'name'       => Setting::get('card_name', auth()->user()->name),
+            'phone'      => Setting::get('card_phone', ''),
+            'website'    => Setting::get('card_website', ''),
+            'cta'        => Setting::get('card_cta', 'Jangan tunggu sampai menyesal. Buat keputusan terbaik untuk masa depan yang lebih baik.'),
+            'disclaimer' => Setting::get('card_disclaimer', '*Anggaran caruman bulanan. Rujukan sahaja, tertakluk pada terma dan kelulusan underwriting.'),
         ];
 
-        return view('quotations.social-card', compact(
-            'quotation', 'people', 'plans', 'plan', 'premiumByPerson', 'highlights', 'card'
-        ));
+        return view('quotations.social-card', compact('quotation', 'people', 'plans', 'selectedPlanId', 'card'));
+    }
+
+    /**
+     * Candidate selling points for a plan, worded for a post. The first three
+     * start ticked; the user picks and edits on the page.
+     */
+    private function socialHighlights(QuotationPlan $plan): array
+    {
+        $items = [];
+        if ($plan->coverage)         $items[] = ['text' => 'Perlindungan sehingga ' . $plan->coverage, 'on' => true];
+        if ($plan->room_board)       $items[] = ['text' => 'Bilik & penginapan ' . $plan->room_board, 'on' => true];
+        if ($plan->privilege)        $items[] = ['text' => $plan->privilege, 'on' => true];
+        if ($plan->waiver === 'yes') $items[] = ['text' => 'Waiver perlindungan disertakan', 'on' => true];
+        foreach (($plan->attributes ?? []) as $key => $value) {
+            if ($value === '' || $value === null) continue;
+            $items[] = ['text' => $key . ': ' . $value, 'on' => false];
+        }
+
+        $on = 0;
+        foreach ($items as &$item) {
+            $item['on'] = $item['on'] && ++$on <= 3;
+        }
+
+        return $items;
     }
 
     public function updateSocialCardSettings(Request $request, Quotation $quotation)
@@ -196,11 +207,12 @@ class QuotationController extends Controller
             'card_name'    => 'nullable|string|max:100',
             'card_phone'   => 'nullable|string|max:30',
             'card_website' => 'nullable|string|max:100',
-            'card_cta'     => 'nullable|string|max:200',
-            'plan'         => 'nullable|integer',
+            'card_cta'        => 'nullable|string|max:200',
+            'card_disclaimer' => 'nullable|string|max:200',
+            'plan'            => 'nullable|integer',
         ]);
 
-        foreach (['card_name', 'card_phone', 'card_website', 'card_cta'] as $key) {
+        foreach (['card_name', 'card_phone', 'card_website', 'card_cta', 'card_disclaimer'] as $key) {
             Setting::set($key, $validated[$key] ?? null);
         }
 
