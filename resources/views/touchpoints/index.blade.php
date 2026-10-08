@@ -20,6 +20,48 @@
 
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         @if ($touchpoints->count())
+            {{-- Mobile: stacked cards --}}
+            <ul class="sm:hidden divide-y divide-gray-100">
+                @foreach ($touchpoints as $tp)
+                    <li class="px-4 py-3">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                @if ($tp->touchable)
+                                    @if ($tp->touchable_type === 'App\Models\Client')
+                                        <a href="{{ route('clients.show', $tp->touchable_id) }}"
+                                           class="text-sm font-medium text-gray-800 hover:text-matcha-600"><x-pdpa-mask>{{ $tp->touchable->name }}</x-pdpa-mask></a>
+                                        <span class="ml-1 text-xs text-matcha-400 bg-matcha-50 px-1.5 py-0.5 rounded">Client</span>
+                                    @else
+                                        <span class="text-sm font-medium text-gray-800"><x-pdpa-mask>{{ $tp->touchable->name }}</x-pdpa-mask></span>
+                                        <span class="ml-1 text-xs text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded">Lead</span>
+                                    @endif
+                                @else
+                                    <span class="text-gray-400">—</span>
+                                @endif
+                            </div>
+                            <span class="text-xs text-gray-400 whitespace-nowrap">{{ $tp->contacted_at->format('d M Y') }}</span>
+                        </div>
+                        <p class="text-sm text-gray-700 mt-1">{{ $tp->topic }}</p>
+                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1.5 text-xs">
+                            <span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{{ ucfirst(str_replace('_', ' ', $tp->channel)) }}</span>
+                            @if ($tp->strategy)
+                                <a href="{{ route('strategies.show', $tp->strategy) }}" class="text-matcha-600 hover:underline">{{ $tp->strategy->title }}</a>
+                            @endif
+                        </div>
+                        @if ($tp->next_action)
+                            <p class="text-xs text-gray-500 mt-1.5">
+                                <span class="text-gray-400">Next:</span> {{ $tp->next_action }}
+                                @if ($tp->next_action_date)
+                                    <span class="text-gray-400">({{ $tp->next_action_date->format('d M') }})</span>
+                                @endif
+                            </p>
+                        @endif
+                    </li>
+                @endforeach
+            </ul>
+
+            {{-- Tablet/desktop: table --}}
+            <div class="hidden sm:block overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="border-b border-gray-100 bg-gray-50 text-left">
@@ -42,11 +84,11 @@
                                     @if ($tp->touchable_type === 'App\Models\Client')
                                         <a href="{{ route('clients.show', $tp->touchable_id) }}"
                                            class="text-sm font-medium text-gray-800 hover:text-matcha-600">
-                                            {{ $tp->touchable->name }}
+                                            <x-pdpa-mask>{{ $tp->touchable->name }}</x-pdpa-mask>
                                         </a>
                                         <span class="ml-1 text-xs text-matcha-400 bg-matcha-50 px-1.5 py-0.5 rounded">Client</span>
                                     @else
-                                        <span class="text-sm font-medium text-gray-800">{{ $tp->touchable->name }}</span>
+                                        <span class="text-sm font-medium text-gray-800"><x-pdpa-mask>{{ $tp->touchable->name }}</x-pdpa-mask></span>
                                         <span class="ml-1 text-xs text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded">Lead</span>
                                     @endif
                                 @else
@@ -81,6 +123,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>{{-- end overflow-x-auto --}}
 
             @if ($touchpoints->hasPages())
                 <div class="px-5 py-3 border-t border-gray-100">

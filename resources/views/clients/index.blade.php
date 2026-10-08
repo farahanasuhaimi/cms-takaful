@@ -10,10 +10,10 @@
 
     {{-- Search bar --}}
     <form method="GET" action="{{ route('clients.index') }}" class="mb-5">
-        <div class="flex gap-2 max-w-sm">
+        <div class="flex gap-2 sm:max-w-sm">
             <input type="text" name="q" value="{{ request('q') }}"
                    placeholder="Search by name or phone..."
-                   class="flex-1 text-sm border-gray-200 rounded-lg focus:ring-matcha-400 focus:border-matcha-400" />
+                   class="flex-1 min-w-0 text-sm border-gray-200 rounded-lg focus:ring-matcha-400 focus:border-matcha-400" />
             <button type="submit"
                     class="bg-matcha-600 hover:bg-matcha-800 text-white text-sm px-4 py-2 rounded-lg transition">
                 Search
@@ -30,7 +30,42 @@
     {{-- Table --}}
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         @if ($clients->count())
-            <div class="overflow-x-auto">
+            {{-- Mobile: stacked cards --}}
+            <ul class="sm:hidden divide-y divide-gray-100">
+                @foreach ($clients as $client)
+                    @php $last = $client->lastTouchpoint(); @endphp
+                    <li class="flex items-start gap-3 px-4 py-3">
+                        <a href="{{ route('clients.show', $client) }}" class="min-w-0 flex-1">
+                            <p class="font-medium text-gray-800 truncate"><x-pdpa-mask>{{ $client->name }}</x-pdpa-mask></p>
+                            @if ($client->policies->count())
+                                <div class="flex flex-wrap gap-1 mt-1">
+                                    @foreach ($client->policies as $policy)
+                                        <span class="inline-block text-xs bg-matcha-50 text-matcha-700 rounded px-1.5 py-0.5">
+                                            {{ ucfirst(str_replace('_', ' ', $policy->plan_type)) }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
+                            <p class="text-xs text-gray-400 mt-1 truncate">
+                                @if ($last)
+                                    {{ $last->contacted_at->format('d M Y') }} · {{ $last->topic }}
+                                @else
+                                    Not contacted yet
+                                @endif
+                            </p>
+                        </a>
+                        @if ($client->phone)
+                            <a href="https://wa.me/{{ $client->phone }}" target="_blank" aria-label="WhatsApp"
+                               class="flex-shrink-0 p-2 -mr-1 rounded-lg text-green-600 bg-green-50 hover:bg-green-100 transition">
+                                <x-whatsapp-icon />
+                            </a>
+                        @endif
+                    </li>
+                @endforeach
+            </ul>
+
+            {{-- Tablet/desktop: table --}}
+            <div class="hidden sm:block overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="border-b border-gray-100 bg-gray-50 text-left">

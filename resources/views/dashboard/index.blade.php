@@ -9,20 +9,20 @@
     </x-slot>
 
     {{-- Stats row --}}
-    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        <div class="bg-white rounded-xl border border-gray-200 px-5 py-4">
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-6">
+        <div class="bg-white rounded-xl border border-gray-200 px-4 py-3 sm:px-5 sm:py-4">
             <p class="text-xs text-gray-500 uppercase tracking-wide font-medium">Total Policyholders</p>
-            <p class="text-3xl font-bold text-matcha-800 mt-1">{{ $totalClients }}</p>
+            <p class="text-2xl sm:text-3xl font-bold text-matcha-800 mt-1">{{ $totalClients }}</p>
         </div>
-        <div class="bg-white rounded-xl border border-gray-200 px-5 py-4">
+        <div class="bg-white rounded-xl border border-gray-200 px-4 py-3 sm:px-5 sm:py-4">
             <p class="text-xs text-gray-500 uppercase tracking-wide font-medium">Hot Leads</p>
-            <p class="text-3xl font-bold text-strawberry-600 mt-1">{{ $hotLeads }}</p>
+            <p class="text-2xl sm:text-3xl font-bold text-strawberry-600 mt-1">{{ $hotLeads }}</p>
         </div>
-        <div class="bg-white rounded-xl border border-gray-200 px-5 py-4">
+        <div class="bg-white rounded-xl border border-gray-200 px-4 py-3 sm:px-5 sm:py-4">
             <p class="text-xs text-gray-500 uppercase tracking-wide font-medium">Warm Leads</p>
-            <p class="text-3xl font-bold text-amber-500 mt-1">{{ $warmLeads }}</p>
+            <p class="text-2xl sm:text-3xl font-bold text-amber-500 mt-1">{{ $warmLeads }}</p>
         </div>
-        <div class="bg-white rounded-xl border border-gray-200 px-5 py-4">
+        <div class="bg-white rounded-xl border border-gray-200 px-4 py-3 sm:px-5 sm:py-4">
             <p class="text-xs text-gray-500 uppercase tracking-wide font-medium">Last Outreach</p>
             @if ($recentTouchpoints->count())
                 <p class="text-sm font-semibold text-gray-700 mt-2">
@@ -32,10 +32,10 @@
                 <p class="text-sm text-gray-400 mt-2">No outreach yet</p>
             @endif
         </div>
-        <div class="bg-white rounded-xl border border-gray-200 px-5 py-4">
+        <div class="col-span-2 lg:col-span-1 bg-white rounded-xl border border-gray-200 px-4 py-3 sm:px-5 sm:py-4">
             <p class="text-xs text-gray-500 uppercase tracking-wide font-medium">Est. Commission (Yr 1)</p>
             @if ($totalEstimatedCommission > 0)
-                <p class="text-3xl font-bold text-amber-600 mt-1">
+                <p class="text-2xl sm:text-3xl font-bold text-amber-600 mt-1">
                     <x-pdpa-mask>RM {{ number_format($totalEstimatedCommission, 0) }}</x-pdpa-mask>
                 </p>
             @else
@@ -47,7 +47,7 @@
     {{-- Today's Play — one strategy a day, matched to a person, see StrategyPlayService --}}
     @if ($play)
         @php $s = $play['strategy']; @endphp
-        <div class="bg-gradient-to-br from-matcha-800 to-matcha-600 text-white rounded-xl p-5 mb-6" x-data="{ copied: false }">
+        <div class="bg-gradient-to-br from-matcha-800 to-matcha-600 text-white rounded-xl p-4 sm:p-5 mb-6" x-data="{ copied: false }">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <p class="text-xs font-semibold uppercase tracking-wider text-matcha-100">Today's Play</p>
                 <div class="flex items-center gap-3 text-xs text-matcha-100">
@@ -213,7 +213,7 @@
             <ul class="divide-y divide-amber-100">
                 @foreach ($renewingSoon as $policy)
                     @php $daysLeft = (int) now()->startOfDay()->diffInDays($policy->computed_renewal, false); @endphp
-                    <li class="py-2.5 flex items-start justify-between gap-2" x-data="{ confirm: false }">
+                    <li class="py-2.5 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2" x-data="{ confirm: false }">
                         <div class="min-w-0">
                             <a href="{{ route('clients.show', $policy->client) }}"
                                class="text-sm font-medium text-gray-800 hover:text-matcha-600">
@@ -225,7 +225,7 @@
                                 · {{ $policy->computed_renewal->format('d M Y') }}
                             </p>
                         </div>
-                        <div class="flex items-center gap-2 flex-shrink-0">
+                        <div class="flex flex-wrap items-center gap-3 sm:gap-2 flex-shrink-0">
                             <span class="text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap
                                 {{ $daysLeft <= 3 ? 'bg-strawberry-100 text-strawberry-700' : 'bg-amber-100 text-amber-700' }}">
                                 {{ $daysLeft === 0 ? 'Today' : $daysLeft . 'd left' }}
@@ -270,11 +270,11 @@
             </div>
             <ul class="divide-y divide-strawberry-100">
                 @foreach ($overdueFollowUps as $tp)
-                    @php $daysOverdue = (int) now()->startOfDay()->diffInDays($tp->next_action_date); @endphp
-                    <li class="py-2.5 flex items-start justify-between">
-                        <div>
+                    @php $daysOverdue = abs((int) now()->startOfDay()->diffInDays($tp->next_action_date)); @endphp
+                    <li class="py-2.5 flex items-start justify-between gap-2">
+                        <div class="min-w-0">
                             <p class="text-sm font-medium text-gray-800"><x-pdpa-mask>{{ $tp->touchable?->name ?? '—' }}</x-pdpa-mask></p>
-                            <p class="text-xs text-gray-500 truncate max-w-[180px]">{{ $tp->next_action }}</p>
+                            <p class="text-xs text-gray-500 truncate">{{ $tp->next_action }}</p>
                         </div>
                         <span class="text-xs font-semibold bg-strawberry-100 text-strawberry-700 px-2 py-0.5 rounded-full whitespace-nowrap ml-2">
                             {{ $daysOverdue }}d overdue
@@ -293,7 +293,7 @@
          x-init="$watch('exploreOpen', v => localStorage.setItem('dashboard_explore_open', v))">
         <button type="button" @click="exploreOpen = !exploreOpen"
                 class="w-full flex items-center justify-center gap-2 text-sm font-medium text-matcha-700 bg-matcha-50 hover:bg-matcha-100 border border-matcha-200 rounded-xl py-2.5 transition">
-            <span x-text="exploreOpen ? 'Hide details' : 'Explore more — leads, commission, plans & follow-ups'"></span>
+            <span class="px-3 text-center" x-text="exploreOpen ? 'Hide details' : 'Explore more — leads, commission, plans & follow-ups'"></span>
             <svg class="w-4 h-4 transition-transform" :class="exploreOpen ? 'rotate-180' : ''"
                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />

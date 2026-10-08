@@ -8,3 +8,15 @@
     .flex.h-screen.overflow-hidden { height: auto !important; overflow: visible !important; }
     .flex-1.flex-col.overflow-hidden { height: auto !important; overflow: visible !important; }
 }
+
+/* Mobile browsers' 100vh includes the area behind the address bar, which hides the
+   bottom of the app shell. dvh tracks the visible viewport; 100vh stays as fallback. */
+.app-shell { height: 100vh; height: 100dvh; }
+
+/* iOS Safari zooms the page when focusing a field whose font is under 16px
+   (most forms here use text-xs/text-sm). Phones only; desktop keeps the compact look. */
+@media (max-width: 639px) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    select,
+    textarea { font-size: 16px !important; }
+}

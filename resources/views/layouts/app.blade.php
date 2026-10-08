@@ -11,7 +11,7 @@
 <body class="bg-matcha-50 font-sans text-gray-800">
 
 {{-- App shell: sidebar + main --}}
-<div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false }">
+<div class="app-shell flex h-screen overflow-hidden" x-data="{ sidebarOpen: false }">
 
     {{-- Mobile backdrop --}}
     <div x-show="sidebarOpen"
@@ -256,19 +256,19 @@
     {{-- Right side: topbar + content --}}
     <div class="flex-1 flex flex-col overflow-hidden min-w-0">
 
-        {{-- Topbar --}}
-        <header class="h-14 bg-white border-b border-gray-200 flex items-center px-4 lg:px-6 gap-3 flex-shrink-0">
+        {{-- Topbar — on mobile the actions slot wraps onto its own row below the title --}}
+        <header class="min-h-14 lg:h-14 bg-white border-b border-gray-200 flex flex-wrap lg:flex-nowrap items-center px-3 sm:px-4 lg:px-6 py-2 lg:py-0 gap-x-2 sm:gap-x-3 gap-y-2 flex-shrink-0">
 
             {{-- Hamburger (mobile only) --}}
-            <button @click="sidebarOpen = !sidebarOpen"
-                    class="lg:hidden p-1.5 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-100 transition">
+            <button @click="sidebarOpen = !sidebarOpen" aria-label="Open menu"
+                    class="lg:hidden -ml-1 p-2 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-100 transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
 
             {{-- Page title --}}
-            <h1 class="text-sm font-semibold text-gray-700 whitespace-nowrap">
+            <h1 class="min-w-0 flex-1 lg:flex-none truncate text-sm font-semibold text-gray-700">
                 {{ $pageTitle ?? 'Dashboard' }}
             </h1>
 
@@ -281,36 +281,39 @@
                 </form>
             </div>
 
-            {{-- Actions slot (context-sensitive "+ New" button) --}}
-            <div class="ml-auto flex items-center gap-3">
+            {{-- Privacy Mode toggle — blurs client names/commission/payment for screenshots --}}
+            <button type="button" x-data @click="$store.privacy.toggle()"
+                    :class="$store.privacy.enabled
+                        ? 'bg-strawberry-100 text-strawberry-700 border-strawberry-200'
+                        : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'"
+                    :aria-pressed="$store.privacy.enabled"
+                    class="ml-auto flex-shrink-0 flex items-center gap-1.5 text-xs font-medium px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-lg border transition"
+                    title="Blur client names, commission & payment amounts before screenshotting for social media (PDPA)"
+                    aria-label="Privacy Mode">
+                <svg class="w-4 h-4 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <span class="hidden sm:inline" x-text="$store.privacy.enabled ? 'Privacy On' : 'Privacy Mode'"></span>
+            </button>
 
-                {{-- Privacy Mode toggle — blurs client names/commission/payment for screenshots --}}
-                <button type="button" x-data @click="$store.privacy.toggle()"
-                        :class="$store.privacy.enabled
-                            ? 'bg-strawberry-100 text-strawberry-700 border-strawberry-200'
-                            : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'"
-                        class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition"
-                        title="Blur client names, commission & payment amounts before screenshotting for social media (PDPA)">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    <span x-text="$store.privacy.enabled ? 'Privacy On' : 'Privacy Mode'"></span>
-                </button>
-
-                {{ $actions ?? '' }}
-
-                {{-- Avatar --}}
-                @php
-                    $initials = collect(explode(' ', auth()->user()?->name ?? ''))
-                        ->take(2)->map(fn($w) => strtoupper($w[0] ?? ''))->implode('');
-                @endphp
-                <div class="w-8 h-8 rounded-full bg-matcha-600 flex items-center justify-center text-white text-xs font-semibold"
-                     title="{{ auth()->user()?->name }}">
-                    {{ $initials }}
+            {{-- Actions slot (context-sensitive "+ New" button) — full-width second row on mobile --}}
+            @isset($actions)
+                <div class="order-last basis-full lg:order-none lg:basis-auto flex flex-wrap items-center gap-2 lg:gap-3">
+                    {{ $actions }}
                 </div>
+            @endisset
+
+            {{-- Avatar --}}
+            @php
+                $initials = collect(explode(' ', auth()->user()?->name ?? ''))
+                    ->take(2)->map(fn($w) => strtoupper($w[0] ?? ''))->implode('');
+            @endphp
+            <div class="hidden lg:flex flex-shrink-0 w-8 h-8 rounded-full bg-matcha-600 items-center justify-center text-white text-xs font-semibold"
+                 title="{{ auth()->user()?->name }}">
+                {{ $initials }}
             </div>
 
         </header>
@@ -322,7 +325,7 @@
                  x-transition:leave="transition ease-in duration-300"
                  x-transition:leave-start="opacity-100"
                  x-transition:leave-end="opacity-0"
-                 class="mx-6 mt-4 px-4 py-3 bg-matcha-100 text-matcha-800 border border-matcha-200 rounded-lg text-sm flex-shrink-0">
+                 class="mx-4 sm:mx-6 mt-4 px-4 py-3 bg-matcha-100 text-matcha-800 border border-matcha-200 rounded-lg text-sm flex-shrink-0">
                 {{ session('success') }}
             </div>
         @endif
@@ -334,15 +337,49 @@
                  x-transition:leave="transition ease-in duration-300"
                  x-transition:leave-start="opacity-100"
                  x-transition:leave-end="opacity-0"
-                 class="mx-6 mt-4 px-4 py-3 bg-strawberry-100 text-strawberry-800 border border-strawberry-200 rounded-lg text-sm flex-shrink-0">
+                 class="mx-4 sm:mx-6 mt-4 px-4 py-3 bg-strawberry-100 text-strawberry-800 border border-strawberry-200 rounded-lg text-sm flex-shrink-0">
                 {{ session('error') }}
             </div>
         @endif
 
-        {{-- Main scrollable content --}}
-        <main class="flex-1 overflow-y-auto p-6">
+        {{-- Main scrollable content — extra bottom padding on mobile clears the tab bar --}}
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 pb-24 sm:pb-24 lg:pb-6">
             {{ $slot }}
         </main>
+
+        {{-- Bottom tab bar (mobile only) --}}
+        @php
+            $tabs = [
+                ['route' => 'dashboard',      'match' => 'dashboard',  'label' => 'Home',    'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'],
+                ['route' => 'tasks.index',    'match' => 'tasks.*',    'label' => 'Tasks',   'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 12h6m-6 4h4'],
+                ['route' => 'clients.index',  'match' => 'clients.*',  'label' => 'Clients', 'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
+                ['route' => 'leads.index',    'match' => 'leads.*',    'label' => 'Leads',   'icon' => 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'],
+            ];
+        @endphp
+        <nav class="lg:hidden print:hidden fixed bottom-0 inset-x-0 z-10 bg-white border-t border-gray-200 pb-[env(safe-area-inset-bottom)]"
+             aria-label="Quick navigation">
+            <div class="grid grid-cols-5">
+                @foreach ($tabs as $tab)
+                    @php $active = request()->routeIs($tab['match']); @endphp
+                    <a href="{{ route($tab['route']) }}"
+                       class="flex flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium transition
+                              {{ $active ? 'text-matcha-800' : 'text-gray-400 hover:text-gray-600' }}"
+                       @if ($active) aria-current="page" @endif>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $tab['icon'] }}" />
+                        </svg>
+                        {{ $tab['label'] }}
+                    </a>
+                @endforeach
+                <button type="button" @click="sidebarOpen = true"
+                        class="flex flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium text-gray-400 hover:text-gray-600 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    Menu
+                </button>
+            </div>
+        </nav>
 
     </div>
 

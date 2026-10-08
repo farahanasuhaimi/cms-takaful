@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="title">{{ $client->name }} · Dr Takaful CMS</x-slot>
-    <x-slot name="pageTitle">{{ $client->name }}</x-slot>
+    <x-slot name="pageTitle"><x-pdpa-mask>{{ $client->name }}</x-pdpa-mask></x-slot>
     <x-slot name="actions">
         <a href="{{ route('clients.edit', $client) }}"
            class="text-sm text-matcha-600 border border-matcha-300 hover:bg-matcha-50 px-4 py-2 rounded-lg transition">
