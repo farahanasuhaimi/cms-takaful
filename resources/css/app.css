@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Alpine hides x-cloak elements until it initialises. */
+[x-cloak] { display: none !important; }
+
 @media print {
     /* App shell (layouts/app.blade.php) uses h-screen/overflow-hidden for independent
        on-screen scrolling — that clips everything past one viewport height when printing. */

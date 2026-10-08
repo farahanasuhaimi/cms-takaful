@@ -9,38 +9,57 @@ use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
+    // Done cards older than this stay in the DB but drop off the board.
+    private const DONE_VISIBLE_DAYS = 7;
+
     public function index()
     {
         TaskAutoResetService::resetStaleTodayDoing();
         TaskAutoBacklogService::sync(auth()->id());
 
-        $tasks = Task::orderBy('position')->get()->groupBy('status');
+        $doneSince = now()->subDays(self::DONE_VISIBLE_DAYS)->startOfDay();
 
-        $columns = collect(Task::STATUSES)->mapWithKeys(fn ($status) => [
-            $status => $tasks->get($status, collect()),
+        $tasks = Task::where(fn ($q) => $q
+                ->where('status', '!=', 'done')
+                ->orWhere('status_changed_at', '>=', $doneSince))
+            ->orderBy('position')
+            ->get()
+            ->map->toBoard()
+            ->values();
+
+        $archivedDone = Task::where('status', 'done')
+            ->where('status_changed_at', '<', $doneSince)
+            ->count();
+
+        return view('tasks.index', [
+            'tasks'           => $tasks,
+            'archivedDone'    => $archivedDone,
+            'doneVisibleDays' => self::DONE_VISIBLE_DAYS,
         ]);
-
-        return view('tasks.index', compact('columns'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title'  => ['required', 'string', 'max:255'],
-            'status' => ['nullable', 'in:' . implode(',', Task::STATUSES)],
+            'title'    => ['required', 'string', 'max:255'],
+            'status'   => ['nullable', 'in:' . implode(',', Task::STATUSES)],
+            'due_date' => ['nullable', 'date'],
         ]);
 
         $status = $validated['status'] ?? 'backlog';
 
-        $nextPosition = Task::where('status', $status)->max('position') + 1;
-
-        Task::create([
+        $task = Task::create([
             'user_id'           => auth()->id(),
             'title'             => $validated['title'],
             'status'            => $status,
-            'position'          => $nextPosition,
+            'position'          => $this->nextPosition($status),
             'status_changed_at' => now(),
+            'due_date'          => $validated['due_date'] ?? null,
         ]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['task' => $task->fresh()->toBoard()], 201);
+        }
 
         return back()->with('success', 'Task added.');
     }
@@ -48,10 +67,29 @@ class TaskController extends Controller
     public function update(Request $request, Task $task)
     {
         $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
+            'title'       => ['sometimes', 'required', 'string', 'max:255'],
+            'notes'       => ['sometimes', 'nullable', 'string', 'max:5000'],
+            'due_date'    => ['sometimes', 'nullable', 'date'],
+            'is_priority' => ['sometimes', 'boolean'],
+            'status'      => ['sometimes', 'in:' . implode(',', Task::STATUSES)],
         ]);
 
+        // Auto-card title and due date are owned by their CRM signal and
+        // refreshed on every sync, so an edit here would just be overwritten.
+        if ($task->source_type) {
+            unset($validated['title'], $validated['due_date']);
+        }
+
+        if (isset($validated['status']) && $validated['status'] !== $task->status) {
+            $validated['position']          = $this->nextPosition($validated['status']);
+            $validated['status_changed_at'] = now();
+        }
+
         $task->update($validated);
+
+        if ($request->expectsJson()) {
+            return response()->json(['task' => $task->fresh()->toBoard()]);
+        }
 
         return back()->with('success', 'Task updated.');
     }
@@ -85,10 +123,19 @@ class TaskController extends Controller
         return response()->json(['ok' => true]);
     }
 
-    public function destroy(Task $task)
+    public function destroy(Request $request, Task $task)
     {
         $task->delete();
 
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => true]);
+        }
+
         return back()->with('success', 'Task removed.');
+    }
+
+    private function nextPosition(string $status): int
+    {
+        return (int) Task::where('status', $status)->max('position') + 1;
     }
 }

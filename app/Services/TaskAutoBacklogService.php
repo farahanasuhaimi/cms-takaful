@@ -25,7 +25,7 @@ class TaskAutoBacklogService
     }
 
     /**
-     * Each signal is keyed by source_id => ['title' => ..., 'url' => ...|null].
+     * Each signal is keyed by source_id => ['title' => ..., 'url' => ...|null, 'due' => date|null].
      * url is null when there's no page to send the user to (e.g. no per-lead
      * show route) — the card just won't be a link in that case.
      */
@@ -38,6 +38,7 @@ class TaskAutoBacklogService
                 $tp->id => [
                     'title' => 'Follow up: ' . ($tp->touchable?->name ?? '—') . ' — ' . $tp->next_action,
                     'url'   => self::touchableUrl($tp->touchable),
+                    'due'   => $tp->next_action_date?->toDateString(),
                 ],
             ]);
 
@@ -50,6 +51,7 @@ class TaskAutoBacklogService
                 $lead->id => [
                     'title' => 'Contact hot lead: ' . $lead->name,
                     'url'   => route('leads.edit', $lead->id),
+                    'due'   => $lead->next_contact?->toDateString(),
                 ],
             ]);
 
@@ -59,13 +61,17 @@ class TaskAutoBacklogService
                 $last = $client->touchpoints->first();
 
                 if (! $last) {
-                    return [$client->id => ['title' => 'Check in: ' . $client->name . ' — never contacted', 'url' => route('clients.show', $client->id)]];
+                    return [$client->id => ['title' => 'Check in: ' . $client->name . ' — never contacted', 'url' => route('clients.show', $client->id), 'due' => null]];
                 }
 
                 if ($last->next_action_date) {
-                    // Has an active plan running — leave it to the
-                    // overdue_followup signal if that plan gets missed.
+                    // Has an active plan running.
                     if ($last->next_action_date->gte(now()->startOfDay())) {
+                        return [];
+                    }
+                    // Plan missed: the overdue_followup card already covers
+                    // it (same latest touchpoint) — one card per person.
+                    if ($last->next_action) {
                         return [];
                     }
                 } elseif ($last->contacted_at->diffInDays(now()) < 14) {
@@ -77,6 +83,8 @@ class TaskAutoBacklogService
                 return [$client->id => [
                     'title' => 'Check in: ' . $client->name . " — no contact in {$days}d",
                     'url'   => route('clients.show', $client->id),
+                    // A missed next-action date is what brought it back.
+                    'due'   => $last->next_action_date?->toDateString(),
                 ]];
             });
 
@@ -101,9 +109,23 @@ class TaskAutoBacklogService
         $existing = Task::where('source_type', $sourceType)->get()->keyBy('source_id');
 
         // Resolved: an active auto-task whose signal no longer applies.
+        // Still live: refresh what the signal owns (title wording like
+        // "no contact in Nd", link, due date) so cards never go stale —
+        // auto-card titles aren't user-editable, so nothing is overwritten.
         foreach ($existing as $sourceId => $task) {
             if (! $signals->has($sourceId)) {
                 $task->forceDelete();
+                continue;
+            }
+
+            $signal = $signals[$sourceId];
+            $task->fill([
+                'title'      => $signal['title'],
+                'source_url' => $signal['url'],
+                'due_date'   => $signal['due'],
+            ]);
+            if ($task->isDirty()) {
+                $task->save();
             }
         }
 
@@ -128,6 +150,7 @@ class TaskAutoBacklogService
                 'source_type'       => $sourceType,
                 'source_id'         => $sourceId,
                 'source_url'        => $signal['url'],
+                'due_date'          => $signal['due'],
             ]);
         }
     }
