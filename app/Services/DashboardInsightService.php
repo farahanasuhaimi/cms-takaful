@@ -47,7 +47,7 @@ class DashboardInsightService
         // Quotations carry no global user scope — filter explicitly.
         $quotes = Quotation::where('user_id', $userId)
             ->where('created_at', '>=', $since)
-            ->with('plans:id,quotation_id,category,plan_name')
+            ->with('plans:id,quotation_id,category,plan_name', 'plans.premiums')
             ->get();
 
         $posts = DailyPost::with('planProduct:id,plan_type')
@@ -62,9 +62,7 @@ class DashboardInsightService
                 'key'      => $key,
                 'label'    => $label,
                 'policies' => $policies->where('plan_type', $key)->count(),
-                'quotes'   => $quotes->filter(fn ($q) => $q->plans->contains(
-                    fn ($p) => $this->matches($key, "{$p->category} {$p->plan_name}")
-                ) || $this->matches($key, $q->title))->count(),
+                'quotes'   => $quotes->sum(fn ($q) => $this->proposalsFor($q, $key)),
                 'posts'    => $posts->filter(fn ($p) => $p->planProduct?->plan_type === $key
                     || $this->matches($key, $p->topic))->count(),
                 'leads'    => $openLeads->filter(fn ($l) => $this->matches($key, $l->interest_area))->count(),
@@ -155,7 +153,7 @@ class DashboardInsightService
 
         $busy = $lines->sortByDesc(fn ($l) => $l['quotes'] + $l['posts'])->first();
         $busyNote = ($busy['quotes'] + $busy['posts']) > 0 && ! $idle->has($busy['key'])
-            ? " Most of your recent effort went to {$busy['label']} ({$busy['quotes']} " . str('quotation')->plural($busy['quotes']) . ", {$busy['posts']} " . str('post')->plural($busy['posts']) . ').'
+            ? " Most of your recent effort went to {$busy['label']} ({$busy['quotes']} " . str('proposal')->plural($busy['quotes']) . ", {$busy['posts']} " . str('post')->plural($busy['posts']) . ').'
             : '';
 
         $out->push($this->insight(
@@ -277,6 +275,28 @@ class DashboardInsightService
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────
+
+    /**
+     * Proposals a quotation makes for one product line: each person quoted a premium
+     * on a plan in that line counts once. One quotation for 7 people = 7 proposals.
+     * A matching quotation with no premiums filled in yet still counts as 1.
+     */
+    private function proposalsFor(Quotation $q, string $line): int
+    {
+        $plans = $q->plans->filter(fn ($p) => $this->matches($line, "{$p->category} {$p->plan_name}"));
+
+        if ($plans->isEmpty()) {
+            return $this->matches($line, $q->title) ? 1 : 0;
+        }
+
+        $people = $plans->flatMap->premiums
+            ->filter(fn ($pr) => (float) $pr->amount > 0)
+            ->pluck('quotation_person_id')
+            ->unique()
+            ->count();
+
+        return max($people, 1);
+    }
 
     public static function matches(string $line, ?string $text): bool
     {

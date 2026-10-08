@@ -171,14 +171,14 @@
 
         <div class="bg-white rounded-xl border border-gray-200 p-5">
             <h2 class="text-sm font-semibold text-gray-800 mb-1">Sold vs promoted</h2>
-            <p class="text-xs text-gray-400 mb-3">Policies held, against quotations and posts in the last 90 days.</p>
+            <p class="text-xs text-gray-400 mb-3">Policies held, against proposals (one per person quoted) and posts in the last 90 days.</p>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="text-[11px] text-gray-400 uppercase tracking-wide">
                             <th class="text-left font-medium pb-2">Product</th>
                             <th class="text-right font-medium pb-2">Policies</th>
-                            <th class="text-right font-medium pb-2">Quotes</th>
+                            <th class="text-right font-medium pb-2">Proposals</th>
                             <th class="text-right font-medium pb-2">Posts</th>
                         </tr>
                     </thead>
