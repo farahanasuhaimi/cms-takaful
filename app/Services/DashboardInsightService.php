@@ -205,8 +205,11 @@ class DashboardInsightService
             ->where('contacted_at', '>=', now()->subDays(14))
             ->pluck('touchable_id')->unique();
 
+        // A Next Contact date of today or later means the lead is scheduled, not forgotten.
+        // A past date doesn't count, so a missed one brings the lead back.
         $staleIds = $openLeads->whereNotIn('id', $recent)
             ->filter(fn ($l) => $l->created_at < now()->subDays(14))
+            ->reject(fn ($l) => $l->next_contact && $l->next_contact->gte(today()))
             ->pluck('id');
         $stale = $staleIds->count();
 
@@ -227,10 +230,7 @@ class DashboardInsightService
 
     private function overdueFollowUps(Collection $out): void
     {
-        $n = Touchpoint::whereNotNull('next_action')
-            ->whereNotNull('next_action_date')
-            ->where('next_action_date', '<', now()->startOfDay())
-            ->count();
+        $n = Touchpoint::overdueFollowUps()->count();
 
         if ($n === 0) {
             return;

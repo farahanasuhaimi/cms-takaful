@@ -87,9 +87,7 @@ class DashboardController extends Controller
             ->values();
 
         $overdueFollowUps = Touchpoint::with('touchable')
-            ->whereNotNull('next_action_date')
-            ->whereNotNull('next_action')
-            ->where('next_action_date', '<', now()->startOfDay())
+            ->overdueFollowUps()
             ->orderBy('next_action_date', 'asc')
             ->limit(5)
             ->get();

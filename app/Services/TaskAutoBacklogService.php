@@ -32,9 +32,7 @@ class TaskAutoBacklogService
     private static function collectSignals(int $userId): array
     {
         $overdueFollowUps = Touchpoint::with('touchable')
-            ->whereNotNull('next_action_date')
-            ->whereNotNull('next_action')
-            ->where('next_action_date', '<', now()->startOfDay())
+            ->overdueFollowUps()
             ->get()
             ->mapWithKeys(fn ($tp) => [
                 $tp->id => [
